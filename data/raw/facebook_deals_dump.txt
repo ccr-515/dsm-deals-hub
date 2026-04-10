@@ -1,0 +1,17 @@
+VENUE: Riverside Tap
+NEIGHBORHOOD: East Village
+DEAL: $5 mules and half apps
+DAY: Thursday
+START: 6:00 PM
+END: 9:00 PM
+SOURCE: Facebook group
+NOTES: copied manually on 2026-04-10
+
+VENUE: Iowa Taproom
+NEIGHBORHOOD: Downtown
+DEAL: Half price drafts
+DAY: Friday
+START: 4:00 PM
+END: 6:00 PM
+SOURCE: Facebook group
+NOTES: copied manually on 2026-04-10
