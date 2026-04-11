@@ -1589,7 +1589,7 @@ def render_homepage_html(sections: dict[str, List[models.Deal]], neighborhoods: 
         action_href=site_href("/today"),
         section_class="content-section homepage-section homepage-section-today",
         panel_class="section-panel homepage-panel homepage-panel-today",
-        kicker_label="Today’s edit",
+        kicker_label="Today’s picks",
     )}
     <div class="homepage-browse-band">
     {render_link_grid_section(
