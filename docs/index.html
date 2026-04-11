@@ -8,37 +8,47 @@
       name="description"
       content="Curated food and drink deals across Des Moines, updated manually."
     />
-    <link rel="stylesheet" href="/dsm-deals-hub/static/styles.css" />
+    <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
     <div class="page-shell">
       <header class="hero">
         <div class="hero-panel">
           <div class="hero-copy">
-            <p class="eyebrow">Des Moines deals, curated daily</p>
-            <h1>DSM Deals Hub</h1>
+            
+            <p class="eyebrow">Curated weekly dining guide</p>
+            
+    <h1>
+      <a class="brand-slot brand-slot-heading" href="/" aria-label="DSM Deals Hub home">
+        <span class="icon-badge icon-badge-brand-hero brand-mark" data-icon-kind="brand" data-icon-key="dsm-deals-hub" aria-hidden="true"><span class="icon-badge-glyph">✦</span></span>
+        <span class="brand-wordmark brand-wordmark-heading">
+          <span class="brand-name">DSM Deals Hub</span>
+        </span>
+      </a>
+    </h1>
+    
             <p class="hero-text">
-              A curated weekly dining guide for Des Moines, built around neighborhood specials, day-by-day browsing, and a lighter real-time layer.
+              A hand-curated guide to neighborhood specials, brunch buffets, burgers, seafood, wings, and weekly house favorites across Des Moines.
             </p>
           </div>
           <div class="hero-utility">
             
     <nav class="section-nav site-nav" aria-label="Site navigation">
-      <a href="/dsm-deals-hub/" aria-current="page">Home</a><a href="/dsm-deals-hub/today/">Today</a><a href="/dsm-deals-hub/neighborhoods/">Neighborhoods</a><a href="/dsm-deals-hub/days/">Days</a><a href="/dsm-deals-hub/for-venues/">For Venues</a>
+      <a href="/today/">Today</a><a href="/neighborhoods/">Neighborhoods</a><a href="/days/">Days</a><a href="/for-venues/">For Venues</a>
     </nav>
     
             
     <div class="hero-stats" aria-label="Guide overview">
       <div>
-        <span>Live now</span>
+        <span>Right now</span>
         <strong>1</strong>
       </div>
       <div>
-        <span>Today</span>
+        <span>Today&#x27;s picks</span>
         <strong>16</strong>
       </div>
       <div>
-        <span>Neighborhoods</span>
+        <span>Areas covered</span>
         <strong>26</strong>
       </div>
     </div>
@@ -49,15 +59,16 @@
 
       <main class="content">
         
+    <div class="homepage-flow">
     
-    <section id="live-now" class="content-section content-section-secondary">
+    <section id="live-now" class="content-section content-section-secondary homepage-section homepage-section-live">
       <div class="section-panel section-panel-secondary section-panel-live">
         <details class="live-now-module">
           <summary class="live-now-summary">
             <div class="live-now-summary-copy">
               <span class="live-now-badge"><span class="live-now-dot" aria-hidden="true"></span>Live Now</span>
-              <h2>Exact-timed specials show up here when they&#x27;re active.</h2>
-              <p>Real-time windows are a smaller layer of the guide, but they still matter when venues share them.</p>
+              <h2>Live deals land here when a venue shares a real time window.</h2>
+              <p>Think happy hour, after-5 specials, or one-night timing. For the broader edit, start with Today below.</p>
             </div>
             <div class="live-now-summary-side">
               <span class="section-count">1 deals</span>
@@ -71,7 +82,7 @@
     <article class="deal-card" data-neighborhood="Valley Junction" data-lat="" data-lng="" data-order="0">
       <div class="deal-card-top">
         <p class="deal-venue">Heavenly Asian</p>
-        <span class="deal-icon" aria-hidden="true">🍗</span>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="chicken" aria-hidden="true"><span class="icon-badge-glyph">🍗</span></span>
       </div>
       <h3>Orange chicken combo for $14</h3>
       <p class="deal-description">Orange chicken with soup, crab Rangoon, egg roll, and rice for $14.</p>
@@ -89,19 +100,19 @@
     </section>
     
     
-    <section id="today-preview" class="content-section">
-      <div class="section-panel">
+    <section id="today-preview" class="content-section homepage-section homepage-section-today">
+      <div class="section-panel homepage-panel homepage-panel-today">
         <div class="section-heading">
           <div>
-            <p class="section-kicker">Today</p>
+            <p class="section-kicker">Best of today</p>
             <div class="section-title-row">
               <h2>Today</h2>
               <span class="section-count">4 deals</span>
             </div>
           </div>
           <div class="section-heading-side">
-            <p>A smaller preview of what is relevant right now.</p>
-            <a class="section-action" href="/dsm-deals-hub/today/">Open Today</a>
+            <p>A tighter edit of the strongest things worth opening first today.</p>
+            <a class="section-action" href="/today/">Open Today guide</a>
           </div>
         </div>
         
@@ -110,7 +121,7 @@
     <article class="deal-card" data-neighborhood="Des Moines" data-lat="" data-lng="" data-order="0">
       <div class="deal-card-top">
         <p class="deal-venue">Striking Sparrow</p>
-        <span class="deal-icon" aria-hidden="true">✨</span>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="featured" aria-hidden="true"><span class="icon-badge-glyph">✨</span></span>
       </div>
       <h3>$12 Italian beef combo</h3>
       <p class="deal-description">Italian beef with fries and soda for $12 during Friday lunch.</p>
@@ -124,7 +135,7 @@
     <article class="deal-card" data-neighborhood="Grimes" data-lat="" data-lng="" data-order="1">
       <div class="deal-card-top">
         <p class="deal-venue">Destination Grille</p>
-        <span class="deal-icon" aria-hidden="true">🥩</span>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="steak" aria-hidden="true"><span class="icon-badge-glyph">🥩</span></span>
       </div>
       <h3>Prime rib dinner for $40</h3>
       <p class="deal-description">Prime rib dinner special for $40 on Friday and Saturday.</p>
@@ -138,7 +149,7 @@
     <article class="deal-card" data-neighborhood="West Des Moines" data-lat="" data-lng="" data-order="2">
       <div class="deal-card-top">
         <p class="deal-venue">The Tavern Grill</p>
-        <span class="deal-icon" aria-hidden="true">✨</span>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="featured" aria-hidden="true"><span class="icon-badge-glyph">✨</span></span>
       </div>
       <h3>Friday happy hour plus late night window</h3>
       <p class="deal-description">Friday includes both an after work happy hour and a later night window.</p>
@@ -152,7 +163,7 @@
     <article class="deal-card" data-neighborhood="Waukee" data-lat="" data-lng="" data-order="3">
       <div class="deal-card-top">
         <p class="deal-venue">Caffrey’s Sports Pub</p>
-        <span class="deal-icon" aria-hidden="true">✨</span>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="featured" aria-hidden="true"><span class="icon-badge-glyph">✨</span></span>
       </div>
       <h3>$3 domestics and wells</h3>
       <p class="deal-description">Straightforward weekday happy hour with $3 domestic beers and well drinks.</p>
@@ -166,114 +177,115 @@
       </div>
     </section>
     
+    <div class="homepage-browse-band">
     
-    <section id="neighborhoods-preview" class="content-section">
-      <div class="section-panel">
+    <section id="neighborhoods-preview" class="content-section homepage-section homepage-section-browse homepage-section-neighborhoods">
+      <div class="section-panel homepage-panel homepage-panel-browse">
         <div class="section-heading">
           <div>
-            <p class="section-kicker">Neighborhoods</p>
+            <p class="section-kicker">Browse by place</p>
             <div class="section-title-row">
               <h2>Neighborhoods</h2>
             </div>
           </div>
           <div class="section-heading-side">
-            <p>Browse the guide by place first, then drop into the current neighborhood deals.</p>
-            <a class="section-action" href="/dsm-deals-hub/neighborhoods/">See all neighborhoods</a>
+            <p>Start with place. These are the neighborhoods shaping the guide right now.</p>
+            <a class="section-action" href="/neighborhoods/">Browse neighborhoods</a>
           </div>
         </div>
         <div class="browse-card-grid">
           
-    <a class="browse-card browse-card-neighborhood" href="/neighborhoods/west-des-moines">
+    <a class="browse-card browse-card-neighborhood" href="/neighborhoods/west-des-moines/">
       <div class="browse-card-top">
-        <div class="browse-card-icon" aria-hidden="true">🥂</div>
+        <span class="icon-badge icon-badge-lg browse-card-icon" data-icon-kind="neighborhood" data-icon-key="west-des-moines" aria-hidden="true"><span class="icon-badge-glyph">WDM</span></span>
         <div class="browse-card-pills"><span class="browse-card-pill">23 specials</span><span class="browse-card-pill">14 venues</span></div>
       </div>
       <div class="browse-card-body">
         <h3>West Des Moines</h3>
-        <p class="browse-card-copy">Browse the current dining guide for West Des Moines.</p>
+        <p class="browse-card-copy">See the current neighborhood edit for West Des Moines.</p>
       </div>
       <div class="browse-card-footer">
-        <span class="browse-card-cta">Open neighborhood</span>
+        <span class="browse-card-cta">See area</span>
         <span class="browse-card-arrow" aria-hidden="true">+</span>
       </div>
     </a>
     
 
-    <a class="browse-card browse-card-neighborhood" href="/neighborhoods/downtown">
+    <a class="browse-card browse-card-neighborhood" href="/neighborhoods/downtown/">
       <div class="browse-card-top">
-        <div class="browse-card-icon" aria-hidden="true">📍</div>
+        <span class="icon-badge icon-badge-lg browse-card-icon" data-icon-kind="neighborhood" data-icon-key="downtown" aria-hidden="true"><span class="icon-badge-glyph">DO</span></span>
         <div class="browse-card-pills"><span class="browse-card-pill">20 specials</span><span class="browse-card-pill">10 venues</span></div>
       </div>
       <div class="browse-card-body">
         <h3>Downtown</h3>
-        <p class="browse-card-copy">Browse the current dining guide for Downtown.</p>
+        <p class="browse-card-copy">See the current neighborhood edit for Downtown.</p>
       </div>
       <div class="browse-card-footer">
-        <span class="browse-card-cta">Open neighborhood</span>
+        <span class="browse-card-cta">See area</span>
         <span class="browse-card-arrow" aria-hidden="true">+</span>
       </div>
     </a>
     
 
-    <a class="browse-card browse-card-neighborhood" href="/neighborhoods/des-moines">
+    <a class="browse-card browse-card-neighborhood" href="/neighborhoods/des-moines/">
       <div class="browse-card-top">
-        <div class="browse-card-icon" aria-hidden="true">📍</div>
+        <span class="icon-badge icon-badge-lg browse-card-icon" data-icon-kind="neighborhood" data-icon-key="des-moines" aria-hidden="true"><span class="icon-badge-glyph">DM</span></span>
         <div class="browse-card-pills"><span class="browse-card-pill">15 specials</span><span class="browse-card-pill">8 venues</span></div>
       </div>
       <div class="browse-card-body">
         <h3>Des Moines</h3>
-        <p class="browse-card-copy">Browse the current dining guide for Des Moines.</p>
+        <p class="browse-card-copy">See the current neighborhood edit for Des Moines.</p>
       </div>
       <div class="browse-card-footer">
-        <span class="browse-card-cta">Open neighborhood</span>
+        <span class="browse-card-cta">See area</span>
         <span class="browse-card-arrow" aria-hidden="true">+</span>
       </div>
     </a>
     
 
-    <a class="browse-card browse-card-neighborhood" href="/neighborhoods/east-village">
+    <a class="browse-card browse-card-neighborhood" href="/neighborhoods/east-village/">
       <div class="browse-card-top">
-        <div class="browse-card-icon" aria-hidden="true">🏙️</div>
+        <span class="icon-badge icon-badge-lg browse-card-icon" data-icon-kind="neighborhood" data-icon-key="east-village" aria-hidden="true"><span class="icon-badge-glyph">EV</span></span>
         <div class="browse-card-pills"><span class="browse-card-pill">14 specials</span><span class="browse-card-pill">7 venues</span></div>
       </div>
       <div class="browse-card-body">
         <h3>East Village</h3>
-        <p class="browse-card-copy">Browse the current dining guide for East Village.</p>
+        <p class="browse-card-copy">See the current neighborhood edit for East Village.</p>
       </div>
       <div class="browse-card-footer">
-        <span class="browse-card-cta">Open neighborhood</span>
+        <span class="browse-card-cta">See area</span>
         <span class="browse-card-arrow" aria-hidden="true">+</span>
       </div>
     </a>
     
 
-    <a class="browse-card browse-card-neighborhood" href="/neighborhoods/grimes">
+    <a class="browse-card browse-card-neighborhood" href="/neighborhoods/grimes/">
       <div class="browse-card-top">
-        <div class="browse-card-icon" aria-hidden="true">🍽️</div>
+        <span class="icon-badge icon-badge-lg browse-card-icon" data-icon-kind="neighborhood" data-icon-key="grimes" aria-hidden="true"><span class="icon-badge-glyph">GR</span></span>
         <div class="browse-card-pills"><span class="browse-card-pill">8 specials</span><span class="browse-card-pill">2 venues</span></div>
       </div>
       <div class="browse-card-body">
         <h3>Grimes</h3>
-        <p class="browse-card-copy">Browse the current dining guide for Grimes.</p>
+        <p class="browse-card-copy">See the current neighborhood edit for Grimes.</p>
       </div>
       <div class="browse-card-footer">
-        <span class="browse-card-cta">Open neighborhood</span>
+        <span class="browse-card-cta">See area</span>
         <span class="browse-card-arrow" aria-hidden="true">+</span>
       </div>
     </a>
     
 
-    <a class="browse-card browse-card-neighborhood" href="/neighborhoods/ingersoll">
+    <a class="browse-card browse-card-neighborhood" href="/neighborhoods/ingersoll/">
       <div class="browse-card-top">
-        <div class="browse-card-icon" aria-hidden="true">🍸</div>
+        <span class="icon-badge icon-badge-lg browse-card-icon" data-icon-kind="neighborhood" data-icon-key="ingersoll" aria-hidden="true"><span class="icon-badge-glyph">IN</span></span>
         <div class="browse-card-pills"><span class="browse-card-pill">8 specials</span><span class="browse-card-pill">4 venues</span></div>
       </div>
       <div class="browse-card-body">
         <h3>Ingersoll</h3>
-        <p class="browse-card-copy">Browse the current dining guide for Ingersoll.</p>
+        <p class="browse-card-copy">See the current neighborhood edit for Ingersoll.</p>
       </div>
       <div class="browse-card-footer">
-        <span class="browse-card-cta">Open neighborhood</span>
+        <span class="browse-card-cta">See area</span>
         <span class="browse-card-arrow" aria-hidden="true">+</span>
       </div>
     </a>
@@ -283,129 +295,129 @@
     </section>
     
     
-    <section id="days-preview" class="content-section">
-      <div class="section-panel">
+    <section id="days-preview" class="content-section homepage-section homepage-section-browse homepage-section-days">
+      <div class="section-panel homepage-panel homepage-panel-browse">
         <div class="section-heading">
           <div>
-            <p class="section-kicker">Days</p>
+            <p class="section-kicker">Browse by day</p>
             <div class="section-title-row">
               <h2>Days</h2>
             </div>
           </div>
           <div class="section-heading-side">
-            <p>Browse recurring specials in strict calendar order and open the day you want.</p>
-            <a class="section-action" href="/dsm-deals-hub/days/">Open all days</a>
+            <p>Prefer to plan by rhythm? Open the day you care about and browse the weekly lineup.</p>
+            <a class="section-action" href="/days/">Browse all days</a>
           </div>
         </div>
         <div class="browse-card-grid browse-card-grid-days">
           
-    <a class="browse-card browse-card-day" href="/days/monday">
+    <a class="browse-card browse-card-day" href="/days/monday/">
       <div class="browse-card-top">
-        <div class="browse-card-icon" aria-hidden="true">Mon</div>
+        <span class="icon-badge icon-badge-lg browse-card-icon" data-icon-kind="day" data-icon-key="mon" aria-hidden="true"><span class="icon-badge-glyph">Mon</span></span>
         <div class="browse-card-pills"><span class="browse-card-pill">31 specials</span></div>
       </div>
       <div class="browse-card-body">
         <h3>Monday</h3>
-        <p class="browse-card-copy">Browse what is currently featured for Monday.</p>
+        <p class="browse-card-copy">Recurring picks, lunch runs, and dinner specials for Monday.</p>
       </div>
       <div class="browse-card-footer">
-        <span class="browse-card-cta">Open day</span>
+        <span class="browse-card-cta">See day</span>
         <span class="browse-card-arrow" aria-hidden="true">+</span>
       </div>
     </a>
     
 
-    <a class="browse-card browse-card-day" href="/days/tuesday">
+    <a class="browse-card browse-card-day" href="/days/tuesday/">
       <div class="browse-card-top">
-        <div class="browse-card-icon" aria-hidden="true">Tue</div>
+        <span class="icon-badge icon-badge-lg browse-card-icon" data-icon-kind="day" data-icon-key="tue" aria-hidden="true"><span class="icon-badge-glyph">Tue</span></span>
         <div class="browse-card-pills"><span class="browse-card-pill">32 specials</span></div>
       </div>
       <div class="browse-card-body">
         <h3>Tuesday</h3>
-        <p class="browse-card-copy">Browse what is currently featured for Tuesday.</p>
+        <p class="browse-card-copy">Recurring picks, lunch runs, and dinner specials for Tuesday.</p>
       </div>
       <div class="browse-card-footer">
-        <span class="browse-card-cta">Open day</span>
+        <span class="browse-card-cta">See day</span>
         <span class="browse-card-arrow" aria-hidden="true">+</span>
       </div>
     </a>
     
 
-    <a class="browse-card browse-card-day" href="/days/wednesday">
+    <a class="browse-card browse-card-day" href="/days/wednesday/">
       <div class="browse-card-top">
-        <div class="browse-card-icon" aria-hidden="true">Wed</div>
+        <span class="icon-badge icon-badge-lg browse-card-icon" data-icon-kind="day" data-icon-key="wed" aria-hidden="true"><span class="icon-badge-glyph">Wed</span></span>
         <div class="browse-card-pills"><span class="browse-card-pill">15 specials</span></div>
       </div>
       <div class="browse-card-body">
         <h3>Wednesday</h3>
-        <p class="browse-card-copy">Browse what is currently featured for Wednesday.</p>
+        <p class="browse-card-copy">Recurring picks, lunch runs, and dinner specials for Wednesday.</p>
       </div>
       <div class="browse-card-footer">
-        <span class="browse-card-cta">Open day</span>
+        <span class="browse-card-cta">See day</span>
         <span class="browse-card-arrow" aria-hidden="true">+</span>
       </div>
     </a>
     
 
-    <a class="browse-card browse-card-day" href="/days/thursday">
+    <a class="browse-card browse-card-day" href="/days/thursday/">
       <div class="browse-card-top">
-        <div class="browse-card-icon" aria-hidden="true">Thu</div>
+        <span class="icon-badge icon-badge-lg browse-card-icon" data-icon-kind="day" data-icon-key="thu" aria-hidden="true"><span class="icon-badge-glyph">Thu</span></span>
         <div class="browse-card-pills"><span class="browse-card-pill">32 specials</span></div>
       </div>
       <div class="browse-card-body">
         <h3>Thursday</h3>
-        <p class="browse-card-copy">Browse what is currently featured for Thursday.</p>
+        <p class="browse-card-copy">Recurring picks, lunch runs, and dinner specials for Thursday.</p>
       </div>
       <div class="browse-card-footer">
-        <span class="browse-card-cta">Open day</span>
+        <span class="browse-card-cta">See day</span>
         <span class="browse-card-arrow" aria-hidden="true">+</span>
       </div>
     </a>
     
 
-    <a class="browse-card browse-card-day" href="/days/friday">
+    <a class="browse-card browse-card-day" href="/days/friday/">
       <div class="browse-card-top">
-        <div class="browse-card-icon" aria-hidden="true">Fri</div>
+        <span class="icon-badge icon-badge-lg browse-card-icon" data-icon-kind="day" data-icon-key="fri" aria-hidden="true"><span class="icon-badge-glyph">Fri</span></span>
         <div class="browse-card-pills"><span class="browse-card-pill">16 specials</span></div>
       </div>
       <div class="browse-card-body">
         <h3>Friday</h3>
-        <p class="browse-card-copy">Browse what is currently featured for Friday.</p>
+        <p class="browse-card-copy">Recurring picks, lunch runs, and dinner specials for Friday.</p>
       </div>
       <div class="browse-card-footer">
-        <span class="browse-card-cta">Open day</span>
+        <span class="browse-card-cta">See day</span>
         <span class="browse-card-arrow" aria-hidden="true">+</span>
       </div>
     </a>
     
 
-    <a class="browse-card browse-card-day" href="/days/saturday">
+    <a class="browse-card browse-card-day" href="/days/saturday/">
       <div class="browse-card-top">
-        <div class="browse-card-icon" aria-hidden="true">Sat</div>
+        <span class="icon-badge icon-badge-lg browse-card-icon" data-icon-kind="day" data-icon-key="sat" aria-hidden="true"><span class="icon-badge-glyph">Sat</span></span>
         <div class="browse-card-pills"><span class="browse-card-pill">12 specials</span></div>
       </div>
       <div class="browse-card-body">
         <h3>Saturday</h3>
-        <p class="browse-card-copy">Browse what is currently featured for Saturday.</p>
+        <p class="browse-card-copy">Recurring picks, lunch runs, and dinner specials for Saturday.</p>
       </div>
       <div class="browse-card-footer">
-        <span class="browse-card-cta">Open day</span>
+        <span class="browse-card-cta">See day</span>
         <span class="browse-card-arrow" aria-hidden="true">+</span>
       </div>
     </a>
     
 
-    <a class="browse-card browse-card-day" href="/days/sunday">
+    <a class="browse-card browse-card-day" href="/days/sunday/">
       <div class="browse-card-top">
-        <div class="browse-card-icon" aria-hidden="true">Sun</div>
+        <span class="icon-badge icon-badge-lg browse-card-icon" data-icon-kind="day" data-icon-key="sun" aria-hidden="true"><span class="icon-badge-glyph">Sun</span></span>
         <div class="browse-card-pills"><span class="browse-card-pill">20 specials</span></div>
       </div>
       <div class="browse-card-body">
         <h3>Sunday</h3>
-        <p class="browse-card-copy">Browse what is currently featured for Sunday.</p>
+        <p class="browse-card-copy">Recurring picks, lunch runs, and dinner specials for Sunday.</p>
       </div>
       <div class="browse-card-footer">
-        <span class="browse-card-cta">Open day</span>
+        <span class="browse-card-cta">See day</span>
         <span class="browse-card-arrow" aria-hidden="true">+</span>
       </div>
     </a>
@@ -414,32 +426,34 @@
       </div>
     </section>
     
-    <section id="for-venues" class="content-section">
-      <div class="section-panel section-panel-secondary">
+    </div>
+    <section id="for-venues" class="content-section homepage-section homepage-section-venues">
+      <div class="section-panel section-panel-secondary homepage-panel homepage-panel-venues">
         <div class="for-venues-panel">
           <div class="for-venues-copy">
-            <p class="section-kicker">For Venues</p>
-            <h2>We&#x27;re shaping this guide by hand in v1.</h2>
+            <p class="section-kicker">For venues</p>
+            <h2>Built like a city guide, not a bulletin board.</h2>
             <p>
-              DSM Deals Hub is curated around neighborhood restaurants, taverns, brunch spots, seafood, wings, burgers, buffets, and weekly house specials. The venue side lives in one place now, so business intent and future update flow stay clear.
+              V1 stays hand-curated so the public side stays sharp, neighborhood-first, and worth browsing. Venue onboarding and update flow still live here as the business side grows.
             </p>
           </div>
           <div class="live-empty-actions">
             <div class="empty-state-links">
-              <a href="/dsm-deals-hub/for-venues/" class="empty-state-link">Open For Venues</a>
-              <a href="/dsm-deals-hub/neighborhoods/" class="empty-state-link">Browse the Guide</a>
+              <a href="/for-venues/" class="empty-state-link">For Venues</a>
+              <a href="/neighborhoods/" class="empty-state-link">Browse neighborhoods</a>
             </div>
             <div class="empty-state-cta" aria-label="Venue owners can get listed">
               <span class="empty-state-cta-plus">+</span>
               <span class="empty-state-cta-copy">
-                <strong>Get listed</strong>
-                <small>Business intent lives here</small>
+                <strong>Feature your venue</strong>
+                <small>Business updates will live here</small>
               </span>
             </div>
           </div>
         </div>
       </div>
     </section>
+    </div>
     
       </main>
 
