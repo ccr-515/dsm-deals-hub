@@ -8,6 +8,7 @@
       name="description"
       content="Browse featured dining deals in Downtown, Des Moines."
     />
+    <link rel="icon" type="image/svg+xml" href="/dsm-deals-hub/static/favicon.svg" />
     <link rel="stylesheet" href="/dsm-deals-hub/static/styles.css" />
   </head>
   <body>
@@ -17,9 +18,10 @@
           <div class="hero-copy">
             
     <a class="brand-slot brand-slot-compact" href="/dsm-deals-hub/" aria-label="DSM Deals Hub home">
-      <span class="icon-badge icon-badge-brand brand-mark" data-icon-kind="brand" data-icon-key="dsm-deals-hub" aria-hidden="true"><span class="icon-badge-glyph">✦</span></span>
+      <span class="icon-badge icon-badge-brand brand-mark" data-icon-kind="brand" data-icon-key="dsm-deals-hub" aria-hidden="true"><span class="icon-badge-glyph">DH</span></span>
       <span class="brand-wordmark">
-        <span class="brand-name">DSM Deals Hub</span>
+        <span class="brand-kicker">DSM</span>
+        <span class="brand-name">Deals Hub</span>
         <span class="brand-meta">Des Moines dining guide</span>
       </span>
     </a>
@@ -27,7 +29,7 @@
             <p class="eyebrow">Neighborhood guide</p>
             <h1>Downtown</h1>
             <p class="hero-text">
-              10 spots and 20 specials shape the Downtown guide. Start with a tighter featured edit, then browse the broader weekly lineup for the area.
+              10 spots and 20 specials shape the Downtown guide. Browse the neighborhood by food, drinks, or spots where both are part of the same deal.
             </p>
           </div>
           <div class="hero-utility">
@@ -39,7 +41,7 @@
             
     <div class="hero-stats" aria-label="Neighborhood overview">
       <div>
-        <span>Today here</span>
+        <span>On today&#x27;s board</span>
         <strong>0</strong>
       </div>
       <div>
@@ -58,33 +60,33 @@
 
       <main class="content">
         
-    <section id="neighborhood-featured-deals" class="content-section neighborhood-detail-section">
-      <div class="section-panel homepage-panel homepage-panel-today neighborhood-detail-panel neighborhood-detail-panel-featured">
+    <section id="neighborhood-food" class="content-section neighborhood-detail-section">
+      <div class="section-panel homepage-panel neighborhood-detail-panel neighborhood-detail-panel-food homepage-panel-today neighborhood-detail-panel-featured">
         <div class="section-heading">
           <div>
-            <p class="section-kicker">Neighborhood highlights</p>
+            <p class="section-kicker">Food</p>
             <div class="section-title-row">
-              <h2>Featured in Downtown</h2>
-              <span class="section-count">4 deals</span>
+              <h2>Food</h2>
+              <span class="section-count">9 deals</span>
             </div>
           </div>
           <div class="section-heading-side">
-            <p>Start here for the strongest current dining picks in Downtown.</p>
+            <p>Meals, brunches, buffets, sandwiches, seafood, and stronger food-led specials currently surfacing in Downtown.</p>
             <a class="section-action" href="/dsm-deals-hub/neighborhoods/">Back to neighborhoods</a>
           </div>
         </div>
         
-        <div class="deal-grid" data-sort-grid="neighborhood-featured-deals">
+        <div class="deal-grid" data-sort-grid="neighborhood-food">
           
     <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="0">
       <div class="deal-card-top">
-        <p class="deal-venue">Hessen Haus</p>
-        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="beer" aria-hidden="true"><span class="icon-badge-glyph">🍺</span></span>
+        <p class="deal-venue">Mad Meatball</p>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="taco" aria-hidden="true"><span class="icon-badge-glyph">🌮</span></span>
       </div>
-      <h3>Half off select apps plus draft beer specials</h3>
-      <p class="deal-description">Half off select appetizers, $5 half liter drafts, $10 liter drafts, and $20 boots.</p>
+      <h3>Taco Tuesday specials</h3>
+      <p class="deal-description">$15 large taco pizzas, $10 taco salads, and 3 tacos for $12.</p>
       <div class="deal-card-footer">
-        <p class="deal-time">3 PM to 6 PM</p>
+        <p class="deal-time">11 AM to 10 PM</p>
         <span class="deal-chip">Downtown</span>
       </div>
     </article>
@@ -92,13 +94,13 @@
 
     <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="1">
       <div class="deal-card-top">
-        <p class="deal-venue">Django</p>
-        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="wine" aria-hidden="true"><span class="icon-badge-glyph">🍷</span></span>
+        <p class="deal-venue">MALO</p>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="taco" aria-hidden="true"><span class="icon-badge-glyph">🌮</span></span>
       </div>
-      <h3>All night happy hour</h3>
-      <p class="deal-description">Tuesday happy hour with oysters, shrimp, appetizers, beer, and wine specials.</p>
+      <h3>Taco Tuesday</h3>
+      <p class="deal-description">Tuesday taco specials on chicken tinga and ground beef tacos.</p>
       <div class="deal-card-footer">
-        <p class="deal-time">4 PM to 9 PM</p>
+        <p class="deal-time">All day Tuesday</p>
         <span class="deal-chip">Downtown</span>
       </div>
     </article>
@@ -106,19 +108,47 @@
 
     <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="2">
       <div class="deal-card-top">
-        <p class="deal-venue">Bubba</p>
-        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="wine" aria-hidden="true"><span class="icon-badge-glyph">🍷</span></span>
+        <p class="deal-venue">Mad Meatball</p>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="chicken" aria-hidden="true"><span class="icon-badge-glyph">🍗</span></span>
       </div>
-      <h3>$6 sips and $10 sliders</h3>
-      <p class="deal-description">$10 sliders plus $6 drinks including Old Fashioneds, Bubba juleps, bourbon, Bubba Hazy IPA, and select wine.</p>
+      <h3>$20 all you can eat wings</h3>
+      <p class="deal-description">All you can eat wings for $20 on Wednesday.</p>
       <div class="deal-card-footer">
-        <p class="deal-time">4 PM to close</p>
+        <p class="deal-time">11 AM to 11 PM</p>
         <span class="deal-chip">Downtown</span>
       </div>
     </article>
     
 
     <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="3">
+      <div class="deal-card-top">
+        <p class="deal-venue">MALO</p>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="chicken" aria-hidden="true"><span class="icon-badge-glyph">🍗</span></span>
+      </div>
+      <h3>Burrito Wednesday</h3>
+      <p class="deal-description">Wednesday burrito special on carne molida and chicken tinga burritos.</p>
+      <div class="deal-card-footer">
+        <p class="deal-time">All day Wednesday</p>
+        <span class="deal-chip">Downtown</span>
+      </div>
+    </article>
+    
+
+    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="4">
+      <div class="deal-card-top">
+        <p class="deal-venue">MALO</p>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="chicken" aria-hidden="true"><span class="icon-badge-glyph">🍗</span></span>
+      </div>
+      <h3>Fajita Thursday</h3>
+      <p class="deal-description">Thursday special featuring grilled chicken and filet mignon fajitas.</p>
+      <div class="deal-card-footer">
+        <p class="deal-time">All day Thursday</p>
+        <span class="deal-chip">Downtown</span>
+      </div>
+    </article>
+    
+
+    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="5">
       <div class="deal-card-top">
         <p class="deal-venue">Chelsie’s Courtyard Diner</p>
         <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="burger" aria-hidden="true"><span class="icon-badge-glyph">🍔</span></span>
@@ -131,27 +161,146 @@
       </div>
     </article>
     
+
+    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="6">
+      <div class="deal-card-top">
+        <p class="deal-venue">Bubba</p>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="steak" aria-hidden="true"><span class="icon-badge-glyph">🥩</span></span>
+      </div>
+      <h3>$20 sirloin dinner</h3>
+      <p class="deal-description">Monday night sirloin dinner special for $20.</p>
+      <div class="deal-card-footer">
+        <p class="deal-time">Monday night</p>
+        <span class="deal-chip">Downtown</span>
+      </div>
+    </article>
+    
+
+    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="7">
+      <div class="deal-card-top">
+        <p class="deal-venue">Hessen Haus</p>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="seafood" aria-hidden="true"><span class="icon-badge-glyph">🦪</span></span>
+      </div>
+      <h3>All you can eat fish and shrimp</h3>
+      <p class="deal-description">All you can eat fish and shrimp for $18 on Fridays during Lent.</p>
+      <div class="deal-card-footer">
+        <p class="deal-time">Friday dinner</p>
+        <span class="deal-chip">Downtown</span>
+      </div>
+    </article>
+    
+
+    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="8">
+      <div class="deal-card-top">
+        <p class="deal-venue">Buzzard Billy’s</p>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="featured" aria-hidden="true"><span class="icon-badge-glyph">✨</span></span>
+      </div>
+      <h3>$2 off appetizers</h3>
+      <p class="deal-description">$2 off appetizers on Thursday.</p>
+      <div class="deal-card-footer">
+        <p class="deal-time">Thursday special</p>
+        <span class="deal-chip">Downtown</span>
+      </div>
+    </article>
+    
         </div>
       </div>
     </section>
     
-    <section id="neighborhood-weekly-lineup" class="content-section neighborhood-detail-section">
-      <div class="section-panel homepage-panel neighborhood-detail-panel">
+    <section id="neighborhood-drinks" class="content-section neighborhood-detail-section">
+      <div class="section-panel homepage-panel neighborhood-detail-panel neighborhood-detail-panel-drinks">
         <div class="section-heading">
           <div>
-            <p class="section-kicker">Full lineup</p>
+            <p class="section-kicker">Drinks</p>
             <div class="section-title-row">
-              <h2>More in Downtown</h2>
-              <span class="section-count">16 deals</span>
+              <h2>Drinks</h2>
+              <span class="section-count">4 deals</span>
             </div>
           </div>
           <div class="section-heading-side">
-            <p>The rest of the current weekly lineup in Downtown, from recurring specials to day-based neighborhood favorites.</p>
+            <p>Happy-hour windows, wine and beer specials, cocktail deals, and drink-led stops currently surfacing in Downtown.</p>
             
           </div>
         </div>
         
-        <div class="deal-grid" data-sort-grid="neighborhood-weekly-lineup">
+        <div class="deal-grid" data-sort-grid="neighborhood-drinks">
+          
+    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="0">
+      <div class="deal-card-top">
+        <p class="deal-venue">Fresko</p>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="featured" aria-hidden="true"><span class="icon-badge-glyph">✨</span></span>
+      </div>
+      <h3>$5 Fresko mules</h3>
+      <p class="deal-description">Fresko mule for $5 on Monday.</p>
+      <div class="deal-card-footer">
+        <p class="deal-time">After 5 PM</p>
+        <span class="deal-chip">Downtown</span>
+      </div>
+    </article>
+    
+
+    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="1">
+      <div class="deal-card-top">
+        <p class="deal-venue">The Lift</p>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="featured" aria-hidden="true"><span class="icon-badge-glyph">✨</span></span>
+      </div>
+      <h3>$6 martinis</h3>
+      <p class="deal-description">$6 martinis during an early evening Wednesday window.</p>
+      <div class="deal-card-footer">
+        <p class="deal-time">5 PM to 7 PM</p>
+        <span class="deal-chip">Downtown</span>
+      </div>
+    </article>
+    
+
+    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="2">
+      <div class="deal-card-top">
+        <p class="deal-venue">Fresko</p>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="wine" aria-hidden="true"><span class="icon-badge-glyph">🍷</span></span>
+      </div>
+      <h3>Wine Wednesday</h3>
+      <p class="deal-description">Select wine specials including rosé for $10 and red wines for $12.</p>
+      <div class="deal-card-footer">
+        <p class="deal-time">11 AM to 9 PM</p>
+        <span class="deal-chip">Downtown</span>
+      </div>
+    </article>
+    
+
+    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="3">
+      <div class="deal-card-top">
+        <p class="deal-venue">The Lift</p>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="featured" aria-hidden="true"><span class="icon-badge-glyph">✨</span></span>
+      </div>
+      <h3>$7 cocktails</h3>
+      <p class="deal-description">All Tuesday cocktails are $7 with a long late night window.</p>
+      <div class="deal-card-footer">
+        <p class="deal-time">5 PM to 2 AM</p>
+        <span class="deal-chip">Downtown</span>
+      </div>
+    </article>
+    
+        </div>
+      </div>
+    </section>
+    
+    <section id="neighborhood-both" class="content-section neighborhood-detail-section">
+      <div class="section-panel homepage-panel neighborhood-detail-panel neighborhood-detail-panel-both">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">Food + Drinks</p>
+            <div class="section-title-row">
+              <h2>Food + Drinks</h2>
+              <span class="section-count">7 deals</span>
+            </div>
+          </div>
+          <div class="section-heading-side">
+            <p>Places where the value is in the pairing: food plus drinks, combo pricing, or fuller happy-hour-style boards in Downtown.</p>
+            
+          </div>
+        </div>
+        
+        <div class="deal-grid" data-sort-grid="neighborhood-both">
           
     <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="0">
       <div class="deal-card-top">
@@ -170,62 +319,6 @@
     <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="1">
       <div class="deal-card-top">
         <p class="deal-venue">Fresko</p>
-        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="featured" aria-hidden="true"><span class="icon-badge-glyph">✨</span></span>
-      </div>
-      <h3>$5 Fresko mules</h3>
-      <p class="deal-description">Fresko mule for $5 on Monday.</p>
-      <div class="deal-card-footer">
-        <p class="deal-time">After 5 PM</p>
-        <span class="deal-chip">Downtown</span>
-      </div>
-    </article>
-    
-
-    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="2">
-      <div class="deal-card-top">
-        <p class="deal-venue">Bubba</p>
-        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="steak" aria-hidden="true"><span class="icon-badge-glyph">🥩</span></span>
-      </div>
-      <h3>$20 sirloin dinner</h3>
-      <p class="deal-description">Monday night sirloin dinner special for $20.</p>
-      <div class="deal-card-footer">
-        <p class="deal-time">Monday night</p>
-        <span class="deal-chip">Downtown</span>
-      </div>
-    </article>
-    
-
-    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="3">
-      <div class="deal-card-top">
-        <p class="deal-venue">Mad Meatball</p>
-        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="taco" aria-hidden="true"><span class="icon-badge-glyph">🌮</span></span>
-      </div>
-      <h3>Taco Tuesday specials</h3>
-      <p class="deal-description">$15 large taco pizzas, $10 taco salads, and 3 tacos for $12.</p>
-      <div class="deal-card-footer">
-        <p class="deal-time">11 AM to 10 PM</p>
-        <span class="deal-chip">Downtown</span>
-      </div>
-    </article>
-    
-
-    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="4">
-      <div class="deal-card-top">
-        <p class="deal-venue">MALO</p>
-        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="taco" aria-hidden="true"><span class="icon-badge-glyph">🌮</span></span>
-      </div>
-      <h3>Taco Tuesday</h3>
-      <p class="deal-description">Tuesday taco specials on chicken tinga and ground beef tacos.</p>
-      <div class="deal-card-footer">
-        <p class="deal-time">All day Tuesday</p>
-        <span class="deal-chip">Downtown</span>
-      </div>
-    </article>
-    
-
-    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="5">
-      <div class="deal-card-top">
-        <p class="deal-venue">Fresko</p>
         <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="taco" aria-hidden="true"><span class="icon-badge-glyph">🌮</span></span>
       </div>
       <h3>Taco Tuesday and margarita specials</h3>
@@ -237,21 +330,7 @@
     </article>
     
 
-    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="6">
-      <div class="deal-card-top">
-        <p class="deal-venue">The Lift</p>
-        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="featured" aria-hidden="true"><span class="icon-badge-glyph">✨</span></span>
-      </div>
-      <h3>$7 cocktails</h3>
-      <p class="deal-description">All Tuesday cocktails are $7 with a long late night window.</p>
-      <div class="deal-card-footer">
-        <p class="deal-time">5 PM to 2 AM</p>
-        <span class="deal-chip">Downtown</span>
-      </div>
-    </article>
-    
-
-    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="7">
+    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="2">
       <div class="deal-card-top">
         <p class="deal-venue">Chelsie’s Courtyard Diner</p>
         <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="chicken" aria-hidden="true"><span class="icon-badge-glyph">🍗</span></span>
@@ -265,63 +344,7 @@
     </article>
     
 
-    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="8">
-      <div class="deal-card-top">
-        <p class="deal-venue">Mad Meatball</p>
-        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="chicken" aria-hidden="true"><span class="icon-badge-glyph">🍗</span></span>
-      </div>
-      <h3>$20 all you can eat wings</h3>
-      <p class="deal-description">All you can eat wings for $20 on Wednesday.</p>
-      <div class="deal-card-footer">
-        <p class="deal-time">11 AM to 11 PM</p>
-        <span class="deal-chip">Downtown</span>
-      </div>
-    </article>
-    
-
-    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="9">
-      <div class="deal-card-top">
-        <p class="deal-venue">MALO</p>
-        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="chicken" aria-hidden="true"><span class="icon-badge-glyph">🍗</span></span>
-      </div>
-      <h3>Burrito Wednesday</h3>
-      <p class="deal-description">Wednesday burrito special on carne molida and chicken tinga burritos.</p>
-      <div class="deal-card-footer">
-        <p class="deal-time">All day Wednesday</p>
-        <span class="deal-chip">Downtown</span>
-      </div>
-    </article>
-    
-
-    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="10">
-      <div class="deal-card-top">
-        <p class="deal-venue">Fresko</p>
-        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="wine" aria-hidden="true"><span class="icon-badge-glyph">🍷</span></span>
-      </div>
-      <h3>Wine Wednesday</h3>
-      <p class="deal-description">Select wine specials including rosé for $10 and red wines for $12.</p>
-      <div class="deal-card-footer">
-        <p class="deal-time">11 AM to 9 PM</p>
-        <span class="deal-chip">Downtown</span>
-      </div>
-    </article>
-    
-
-    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="11">
-      <div class="deal-card-top">
-        <p class="deal-venue">The Lift</p>
-        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="featured" aria-hidden="true"><span class="icon-badge-glyph">✨</span></span>
-      </div>
-      <h3>$6 martinis</h3>
-      <p class="deal-description">$6 martinis during an early evening Wednesday window.</p>
-      <div class="deal-card-footer">
-        <p class="deal-time">5 PM to 7 PM</p>
-        <span class="deal-chip">Downtown</span>
-      </div>
-    </article>
-    
-
-    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="12">
+    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="3">
       <div class="deal-card-top">
         <p class="deal-venue">Fresko</p>
         <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="featured" aria-hidden="true"><span class="icon-badge-glyph">✨</span></span>
@@ -335,43 +358,43 @@
     </article>
     
 
-    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="13">
-      <div class="deal-card-top">
-        <p class="deal-venue">MALO</p>
-        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="chicken" aria-hidden="true"><span class="icon-badge-glyph">🍗</span></span>
-      </div>
-      <h3>Fajita Thursday</h3>
-      <p class="deal-description">Thursday special featuring grilled chicken and filet mignon fajitas.</p>
-      <div class="deal-card-footer">
-        <p class="deal-time">All day Thursday</p>
-        <span class="deal-chip">Downtown</span>
-      </div>
-    </article>
-    
-
-    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="14">
-      <div class="deal-card-top">
-        <p class="deal-venue">Buzzard Billy’s</p>
-        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="featured" aria-hidden="true"><span class="icon-badge-glyph">✨</span></span>
-      </div>
-      <h3>$2 off appetizers</h3>
-      <p class="deal-description">$2 off appetizers on Thursday.</p>
-      <div class="deal-card-footer">
-        <p class="deal-time">Thursday special</p>
-        <span class="deal-chip">Downtown</span>
-      </div>
-    </article>
-    
-
-    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="15">
+    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="4">
       <div class="deal-card-top">
         <p class="deal-venue">Hessen Haus</p>
-        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="seafood" aria-hidden="true"><span class="icon-badge-glyph">🦪</span></span>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="beer" aria-hidden="true"><span class="icon-badge-glyph">🍺</span></span>
       </div>
-      <h3>All you can eat fish and shrimp</h3>
-      <p class="deal-description">All you can eat fish and shrimp for $18 on Fridays during Lent.</p>
+      <h3>Half off select apps plus draft beer specials</h3>
+      <p class="deal-description">Half off select appetizers, $5 half liter drafts, $10 liter drafts, and $20 boots.</p>
       <div class="deal-card-footer">
-        <p class="deal-time">Friday special, seasonal</p>
+        <p class="deal-time">3 PM to 6 PM</p>
+        <span class="deal-chip">Downtown</span>
+      </div>
+    </article>
+    
+
+    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="5">
+      <div class="deal-card-top">
+        <p class="deal-venue">Django</p>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="wine" aria-hidden="true"><span class="icon-badge-glyph">🍷</span></span>
+      </div>
+      <h3>All night happy hour</h3>
+      <p class="deal-description">Tuesday happy hour with oysters, shrimp, appetizers, beer, and wine specials.</p>
+      <div class="deal-card-footer">
+        <p class="deal-time">4 PM to 9 PM</p>
+        <span class="deal-chip">Downtown</span>
+      </div>
+    </article>
+    
+
+    <article class="deal-card" data-neighborhood="Downtown" data-lat="" data-lng="" data-order="6">
+      <div class="deal-card-top">
+        <p class="deal-venue">Bubba</p>
+        <span class="icon-badge icon-badge-sm deal-icon" data-icon-kind="category" data-icon-key="wine" aria-hidden="true"><span class="icon-badge-glyph">🍷</span></span>
+      </div>
+      <h3>$6 sips and $10 sliders</h3>
+      <p class="deal-description">$10 sliders plus $6 drinks including Old Fashioneds, Bubba juleps, bourbon, Bubba Hazy IPA, and select wine.</p>
+      <div class="deal-card-footer">
+        <p class="deal-time">4 PM to close</p>
         <span class="deal-chip">Downtown</span>
       </div>
     </article>

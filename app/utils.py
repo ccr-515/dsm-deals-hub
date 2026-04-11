@@ -1,6 +1,8 @@
+import math
+import re
+import unicodedata
 from datetime import datetime, timedelta
 from typing import Optional
-import math
 
 from . import config, models
 
@@ -9,7 +11,10 @@ WEEKDAY_LOOKUP = {day.lower(): day for day in WEEKDAYS}
 
 
 def normalize_slug(value: str) -> str:
-    return value.strip().lower()
+    normalized = unicodedata.normalize("NFKD", value or "")
+    ascii_value = normalized.encode("ascii", "ignore").decode("ascii")
+    collapsed = re.sub(r"[^a-zA-Z0-9]+", "-", ascii_value.strip().lower())
+    return collapsed.strip("-")
 
 
 def parse_hhmm(s: str):

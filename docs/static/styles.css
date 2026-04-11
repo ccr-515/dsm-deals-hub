@@ -149,52 +149,99 @@ a {
 .brand-slot {
   display: inline-flex;
   align-items: center;
-  gap: 0.82rem;
+  gap: 0.9rem;
+  position: relative;
+  align-self: flex-start;
+  padding: 0.38rem 0.6rem 0.38rem 0.38rem;
+  border: 1px solid rgba(63, 106, 80, 0.12);
+  border-radius: 1.25rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(247, 241, 232, 0.72)),
+    rgba(255, 249, 244, 0.74);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.78),
+    0 16px 28px rgba(43, 58, 44, 0.08);
   color: var(--green-deep);
   text-decoration: none;
   transition:
+    background 160ms ease,
     color 160ms ease,
     transform 160ms ease,
-    text-shadow 160ms ease;
+    text-shadow 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
 }
 
 .brand-slot-compact {
-  margin-bottom: 0.9rem;
+  margin-bottom: 1rem;
 }
 
 .brand-slot-heading {
   align-items: flex-start;
-  gap: 0.95rem;
+  gap: 1rem;
+  padding: 0.2rem 0.1rem 0.32rem 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .brand-wordmark {
   display: flex;
   flex-direction: column;
-  gap: 0.08rem;
+  gap: 0.14rem;
   min-width: 0;
+}
+
+.brand-kicker {
+  color: var(--orange);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .brand-name {
   font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-  font-size: 1.12rem;
+  font-size: 1.16rem;
   font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.02;
+  letter-spacing: -0.032em;
+  line-height: 0.98;
   color: var(--green-deep);
 }
 
 .brand-meta {
   color: var(--muted);
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
+  line-height: 1.1;
   text-transform: uppercase;
+}
+
+.brand-wordmark-heading {
+  gap: 0.2rem;
+}
+
+.brand-meta-heading {
+  margin-top: 0.22rem;
+  color: rgba(44, 66, 51, 0.72);
+  font-size: 0.76rem;
+  letter-spacing: 0.18em;
 }
 
 .brand-slot:hover,
 .brand-slot:focus-visible {
   color: var(--orange);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  border-color: rgba(207, 114, 67, 0.22);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(250, 243, 235, 0.8)),
+    rgba(255, 249, 244, 0.86);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.84),
+    0 20px 34px rgba(43, 58, 44, 0.1);
   text-shadow: 0 10px 20px rgba(207, 114, 67, 0.12);
   outline: none;
 }
@@ -206,9 +253,26 @@ a {
   color: inherit;
 }
 
+.brand-slot-heading:hover,
+.brand-slot-heading:focus-visible {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
 .brand-slot-heading .brand-name {
   font-size: inherit;
   line-height: inherit;
+}
+
+.brand-slot-heading .brand-kicker {
+  margin-bottom: 0.12rem;
+  font-size: clamp(0.74rem, 1.55vw, 0.94rem);
+  letter-spacing: 0.28em;
+}
+
+.brand-slot-heading .brand-meta-heading {
+  text-shadow: none;
 }
 
 .eyebrow,
@@ -398,6 +462,71 @@ h1 {
 
 .homepage-panel-venues {
   border-color: rgba(63, 106, 80, 0.14);
+}
+
+.neighborhood-detail-panel-food {
+  border-color: rgba(207, 114, 67, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 252, 248, 0.76), rgba(253, 246, 238, 0.44)),
+    linear-gradient(180deg, rgba(252, 246, 238, 0.48), rgba(245, 236, 225, 0.28)),
+    var(--surface);
+}
+
+.neighborhood-detail-panel-food .section-kicker,
+.neighborhood-detail-panel-food .section-count {
+  color: var(--orange);
+}
+
+.neighborhood-detail-panel-drinks {
+  border-color: rgba(63, 106, 80, 0.16);
+  background:
+    linear-gradient(180deg, rgba(248, 252, 248, 0.76), rgba(241, 248, 242, 0.44)),
+    linear-gradient(180deg, rgba(239, 247, 240, 0.48), rgba(232, 241, 229, 0.28)),
+    var(--surface);
+}
+
+.neighborhood-detail-panel-drinks .section-kicker,
+.neighborhood-detail-panel-drinks .section-count {
+  color: var(--green);
+}
+
+.neighborhood-detail-panel-both {
+  border-color: rgba(136, 110, 64, 0.16);
+  background:
+    linear-gradient(180deg, rgba(252, 251, 246, 0.78), rgba(248, 244, 235, 0.48)),
+    linear-gradient(180deg, rgba(247, 244, 236, 0.48), rgba(239, 235, 225, 0.3)),
+    var(--surface);
+}
+
+.neighborhood-detail-panel-both .section-kicker,
+.neighborhood-detail-panel-both .section-count {
+  color: #7c5f33;
+}
+
+.day-detail-panel-live-music {
+  border-color: rgba(63, 106, 80, 0.18);
+  background:
+    linear-gradient(180deg, rgba(249, 252, 248, 0.76), rgba(243, 248, 241, 0.48)),
+    linear-gradient(180deg, rgba(240, 247, 238, 0.5), rgba(232, 241, 229, 0.28)),
+    var(--surface);
+}
+
+.day-detail-panel-live-music .section-kicker,
+.day-detail-panel-live-music .section-count {
+  color: var(--green);
+}
+
+.neighborhood-detail-panel-live-music {
+  border-color: rgba(63, 106, 80, 0.18);
+  background:
+    linear-gradient(180deg, rgba(249, 252, 248, 0.76), rgba(243, 248, 241, 0.48)),
+    linear-gradient(180deg, rgba(240, 247, 238, 0.5), rgba(232, 241, 229, 0.28)),
+    var(--surface);
+}
+
+.neighborhood-detail-panel-live-music .section-kicker,
+.neighborhood-detail-panel-live-music .section-count {
+  color: var(--green);
 }
 
 .section-heading {
@@ -851,6 +980,12 @@ h1 {
   color: var(--orange);
   line-height: 1;
   flex-shrink: 0;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    color 180ms ease;
 }
 
 .icon-badge::before {
@@ -861,6 +996,16 @@ h1 {
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.34), transparent 52%),
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.22), transparent 42%);
+}
+
+.icon-badge::after {
+  content: "";
+  position: absolute;
+  inset: 0.26rem;
+  pointer-events: none;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  opacity: 0;
 }
 
 .icon-badge-glyph {
@@ -902,22 +1047,45 @@ h1 {
   color: #fff9f4;
   border-color: rgba(255, 255, 255, 0.3);
   background:
-    linear-gradient(180deg, rgba(67, 111, 84, 0.98), rgba(42, 74, 57, 0.95)),
-    linear-gradient(180deg, rgba(214, 129, 78, 0.22), rgba(207, 114, 67, 0.04));
+    radial-gradient(circle at 74% 26%, rgba(221, 149, 92, 0.34), transparent 28%),
+    linear-gradient(180deg, rgba(67, 111, 84, 0.99), rgba(38, 67, 52, 0.95)),
+    linear-gradient(180deg, rgba(214, 129, 78, 0.24), rgba(207, 114, 67, 0.05));
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 18px 28px rgba(47, 67, 52, 0.18),
-    0 0 0 1px rgba(255, 255, 255, 0.04);
+    0 20px 32px rgba(47, 67, 52, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 0 26px rgba(207, 114, 67, 0.12);
+}
+
+.icon-badge[data-icon-kind="brand"]::after {
+  inset: 0.32rem;
+  border-color: rgba(255, 244, 236, 0.18);
+  border-radius: 0.72rem;
+  opacity: 1;
 }
 
 .icon-badge[data-icon-kind="brand"] .icon-badge-glyph {
-  font-size: 1.02rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.16em;
   text-shadow: 0 8px 16px rgba(16, 28, 19, 0.2);
 }
 
 .icon-badge[data-icon-kind="neighborhood"] {
-  border-color: rgba(63, 106, 80, 0.14);
+  border-color: rgba(63, 106, 80, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(247, 242, 233, 0.8)),
+    rgba(255, 248, 242, 0.88);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 18px 30px rgba(52, 66, 52, 0.1);
   color: var(--green-deep);
+}
+
+.icon-badge[data-icon-kind="neighborhood"]::after {
+  inset: 0.36rem;
+  border-color: rgba(255, 255, 255, 0.42);
+  border-radius: 0.86rem;
+  opacity: 1;
 }
 
 .icon-badge[data-icon-kind="day"] {
@@ -926,8 +1094,8 @@ h1 {
 
 .icon-badge[data-icon-kind="neighborhood"] .icon-badge-glyph,
 .icon-badge[data-icon-kind="day"] .icon-badge-glyph {
-  font-size: 0.98rem;
-  letter-spacing: 0.08em;
+  font-size: 0.92rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -942,6 +1110,54 @@ h1 {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
     0 18px 28px rgba(74, 62, 44, 0.12);
+}
+
+.icon-tone-civic[data-icon-kind="neighborhood"] {
+  background:
+    linear-gradient(180deg, rgba(255, 253, 249, 0.92), rgba(250, 241, 232, 0.82)),
+    rgba(255, 247, 240, 0.92);
+  color: #8d4f33;
+  border-color: rgba(207, 114, 67, 0.18);
+}
+
+.icon-tone-market[data-icon-kind="neighborhood"] {
+  background:
+    linear-gradient(180deg, rgba(251, 254, 248, 0.92), rgba(238, 246, 236, 0.82)),
+    rgba(243, 250, 241, 0.9);
+  color: #315f45;
+  border-color: rgba(63, 106, 80, 0.18);
+}
+
+.icon-tone-meadow[data-icon-kind="neighborhood"] {
+  background:
+    linear-gradient(180deg, rgba(247, 251, 249, 0.92), rgba(234, 243, 239, 0.82)),
+    rgba(239, 248, 244, 0.9);
+  color: #30595a;
+  border-color: rgba(78, 116, 108, 0.16);
+}
+
+.icon-tone-grove[data-icon-kind="neighborhood"] {
+  background:
+    linear-gradient(180deg, rgba(250, 252, 246, 0.92), rgba(240, 244, 230, 0.82)),
+    rgba(245, 249, 236, 0.9);
+  color: #4f6b34;
+  border-color: rgba(106, 132, 80, 0.18);
+}
+
+.icon-tone-river[data-icon-kind="neighborhood"] {
+  background:
+    linear-gradient(180deg, rgba(248, 252, 252, 0.92), rgba(235, 243, 244, 0.82)),
+    rgba(239, 247, 248, 0.9);
+  color: #32606a;
+  border-color: rgba(74, 112, 122, 0.18);
+}
+
+.icon-tone-sunrise[data-icon-kind="neighborhood"] {
+  background:
+    linear-gradient(180deg, rgba(255, 251, 246, 0.94), rgba(247, 237, 226, 0.84)),
+    rgba(252, 243, 234, 0.92);
+  color: #a45c39;
+  border-color: rgba(214, 135, 87, 0.2);
 }
 
 .browse-card-icon {
@@ -1051,6 +1267,22 @@ h1 {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.92),
     0 18px 30px rgba(90, 66, 42, 0.15);
+}
+
+.browse-card-neighborhood .browse-card-icon {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 22px 34px rgba(52, 66, 52, 0.12);
+}
+
+.browse-card-neighborhood:hover .browse-card-icon,
+.browse-card-neighborhood:focus-visible .browse-card-icon,
+.browse-card-day:hover .browse-card-icon,
+.browse-card-day:focus-visible .browse-card-icon {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.96),
+    0 26px 38px rgba(52, 66, 52, 0.15);
 }
 
 .live-now-module {
@@ -1565,19 +1797,19 @@ h1 {
 
 @media (max-width: 760px) {
   .page-shell {
-    width: min(100% - 0.95rem, 40rem);
+    width: min(100% - 1rem, 40rem);
     padding-top: 0.65rem;
-    padding-bottom: 2.25rem;
+    padding-bottom: 2.45rem;
   }
 
   .hero {
-    padding: 0.2rem 0 0.8rem;
+    padding: 0.18rem 0 0.95rem;
   }
 
   .hero-panel,
   .section-panel {
-    border-radius: 1.45rem;
-    padding: 1rem;
+    border-radius: 1.5rem;
+    padding: 1.06rem;
   }
 
   .hero-panel {
@@ -1585,35 +1817,47 @@ h1 {
   }
 
   .hero-copy {
-    padding: 0.15rem 0.05rem 0;
+    padding: 0.2rem 0.08rem 0;
   }
 
   .brand-slot {
-    gap: 0.72rem;
+    width: 100%;
+    align-items: flex-start;
+    gap: 0.8rem;
+    padding: 0.34rem 0.52rem 0.34rem 0.34rem;
+  }
+
+  .brand-kicker {
+    font-size: 0.66rem;
+    letter-spacing: 0.22em;
   }
 
   .brand-name {
-    font-size: 1.05rem;
+    font-size: 1.08rem;
+    text-wrap: balance;
   }
 
   .brand-meta {
-    font-size: 0.7rem;
+    font-size: 0.69rem;
   }
 
   .brand-slot-heading {
-    gap: 0.78rem;
+    gap: 0.8rem;
+    padding: 0.18rem 0 0.28rem 0;
   }
 
   h1 {
-    max-width: 8ch;
+    max-width: 9ch;
     font-size: clamp(2.45rem, 13vw, 4rem);
     line-height: 0.94;
   }
 
   .hero-text {
-    margin-top: 0.85rem;
-    max-width: none;
+    margin-top: 0.9rem;
+    max-width: 34rem;
     font-size: 1rem;
+    line-height: 1.6;
+    text-wrap: pretty;
   }
 
   .hero-utility {
@@ -1624,9 +1868,9 @@ h1 {
   .section-nav.day-nav {
     flex-wrap: nowrap;
     overflow-x: auto;
-    width: calc(100% + 0.1rem);
-    margin: 0 -0.05rem;
-    padding: 0 0.05rem 0.3rem;
+    width: calc(100% + 0.35rem);
+    margin: 0 -0.175rem;
+    padding: 0 0.175rem 0.35rem;
     scroll-snap-type: x proximity;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
@@ -1638,18 +1882,19 @@ h1 {
   }
 
   .section-nav a {
-    min-height: 3.1rem;
-    padding: 0.82rem 1rem;
+    min-height: 3.2rem;
+    padding: 0.86rem 1.06rem;
+    font-size: 0.94rem;
     scroll-snap-align: start;
   }
 
   .hero-stats {
-    gap: 0.65rem;
+    gap: 0.72rem;
   }
 
   .hero-stats div {
     min-width: 0;
-    padding: 0.92rem 0.82rem 0.96rem;
+    padding: 0.96rem 0.9rem 1rem;
   }
 
   .hero-stats span {
@@ -1664,20 +1909,20 @@ h1 {
   }
 
   .content {
-    gap: 1.25rem;
-    padding-top: 0.95rem;
+    gap: 1.35rem;
+    padding-top: 1rem;
   }
 
   .homepage-flow {
-    gap: 1.4rem;
+    gap: 1.5rem;
   }
 
   .homepage-browse-band {
-    gap: 1.15rem;
+    gap: 1.2rem;
   }
 
   .section-panel-secondary {
-    padding: 1rem;
+    padding: 1.06rem 1.08rem;
   }
 
   .hero-stats,
@@ -1691,40 +1936,47 @@ h1 {
   .section-heading {
     align-items: start;
     flex-direction: column;
-    gap: 0.82rem;
-    margin-bottom: 1rem;
+    gap: 0.9rem;
+    margin-bottom: 1.05rem;
   }
 
   .section-title-row {
-    gap: 0.55rem;
+    width: 100%;
+    align-items: flex-start;
+    gap: 0.62rem;
   }
 
   .section-heading h2 {
     font-size: clamp(1.7rem, 7.8vw, 2.3rem);
+    line-height: 1;
+    max-width: 14ch;
   }
 
   .section-heading-side {
     align-items: start;
     max-width: none;
-    gap: 0.65rem;
+    gap: 0.7rem;
     width: 100%;
   }
 
   .section-heading-side p {
     text-align: left;
     max-width: 34rem;
+    line-height: 1.58;
+    text-wrap: pretty;
   }
 
   .section-count {
-    min-height: 2.45rem;
-    padding: 0.52rem 0.88rem;
+    min-height: 2.56rem;
+    padding: 0.56rem 0.94rem;
     font-size: 0.84rem;
+    line-height: 1.18;
   }
 
   .section-action {
     width: 100%;
-    min-height: 3rem;
-    padding: 0.82rem 1.04rem;
+    min-height: 3.15rem;
+    padding: 0.88rem 1.08rem;
   }
 
   .section-tools {
@@ -1734,6 +1986,7 @@ h1 {
 
   .section-helper {
     font-size: 0.9rem;
+    line-height: 1.52;
   }
 
   .section-nav {
@@ -1747,10 +2000,10 @@ h1 {
 
   .neighborhood-chip-row {
     flex-wrap: nowrap;
-    gap: 0.6rem;
+    gap: 0.68rem;
     overflow-x: auto;
-    margin-right: -0.1rem;
-    padding-bottom: 0.15rem;
+    margin-right: -0.18rem;
+    padding-bottom: 0.2rem;
     scrollbar-width: none;
   }
 
@@ -1760,47 +2013,56 @@ h1 {
 
   .deal-card {
     min-height: auto;
-    padding: 1.1rem 1.05rem 1.05rem;
-    border-radius: 1.4rem;
+    padding: 1.16rem 1.12rem 1.1rem;
+    border-radius: 1.46rem;
+  }
+
+  .deal-card-top {
+    margin-bottom: 0.65rem;
+    gap: 0.7rem;
   }
 
   .deal-card h3 {
     max-width: none;
-    font-size: 1.38rem;
+    font-size: 1.4rem;
+    line-height: 1.09;
   }
 
   .deal-description {
-    margin-top: 0.72rem;
+    margin-top: 0.76rem;
     font-size: 0.96rem;
-    line-height: 1.55;
+    line-height: 1.58;
+    text-wrap: pretty;
   }
 
   .deal-card-footer {
     align-items: start;
     flex-direction: column;
-    gap: 0.55rem;
-    padding-top: 0.85rem;
+    gap: 0.62rem;
+    padding-top: 0.9rem;
   }
 
   .deal-time {
     font-size: 0.95rem;
-    line-height: 1.38;
+    line-height: 1.42;
+    text-wrap: pretty;
   }
 
   .deal-chip {
-    min-height: 2.2rem;
+    min-height: 2.32rem;
     max-width: 100%;
-    padding: 0.5rem 0.8rem;
-    font-size: 0.84rem;
+    padding: 0.54rem 0.84rem;
+    font-size: 0.85rem;
+    line-height: 1.24;
     text-align: center;
     white-space: normal;
   }
 
   .browse-card {
     min-height: auto;
-    gap: 0.95rem;
-    padding: 1.12rem;
-    border-radius: 1.55rem;
+    gap: 1rem;
+    padding: 1.18rem;
+    border-radius: 1.6rem;
   }
 
   .browse-card-icon {
@@ -1811,25 +2073,30 @@ h1 {
   }
 
   .browse-card-pill {
-    min-height: 2.5rem;
-    padding: 0.62rem 0.88rem;
+    min-height: 2.62rem;
+    padding: 0.68rem 0.94rem;
     font-size: 0.84rem;
+    line-height: 1.22;
+    text-align: center;
+    white-space: normal;
   }
 
   .browse-card-body h3 {
     max-width: none;
     font-size: clamp(1.38rem, 6vw, 1.8rem);
+    line-height: 0.99;
   }
 
   .browse-card-day .browse-card-body h3 {
-    font-size: clamp(1.7rem, 8vw, 2.15rem);
+    font-size: clamp(1.72rem, 8vw, 2.1rem);
   }
 
   .browse-card-copy {
-    margin-top: 0.7rem;
+    margin-top: 0.74rem;
     max-width: none;
     font-size: 0.95rem;
-    line-height: 1.52;
+    line-height: 1.58;
+    text-wrap: pretty;
   }
 
   .browse-card-arrow {
@@ -1840,16 +2107,21 @@ h1 {
   .browse-card-footer {
     align-items: flex-start;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.8rem;
   }
 
   .browse-card-pills {
+    width: 100%;
     justify-content: flex-start;
+    gap: 0.55rem;
     margin-left: 0;
   }
 
   .browse-card-cta {
     font-size: 0.92rem;
+    min-height: 1.5rem;
+    display: inline-flex;
+    align-items: center;
   }
 
   .live-now-module {
@@ -1864,12 +2136,16 @@ h1 {
   .live-now-summary-copy h2 {
     max-width: none;
     font-size: clamp(1.28rem, 7vw, 1.72rem);
+    line-height: 1.01;
+    max-width: 14ch;
   }
 
   .live-now-summary-copy p {
-    margin-top: 0.55rem;
+    margin-top: 0.6rem;
     max-width: none;
     font-size: 0.96rem;
+    line-height: 1.56;
+    text-wrap: pretty;
   }
 
   .live-now-summary-side,
@@ -1881,13 +2157,13 @@ h1 {
 
   .neighborhood-chip {
     flex: 0 0 auto;
-    min-height: 2.7rem;
-    padding: 0.68rem 0.94rem;
+    min-height: 2.85rem;
+    padding: 0.72rem 1rem;
   }
 
   .live-now-toggle {
-    width: 3rem;
-    height: 3rem;
+    width: 3.1rem;
+    height: 3.1rem;
   }
 
   .live-now-empty {
@@ -1897,12 +2173,14 @@ h1 {
   .live-now-empty p {
     max-width: none;
     font-size: 0.95rem;
+    line-height: 1.56;
+    text-wrap: pretty;
   }
 
   .empty-state-live {
     grid-template-columns: 1fr;
     gap: 1rem;
-    padding: 1.15rem;
+    padding: 1.2rem;
   }
 
   .empty-state-featured,
@@ -1919,6 +2197,7 @@ h1 {
   .live-empty-copy h3 {
     max-width: none;
     font-size: clamp(1.6rem, 8vw, 2.1rem);
+    line-height: 1.02;
   }
 
   .live-empty-copy p:last-child {
@@ -1927,27 +2206,28 @@ h1 {
 
   .live-now-inline,
   .for-venues-panel {
-    gap: 0.9rem;
+    gap: 1rem;
   }
 
   .live-empty-actions,
   .empty-state-links {
     width: 100%;
+    gap: 0.75rem;
   }
 
   .empty-state-link,
   .empty-state-cta {
     width: 100%;
-    min-height: 3rem;
+    min-height: 3.15rem;
   }
 
   .empty-state-link {
-    padding: 0.78rem 1rem;
+    padding: 0.82rem 1.04rem;
   }
 
   .empty-state-cta {
     justify-content: flex-start;
-    padding: 0.82rem 0.95rem;
+    padding: 0.88rem 1rem;
   }
 
   .empty-state-cta-copy {
@@ -1957,21 +2237,22 @@ h1 {
 
   .site-footer {
     margin-top: 1.25rem;
-    padding-top: 1rem;
+    padding: 1.08rem 0.15rem 0;
     font-size: 0.9rem;
+    line-height: 1.55;
   }
 }
 
 @media (max-width: 560px) {
   .page-shell {
-    width: min(100% - 0.8rem, 34rem);
-    padding-top: 0.55rem;
+    width: min(100% - 0.9rem, 34rem);
+    padding-top: 0.5rem;
   }
 
   .hero-panel,
   .section-panel {
-    padding: 0.92rem;
-    border-radius: 1.35rem;
+    padding: 0.98rem;
+    border-radius: 1.4rem;
   }
 
   .hero-stats {
@@ -1984,27 +2265,30 @@ h1 {
   }
 
   .section-nav a {
-    min-height: 3.05rem;
-    padding: 0.78rem 0.95rem;
+    min-height: 3.15rem;
+    padding: 0.82rem 1rem;
     font-size: 0.92rem;
   }
 
   .section-heading h2 {
     font-size: clamp(1.55rem, 9vw, 2rem);
+    max-width: 12ch;
   }
 
   .homepage-section-today .section-heading h2 {
     font-size: clamp(1.95rem, 10vw, 2.4rem);
+    max-width: 11ch;
   }
 
   .section-count,
   .browse-card-pill,
   .deal-chip {
-    min-height: 2.35rem;
+    min-height: 2.48rem;
   }
 
   .browse-card {
-    padding: 1.02rem;
+    gap: 0.95rem;
+    padding: 1.08rem;
   }
 
   .browse-card-icon {
@@ -2017,7 +2301,27 @@ h1 {
     font-size: 1.3rem;
   }
 
+  .deal-card-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .deal-description {
+    font-size: 0.95rem;
+  }
+
   .live-now-toggle {
     align-self: flex-start;
+    width: 3.15rem;
+    height: 3.15rem;
+  }
+
+  .live-empty-signal {
+    width: 4.7rem;
+    height: 4.7rem;
+  }
+
+  .empty-state-live {
+    padding: 1.08rem;
   }
 }
