@@ -1056,6 +1056,8 @@ h1 {
   width: calc(100% - 0.72rem);
   height: calc(100% - 0.72rem);
   object-fit: contain;
+  object-position: center;
+  border-radius: inherit;
 }
 
 .icon-badge-lg {
