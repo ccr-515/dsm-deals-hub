@@ -1565,7 +1565,7 @@ def render_homepage_html(sections: dict[str, List[models.Deal]], neighborhoods: 
         <strong>{len(live_deals)}</strong>
       </div>
       <div>
-        <span>Today&#x27;s edit</span>
+        <span>Today&#x27;s picks</span>
         <strong>{len(sections["today"])}</strong>
       </div>
       <div>
