@@ -82,6 +82,9 @@ DEAL_ICON_KEYWORDS = [
     ("beer", "🍺", ("beer", "pint")),
 ]
 BRAND_PLACEHOLDER_GLYPH = "DH"
+BRAND_HOME_EYEBROW = "Curated daily"
+BRAND_META_LABEL = "Des Moines daily dining guide"
+PUBLIC_VENUES_LABEL = "Got a deal?"
 PUBLIC_NEIGHBORHOOD_LABELS = {
     "des moines area": "Des Moines",
     "des moines metro": "Des Moines",
@@ -880,7 +883,7 @@ def render_brand_slot(current_page: str) -> str:
       <span class="brand-wordmark">
         <span class="brand-kicker">DSM</span>
         <span class="brand-name">Deals Hub</span>
-        <span class="brand-meta">Des Moines dining guide</span>
+        <span class="brand-meta">{BRAND_META_LABEL}</span>
       </span>
     </a>
     """
@@ -896,7 +899,7 @@ def render_brand_heading(title: str) -> str:
         <span class="brand-wordmark brand-wordmark-heading">
           <span class="brand-kicker">DSM</span>
           <span class="brand-name">{escape(brand_title)}</span>
-          <span class="brand-meta brand-meta-heading">Des Moines dining guide</span>
+          <span class="brand-meta brand-meta-heading">{BRAND_META_LABEL}</span>
         </span>
       </a>
     </h1>
@@ -990,6 +993,8 @@ def render_section(
     section_class: str = "content-section",
     panel_class: str = "section-panel",
     kicker_label: Optional[str] = None,
+    collapsible: bool = False,
+    initially_open: bool = True,
 ) -> str:
     grid_class = "deal-grid"
     controls = render_section_sort_controls(section_id, deals)
@@ -1018,9 +1023,7 @@ def render_section(
     if action_label and action_href:
         action_html = f'<a class="section-action" href="{action_href}">{escape(action_label)}</a>'
 
-    return f"""
-    <section id="{section_id}" class="{escape(section_class)}">
-      <div class="{escape(panel_class)}">
+    heading_html = f"""
         <div class="section-heading">
           <div>
             <p class="section-kicker">{escape(kicker_label or title)}</p>
@@ -1031,9 +1034,40 @@ def render_section(
           </div>
           <div class="section-heading-side">
             <p>{escape(intro)}</p>
-            {action_html}
+            {action_html if not collapsible else ""}
           </div>
         </div>
+    """
+
+    if collapsible:
+        open_attr = " open" if initially_open else ""
+        body_action_html = ""
+        if action_html:
+            body_action_html = f'<div class="detail-section-body-actions">{action_html}</div>'
+        return f"""
+    <section id="{section_id}" class="{escape(section_class)}">
+      <details class="{escape(panel_class)} detail-section-module" data-toggle-glow{open_attr}>
+        <summary class="detail-section-summary">
+          {heading_html}
+          <span class="detail-section-arrow" aria-hidden="true">›</span>
+        </summary>
+        <div class="detail-section-details">
+          <div class="detail-section-details-inner">
+            {body_action_html}
+            {controls}
+            <div class="{grid_class}" data-sort-grid="{escape(section_id)}">
+              {cards}
+            </div>
+          </div>
+        </div>
+      </details>
+    </section>
+        """
+
+    return f"""
+    <section id="{section_id}" class="{escape(section_class)}">
+      <div class="{escape(panel_class)}">
+        {heading_html}
         {controls}
         <div class="{grid_class}" data-sort-grid="{escape(section_id)}">
           {cards}
@@ -1168,12 +1202,36 @@ def render_homepage_script() -> str:
     """
 
 
+def render_collapsible_sections_script() -> str:
+    return """
+    <script>
+      (() => {
+        const toggles = document.querySelectorAll('[data-toggle-glow]');
+        if (!toggles.length) {
+          return;
+        }
+
+        toggles.forEach((toggle) => {
+          toggle.addEventListener('toggle', () => {
+            toggle.classList.remove('is-toggling');
+            void toggle.offsetWidth;
+            toggle.classList.add('is-toggling');
+            window.setTimeout(() => {
+              toggle.classList.remove('is-toggling');
+            }, 320);
+          });
+        });
+      })();
+    </script>
+    """
+
+
 def render_site_nav(current_page: str) -> str:
     links = [
         ("Today", site_href("/today"), current_page == "today"),
         ("Neighborhoods", site_href("/neighborhoods"), current_page == "neighborhoods"),
         ("Days", site_href("/days"), current_page == "days"),
-        ("For Venues", site_href("/for-venues"), current_page == "for-venues"),
+        (PUBLIC_VENUES_LABEL, site_href("/for-venues"), current_page == "for-venues"),
     ]
     items = []
     for label, href, active in links:
@@ -1197,7 +1255,7 @@ def render_today_empty_state() -> str:
         <p class="live-empty-kicker">Today</p>
         <h3>Nothing is lined up for today yet.</h3>
         <p>
-          The guide leans on recurring weekday boards and weekend patterns. Browse by neighborhood, jump into the days guide, or check back when the daily rotation changes.
+          The guide leans on recurring weekday boards and weekend patterns. Browse neighborhoods, open Days, or check back when the daily board turns over.
         </p>
       </div>
       <div class="live-empty-actions">
@@ -1215,7 +1273,7 @@ def render_today_preview_empty_card() -> str:
         "Today is quiet right now",
         site_href("/today"),
         "📆",
-        "Open the full Today page, or browse Neighborhoods and Days while the weekly board resets.",
+        "Open Today, or browse Neighborhoods and Days while the board resets.",
         pills=["No specials today"],
         cta_label="Open Today",
         variant="day",
@@ -1233,8 +1291,10 @@ def render_page_document(
     utility_html: str = "",
     hero_class: str = "hero",
     include_sort_script: bool = False,
+    include_toggle_script: bool = False,
 ) -> str:
     sort_script = render_homepage_script() if include_sort_script else ""
+    toggle_script = render_collapsible_sections_script() if include_toggle_script else ""
     title_html = render_brand_heading(hero_title) if current_page == "home" else f"<h1>{escape(hero_title)}</h1>"
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -1277,6 +1337,7 @@ def render_page_document(
       </footer>
     </div>
     {sort_script}
+    {toggle_script}
   </body>
 </html>
 """
@@ -1372,7 +1433,7 @@ def render_live_now_module(deals: List[models.Deal], reference: datetime) -> str
     else:
         details_body = f"""
         <div class="live-now-empty">
-          <p>No exact-timed specials are active right now. The fuller browse usually lives in Today, Neighborhoods, and Days.</p>
+          <p>No exact-timed specials are active right now. The fuller daily browse usually lives in Today, Neighborhoods, and Days.</p>
           <div class="empty-state-links">
             <a href="{site_href("/today")}" class="empty-state-link">See Today</a>
             <a href="{site_href("/days")}" class="empty-state-link">Browse Days</a>
@@ -1387,8 +1448,8 @@ def render_live_now_module(deals: List[models.Deal], reference: datetime) -> str
           <summary class="live-now-summary">
             <div class="live-now-summary-copy">
               <span class="live-now-badge"><span class="live-now-dot" aria-hidden="true"></span>Live Now</span>
-              <h2>Exact-timed deals land here when a venue gives a real window.</h2>
-              <p>Think happy hour, after-5 specials, or one-night timing. For the broader weekly edit, start with Today below.</p>
+              <h2>Deals happening right now</h2>
+              <p>Catch the specials that are live at this moment. Support local, and don’t forget to tip.</p>
             </div>
             <div class="live-now-summary-side">
               <span class="section-count">{len(deals)} deals</span>
@@ -1471,9 +1532,9 @@ def render_neighborhood_cards(groups: List[dict], limit: Optional[int] = None, c
             site_href(f"/neighborhoods/{item['slug']}"),
             item["icon"],
             (
-                f"Open the current local edit for {item.get('display_name', item['name'])}."
+                f"Start with {item.get('display_name', item['name'])}, then open the strongest current local picks."
                 if context == "homepage"
-                else f"Browse the current local guide for {item.get('display_name', item['name'])}."
+                else f"Open the current guide for {item.get('display_name', item['name'])}."
             ),
             pills=[f"{item['deal_count']} specials", f"{item['venue_count']} venues"],
             cta_label="See neighborhood" if context == "homepage" else "Open neighborhood",
@@ -1580,12 +1641,12 @@ def render_homepage_html(sections: dict[str, List[models.Deal]], neighborhoods: 
     {render_section(
         "today-preview",
         "Today",
-        "A tighter daily edit of the strongest food, drink, and time-based picks worth opening first.",
+        "We had a feeling you’d start here.",
         today_preview,
         "Nothing is on the board for today yet.",
         now,
         time_labels=today_time_labels,
-        action_label="Open Today guide",
+        action_label="Open Today",
         action_href=site_href("/today"),
         section_class="content-section homepage-section homepage-section-today",
         panel_class="section-panel homepage-panel homepage-panel-today",
@@ -1595,7 +1656,7 @@ def render_homepage_html(sections: dict[str, List[models.Deal]], neighborhoods: 
     {render_link_grid_section(
         "neighborhoods-preview",
         "Neighborhoods",
-        "Start with place. These are the local boards shaping the guide right now.",
+        "Don’t want to go far? Start with your neighborhood.",
         render_neighborhood_cards(neighborhoods, limit=6, context="homepage"),
         "Browse neighborhoods",
         site_href("/neighborhoods"),
@@ -1606,7 +1667,7 @@ def render_homepage_html(sections: dict[str, List[models.Deal]], neighborhoods: 
     {render_link_grid_section(
         "days-preview",
         "Days",
-        "Prefer to plan by rhythm? Open the day you care about and browse the week the way people actually go out.",
+        "For planners, deal hoppers, and everyone in between.",
         render_day_cards(day_sections, context="homepage"),
         "Browse all days",
         site_href("/days"),
@@ -1620,22 +1681,22 @@ def render_homepage_html(sections: dict[str, List[models.Deal]], neighborhoods: 
       <div class="section-panel section-panel-secondary homepage-panel homepage-panel-venues">
         <div class="for-venues-panel">
           <div class="for-venues-copy">
-            <p class="section-kicker">For venues</p>
-            <h2>Curated for readers first, built for venues next.</h2>
+            <p class="section-kicker">{PUBLIC_VENUES_LABEL}</p>
+            <h2>Curated for readers. Ready for venue submissions.</h2>
             <p>
-              DSM Deals Hub stays hand-curated so the public side reads like a local guide, not a feed dump. Venue onboarding and update flow still live here as the business side grows.
+              DSM Deals Hub stays hand-curated so the public side reads like a local guide, not a feed dump. Deal submissions and future self-serve tools still live here as the business side grows.
             </p>
           </div>
           <div class="live-empty-actions">
             <div class="empty-state-links">
-              <a href="{site_href("/for-venues")}" class="empty-state-link">For Venues</a>
+              <a href="{site_href("/for-venues")}" class="empty-state-link">{PUBLIC_VENUES_LABEL}</a>
               <a href="{site_href("/neighborhoods")}" class="empty-state-link">Browse neighborhoods</a>
             </div>
-            <div class="empty-state-cta" aria-label="Venue owners can get listed">
+            <div class="empty-state-cta" aria-label="Businesses can submit a deal">
               <span class="empty-state-cta-plus">+</span>
               <span class="empty-state-cta-copy">
-                <strong>Feature your venue</strong>
-                <small>Business updates will live here</small>
+                <strong>Share your deal</strong>
+                <small>Venue submissions will live here</small>
               </span>
             </div>
           </div>
@@ -1647,9 +1708,9 @@ def render_homepage_html(sections: dict[str, List[models.Deal]], neighborhoods: 
     return render_page_document(
         "DSM Deals Hub",
         "Curated food and drink deals across Des Moines, updated manually.",
-        "Curated weekly dining guide",
+        BRAND_HOME_EYEBROW,
         "DSM Deals Hub",
-        "A hand-curated guide to neighborhood specials, brunch, happy hour, dinner boards, and weekly favorites across Des Moines.",
+        "A hand-curated daily guide to neighborhood specials, happy hour, brunch, dinner plans, and weekly favorites across Des Moines.",
         "home",
         main_content,
         utility_html=utility_html,
@@ -1740,7 +1801,7 @@ def render_neighborhoods_html(groups: List[dict]) -> str:
     main_content = render_link_grid_section(
         "neighborhoods-grid",
         "Neighborhoods",
-        "Choose a part of town, then open a tighter local board of restaurants, bars, and recurring specials.",
+        "Choose a part of town, then open a tighter local guide to restaurants, bars, and recurring specials.",
         render_neighborhood_cards(groups),
         "Open Days",
         site_href("/days"),
@@ -1750,7 +1811,7 @@ def render_neighborhoods_html(groups: List[dict]) -> str:
         "Browse Des Moines dining specials by neighborhood.",
         "Browse by place",
         "Neighborhoods",
-        "Start with the part of town that matters most, then open a neighborhood guide with the strongest current picks first.",
+        "Start with the part of town that matters most, then open a tighter local guide with the strongest current picks.",
         "neighborhoods",
         main_content,
         utility_html=utility_html,
@@ -1771,12 +1832,12 @@ def neighborhood_feature_intro(
     if total_grouped and today_count:
         return (
             f"{group['venue_count']} spots and {group['deal_count']} specials shape the {display_name} guide. "
-            f"Food, drinks, and food-and-drink picks are split below so the area reads like a tighter local guide for today and the rest of the week."
+            f"Food, drinks, and both are split below so the area reads like a tighter local guide for today and the rest of the week."
         )
     if total_grouped and live_music_count:
         return (
             f"{group['venue_count']} spots and {group['deal_count']} specials shape the {display_name} guide. "
-            f"Food, drinks, and food-and-drink picks are grouped separately below, with any music-forward note kept outside the main deal stack."
+            f"Food, drinks, and both are grouped separately below, with any live music note kept outside the main deal stack."
         )
     if total_grouped:
         return (
@@ -1785,7 +1846,7 @@ def neighborhood_feature_intro(
         )
     return (
         f"{group['venue_count']} spots and {group['deal_count']} specials shape the {display_name} guide. "
-        f"This area is lighter on food and drink listings right now, with a smaller neighborhood note still captured on the board."
+        f"This area is lighter right now, with a smaller neighborhood note still captured on the board."
     )
 
 
@@ -2131,6 +2192,8 @@ def render_neighborhood_detail_html(group: dict) -> str:
             section_class=section.get("section_class", "content-section"),
             panel_class=section.get("panel_class", "section-panel"),
             kicker_label=section.get("kicker_label"),
+            collapsible=True,
+            initially_open=index == 0,
         )
         for index, section in enumerate(detail_sections)
     )
@@ -2143,6 +2206,7 @@ def render_neighborhood_detail_html(group: dict) -> str:
         "neighborhoods",
         main_content,
         utility_html=utility_html,
+        include_toggle_script=True,
     )
 
 
@@ -2168,7 +2232,7 @@ def render_days_html(sections: dict[str, List[models.Deal]]) -> str:
     main_content = render_link_grid_section(
         "days-grid",
         "Days",
-        "Open a dedicated day page to browse the week the way people actually plan it: flatter weekdays, fuller weekends.",
+        "Open the day that fits your plans and browse the week the way people actually use it: flatter weekdays, fuller weekends.",
         render_day_cards(sections),
         "Open Today",
         site_href("/today"),
@@ -2179,7 +2243,7 @@ def render_days_html(sections: dict[str, List[models.Deal]]) -> str:
         "Browse Des Moines food and drink deals by day of the week.",
         "Day-by-day guide",
         "Days",
-        "Browse the weekly rhythm of Des Moines specials in strict calendar order, then open the day that fits your plans.",
+        "Browse the week in calendar order, then open the day that fits your plans.",
         "days",
         main_content,
         utility_html=utility_html,
@@ -2292,9 +2356,9 @@ def weekday_detail_sections(day_code: str, deals: List[models.Deal], featured_id
             midday_intro = f"Breakfast, brunch, and first-meal stops currently shaping the {day_label} board."
 
     intros = {
-        "Happy Hour": f"Timed pours, patio windows, and after-work value that usually open the {day_label} board.",
+        "Happy Hour": f"Timed pours, patio windows, and after-work value leading the {day_label} board.",
         "Midday": midday_intro,
-        "Dinner": f"Dinner-led specials, bigger plates, and stronger evening picks currently landing on {day_label}.",
+        "Dinner": f"Dinner-led specials, bigger plates, and stronger evening picks on {day_label}.",
         "Specials": f"The main {day_label} board, from lunch runs to all-day house specials and neighborhood staples.",
         "Late Night": f"Later-night stops and extended windows that keep going after the main {day_label} dinner stretch.",
     }
@@ -2343,7 +2407,7 @@ def weekend_detail_sections(day_code: str, deals: List[models.Deal], featured_id
             grouped["Specials"].append(deal)
 
     weekend_intros = dict(weekly_content.WEEKEND_SECTION_INTROS)
-    weekend_intros["Happy Hour"] = "Shorter pour windows, aperitivo-style stops, and drink-led value that are worth catching before dinner."
+    weekend_intros["Happy Hour"] = "Shorter pour windows, aperitivo-style stops, and drink-led value worth catching before dinner."
 
     sections = []
     for title in ordered_keys:
@@ -2434,7 +2498,7 @@ def render_day_detail_html(day_code: str, deals: List[models.Deal]) -> str:
     utility_html = f"""
     <div class="day-detail-utility">
       <div class="day-nav-shell">
-        <p class="day-nav-label">Browse another day</p>
+        <p class="day-nav-label">Jump to another day</p>
         {render_day_page_nav(day_code)}
       </div>
       <div class="hero-stats day-detail-stats" aria-label="{escape(day_label)} overview">
@@ -2451,8 +2515,6 @@ def render_day_detail_html(day_code: str, deals: List[models.Deal]) -> str:
             f"Nothing is listed for {day_label} yet.",
             now,
             time_labels=[format_day_page_time(deal, day_code) for deal in section["deals"]],
-            action_label="Back to days" if index == 0 else None,
-            action_href=site_href("/days") if index == 0 else None,
             section_class="content-section day-detail-section",
             panel_class=(
                 "section-panel homepage-panel homepage-panel-today day-detail-panel day-detail-panel-featured"
@@ -2460,6 +2522,8 @@ def render_day_detail_html(day_code: str, deals: List[models.Deal]) -> str:
                 else f"section-panel homepage-panel day-detail-panel{' day-detail-panel-live-music' if section['title'] == 'Live Music' else ''}"
             ),
             kicker_label="Start here" if index == 0 else section["title"],
+            collapsible=True,
+            initially_open=index == 0,
         )
         for index, section in enumerate(detail_sections)
     )
@@ -2473,6 +2537,7 @@ def render_day_detail_html(day_code: str, deals: List[models.Deal]) -> str:
         main_content,
         utility_html=utility_html,
         hero_class="hero hero-days",
+        include_toggle_script=True,
     )
 
 
@@ -2482,22 +2547,22 @@ def render_for_venues_html() -> str:
       <div class="section-panel section-panel-secondary">
         <div class="for-venues-panel">
           <div class="for-venues-copy">
-            <p class="section-kicker">For Venues</p>
-            <h2>Manual curation comes first in this MVP.</h2>
+            <p class="section-kicker">{PUBLIC_VENUES_LABEL}</p>
+            <h2>Submit it for review.</h2>
             <p>
-              DSM Deals Hub is being built as a tight local guide, not an open submission board. For now, the business-facing side is about explaining what fits the guide, how featured spots will work, and where venue onboarding intent lives as the product grows.
+              Some days need help filling seats. If your business has a deal worth sharing, submit it for review. DSM Deals Hub is still curated by hand, so every listing stays useful, local, and worth opening.
             </p>
           </div>
           <div class="live-empty-actions">
             <div class="empty-state-links">
-              <a href="{site_href("/neighborhoods")}" class="empty-state-link">Browse Neighborhoods</a>
-              <a href="{site_href("/days")}" class="empty-state-link">See Days</a>
+              <a href="{site_href("/neighborhoods")}" class="empty-state-link">Browse neighborhoods</a>
+              <a href="{site_href("/days")}" class="empty-state-link">Browse days</a>
             </div>
-            <div class="empty-state-cta" aria-label="Venue onboarding intent">
+            <div class="empty-state-cta" aria-label="Business submissions and login roadmap">
               <span class="empty-state-cta-plus">+</span>
               <span class="empty-state-cta-copy">
-                <strong>Get featured</strong>
-                <small>Venue onboarding will live here</small>
+                <strong>Venue tools are coming</strong>
+                <small>Direct logins and self-serve updates will live here later</small>
               </span>
             </div>
           </div>
@@ -2510,20 +2575,20 @@ def render_for_venues_html() -> str:
             render_info_card(
                 "What fits the guide",
                 "🍽️",
-                "Dining-first curation",
-                "We are prioritizing restaurants, bars, brunch spots, buffets, seafood, wings, burgers, tacos, wine, and strong recurring house specials.",
+                "Curated, not everything",
+                "We prioritize restaurant, bar, brunch, buffet, seafood, burger, taco, wing, wine, and house-special deals that feel genuinely useful to readers.",
             ),
             render_info_card(
-                "How v1 works",
+                "How review works",
                 "🖐️",
-                "Manual admin workflow",
-                "Deals are copied in manually and curated by hand so the public site stays clean, readable, and neighborhood friendly.",
+                "Reviewed before it goes live",
+                "This is not an open bulletin board. Deals are reviewed and added manually so the public guide stays clean, local, and easy to trust.",
             ),
             render_info_card(
-                "What comes later",
+                "What comes next",
                 "⚙️",
-                "Venue updates and business flow",
-                "Later passes can add venue update tools, fresher schedules, and a clearer business-side submission flow without changing the public guide structure.",
+                "Direct business access later",
+                "Later on, businesses will be able to log in with a username and password to manage their deals directly without changing the public guide structure.",
             ),
         ]
     )
@@ -2531,19 +2596,19 @@ def render_for_venues_html() -> str:
     {intro_panel}
     {render_link_grid_section(
         "venue-guidelines",
-        "How This Will Work",
-        "A quick look at the business-facing intent for featuring, updates, and manual onboarding.",
+        "How submissions will work",
+        "A quick look at what fits DSM Deals Hub, how review works, and where direct business access will land later.",
         info_cards,
-        "Back Home",
+        "Back home",
         site_href("/"),
     )}
     """
     return render_page_document(
-        "DSM Deals Hub | For Venues",
-        "Learn how venues fit into DSM Deals Hub and how manual featuring will work in v1.",
-        "Business-facing page",
-        "For Venues",
-        "A clear place for venue onboarding intent, what fits the guide, and how manual curation will expand later without adding a separate contact page.",
+        f"DSM Deals Hub | {PUBLIC_VENUES_LABEL}",
+        "Learn how businesses can submit deals for review and how direct account access will work later.",
+        "For local businesses",
+        PUBLIC_VENUES_LABEL,
+        "Some days need help filling seats. If your business has a deal worth sharing, submit it for review. Later on, businesses will be able to log in with a username and password to manage their deals directly.",
         "for-venues",
         main_content,
     )

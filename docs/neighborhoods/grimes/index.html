@@ -22,20 +22,20 @@
       <span class="brand-wordmark">
         <span class="brand-kicker">DSM</span>
         <span class="brand-name">Deals Hub</span>
-        <span class="brand-meta">Des Moines dining guide</span>
+        <span class="brand-meta">Des Moines daily dining guide</span>
       </span>
     </a>
     
             <p class="eyebrow">Neighborhood guide</p>
             <h1>Grimes</h1>
             <p class="hero-text">
-              2 spots and 8 specials shape the Grimes guide. Food, drinks, and food-and-drink picks are split below so the area reads like a tighter local guide for today and the rest of the week.
+              2 spots and 8 specials shape the Grimes guide. Food, drinks, and both are split below so the area reads like a tighter local guide for today and the rest of the week.
             </p>
           </div>
           <div class="hero-utility">
             
     <nav class="section-nav site-nav" aria-label="Site navigation">
-      <a href="/dsm-deals-hub/today/">Today</a><a href="/dsm-deals-hub/neighborhoods/" aria-current="page">Neighborhoods</a><a href="/dsm-deals-hub/days/">Days</a><a href="/dsm-deals-hub/for-venues/">For Venues</a>
+      <a href="/dsm-deals-hub/today/">Today</a><a href="/dsm-deals-hub/neighborhoods/" aria-current="page">Neighborhoods</a><a href="/dsm-deals-hub/days/">Days</a><a href="/dsm-deals-hub/for-venues/">Got a deal?</a>
     </nav>
     
             
@@ -61,7 +61,9 @@
       <main class="content">
         
     <section id="neighborhood-food" class="content-section neighborhood-detail-section">
-      <div class="section-panel homepage-panel neighborhood-detail-panel neighborhood-detail-panel-food homepage-panel-today neighborhood-detail-panel-featured">
+      <details class="section-panel homepage-panel neighborhood-detail-panel neighborhood-detail-panel-food homepage-panel-today neighborhood-detail-panel-featured detail-section-module" data-toggle-glow open>
+        <summary class="detail-section-summary">
+          
         <div class="section-heading">
           <div>
             <p class="section-kicker">Food</p>
@@ -72,12 +74,18 @@
           </div>
           <div class="section-heading-side">
             <p>Meals, brunches, buffets, sandwiches, seafood, and stronger food-led specials currently surfacing in Grimes.</p>
-            <a class="section-action" href="/dsm-deals-hub/neighborhoods/">Back to neighborhoods</a>
+            
           </div>
         </div>
-        
-        <div class="deal-grid" data-sort-grid="neighborhood-food">
-          
+    
+          <span class="detail-section-arrow" aria-hidden="true">›</span>
+        </summary>
+        <div class="detail-section-details">
+          <div class="detail-section-details-inner">
+            <div class="detail-section-body-actions"><a class="section-action" href="/dsm-deals-hub/neighborhoods/">Back to neighborhoods</a></div>
+            
+            <div class="deal-grid" data-sort-grid="neighborhood-food">
+              
     <article class="deal-card" data-neighborhood="Grimes" data-lat="" data-lng="" data-order="0">
       <div class="deal-card-top">
         <p class="deal-venue">Destination Grille</p>
@@ -119,12 +127,16 @@
       </div>
     </article>
     
+            </div>
+          </div>
         </div>
-      </div>
+      </details>
     </section>
-    
+        
     <section id="neighborhood-drinks" class="content-section neighborhood-detail-section">
-      <div class="section-panel homepage-panel neighborhood-detail-panel neighborhood-detail-panel-drinks">
+      <details class="section-panel homepage-panel neighborhood-detail-panel neighborhood-detail-panel-drinks detail-section-module" data-toggle-glow>
+        <summary class="detail-section-summary">
+          
         <div class="section-heading">
           <div>
             <p class="section-kicker">Drinks</p>
@@ -138,9 +150,15 @@
             
           </div>
         </div>
-        
-        <div class="deal-grid" data-sort-grid="neighborhood-drinks">
-          
+    
+          <span class="detail-section-arrow" aria-hidden="true">›</span>
+        </summary>
+        <div class="detail-section-details">
+          <div class="detail-section-details-inner">
+            
+            
+            <div class="deal-grid" data-sort-grid="neighborhood-drinks">
+              
     <article class="deal-card" data-neighborhood="Grimes" data-lat="" data-lng="" data-order="0">
       <div class="deal-card-top">
         <p class="deal-venue">Uptown Bar &amp; Grill</p>
@@ -182,12 +200,16 @@
       </div>
     </article>
     
+            </div>
+          </div>
         </div>
-      </div>
+      </details>
     </section>
-    
+        
     <section id="neighborhood-both" class="content-section neighborhood-detail-section">
-      <div class="section-panel homepage-panel neighborhood-detail-panel neighborhood-detail-panel-both">
+      <details class="section-panel homepage-panel neighborhood-detail-panel neighborhood-detail-panel-both detail-section-module" data-toggle-glow>
+        <summary class="detail-section-summary">
+          
         <div class="section-heading">
           <div>
             <p class="section-kicker">Both</p>
@@ -201,9 +223,15 @@
             
           </div>
         </div>
-        
-        <div class="deal-grid" data-sort-grid="neighborhood-both">
-          
+    
+          <span class="detail-section-arrow" aria-hidden="true">›</span>
+        </summary>
+        <div class="detail-section-details">
+          <div class="detail-section-details-inner">
+            
+            
+            <div class="deal-grid" data-sort-grid="neighborhood-both">
+              
     <article class="deal-card" data-neighborhood="Grimes" data-lat="" data-lng="" data-order="0">
       <div class="deal-card-top">
         <p class="deal-venue">Destination Grille</p>
@@ -231,16 +259,39 @@
       </div>
     </article>
     
+            </div>
+          </div>
         </div>
-      </div>
+      </details>
     </section>
-    
+        
       </main>
 
       <footer class="site-footer">
         DSM Deals Hub is curated manually from local posts and business updates.
       </footer>
     </div>
+    
+    
+    <script>
+      (() => {
+        const toggles = document.querySelectorAll('[data-toggle-glow]');
+        if (!toggles.length) {
+          return;
+        }
+
+        toggles.forEach((toggle) => {
+          toggle.addEventListener('toggle', () => {
+            toggle.classList.remove('is-toggling');
+            void toggle.offsetWidth;
+            toggle.classList.add('is-toggling');
+            window.setTimeout(() => {
+              toggle.classList.remove('is-toggling');
+            }, 320);
+          });
+        });
+      })();
+    </script>
     
   </body>
 </html>

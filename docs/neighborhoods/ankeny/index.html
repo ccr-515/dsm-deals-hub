@@ -22,7 +22,7 @@
       <span class="brand-wordmark">
         <span class="brand-kicker">DSM</span>
         <span class="brand-name">Deals Hub</span>
-        <span class="brand-meta">Des Moines dining guide</span>
+        <span class="brand-meta">Des Moines daily dining guide</span>
       </span>
     </a>
     
@@ -35,7 +35,7 @@
           <div class="hero-utility">
             
     <nav class="section-nav site-nav" aria-label="Site navigation">
-      <a href="/dsm-deals-hub/today/">Today</a><a href="/dsm-deals-hub/neighborhoods/" aria-current="page">Neighborhoods</a><a href="/dsm-deals-hub/days/">Days</a><a href="/dsm-deals-hub/for-venues/">For Venues</a>
+      <a href="/dsm-deals-hub/today/">Today</a><a href="/dsm-deals-hub/neighborhoods/" aria-current="page">Neighborhoods</a><a href="/dsm-deals-hub/days/">Days</a><a href="/dsm-deals-hub/for-venues/">Got a deal?</a>
     </nav>
     
             
@@ -61,7 +61,9 @@
       <main class="content">
         
     <section id="neighborhood-both" class="content-section neighborhood-detail-section">
-      <div class="section-panel homepage-panel neighborhood-detail-panel neighborhood-detail-panel-both homepage-panel-today neighborhood-detail-panel-featured">
+      <details class="section-panel homepage-panel neighborhood-detail-panel neighborhood-detail-panel-both homepage-panel-today neighborhood-detail-panel-featured detail-section-module" data-toggle-glow open>
+        <summary class="detail-section-summary">
+          
         <div class="section-heading">
           <div>
             <p class="section-kicker">Both</p>
@@ -72,12 +74,18 @@
           </div>
           <div class="section-heading-side">
             <p>Places where the value is in the pairing: food plus drinks, combo pricing, or fuller happy-hour-style boards in Ankeny.</p>
-            <a class="section-action" href="/dsm-deals-hub/neighborhoods/">Back to neighborhoods</a>
+            
           </div>
         </div>
-        
-        <div class="deal-grid" data-sort-grid="neighborhood-both">
-          
+    
+          <span class="detail-section-arrow" aria-hidden="true">›</span>
+        </summary>
+        <div class="detail-section-details">
+          <div class="detail-section-details-inner">
+            <div class="detail-section-body-actions"><a class="section-action" href="/dsm-deals-hub/neighborhoods/">Back to neighborhoods</a></div>
+            
+            <div class="deal-grid" data-sort-grid="neighborhood-both">
+              
     <article class="deal-card" data-neighborhood="Ankeny" data-lat="" data-lng="" data-order="0">
       <div class="deal-card-top">
         <p class="deal-venue">District 36</p>
@@ -91,16 +99,39 @@
       </div>
     </article>
     
+            </div>
+          </div>
         </div>
-      </div>
+      </details>
     </section>
-    
+        
       </main>
 
       <footer class="site-footer">
         DSM Deals Hub is curated manually from local posts and business updates.
       </footer>
     </div>
+    
+    
+    <script>
+      (() => {
+        const toggles = document.querySelectorAll('[data-toggle-glow]');
+        if (!toggles.length) {
+          return;
+        }
+
+        toggles.forEach((toggle) => {
+          toggle.addEventListener('toggle', () => {
+            toggle.classList.remove('is-toggling');
+            void toggle.offsetWidth;
+            toggle.classList.add('is-toggling');
+            window.setTimeout(() => {
+              toggle.classList.remove('is-toggling');
+            }, 320);
+          });
+        });
+      })();
+    </script>
     
   </body>
 </html>
