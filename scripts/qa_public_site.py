@@ -86,7 +86,7 @@ def audit_exported_docs() -> list[str]:
             failures.append(f"{page}: favicon links were {audit.favicon_links!r}")
 
         for href in audit.hrefs:
-            if href.startswith(("http://", "https://", "mailto:", "#")):
+            if href.startswith(("http://", "https://", "mailto:", "tel:", "#")):
                 continue
             if not href.startswith(f"{GITHUB_PAGES_BASE}/") and href != f"{GITHUB_PAGES_BASE}/":
                 failures.append(f"{page}: non-GitHub-Pages-safe href {href!r}")

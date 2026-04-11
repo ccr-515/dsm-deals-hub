@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import re
 from typing import List, Optional
+from urllib.parse import quote_plus
 from zoneinfo import ZoneInfo
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
@@ -942,6 +943,65 @@ def render_section_sort_controls(section_id: str, deals: List[models.Deal]) -> s
     """
 
 
+def venue_directions_href(venue: object | None) -> Optional[str]:
+    if not venue:
+        return None
+
+    lat = getattr(venue, "lat", None)
+    lng = getattr(venue, "lng", None)
+    if lat is not None and lng is not None:
+        return f"https://www.google.com/maps/search/?api=1&query={lat},{lng}"
+
+    address = getattr(venue, "address", None)
+    if not address:
+        return None
+
+    cleaned = " ".join(str(address).split())
+    if not cleaned:
+        return None
+    venue_name = " ".join(str(getattr(venue, "name", "")).split())
+    query = f"{venue_name} {cleaned}".strip()
+    return f"https://www.google.com/maps/search/?api=1&query={quote_plus(query)}"
+
+
+def venue_call_href(venue: object | None) -> Optional[str]:
+    if not venue:
+        return None
+
+    phone = getattr(venue, "phone", None)
+    if not phone:
+        return None
+
+    digits = re.sub(r"\D+", "", str(phone))
+    if len(digits) == 10:
+        return f"tel:+1{digits}"
+    if len(digits) == 11 and digits.startswith("1"):
+        return f"tel:+{digits}"
+    if len(digits) > 11:
+        return f"tel:+{digits}"
+    return None
+
+
+def render_venue_utility_actions(venue: object | None) -> str:
+    directions_href = venue_directions_href(venue)
+    call_href = venue_call_href(venue)
+    actions = []
+
+    if directions_href:
+        actions.append(
+            f'<a class="deal-utility-action" href="{escape(directions_href)}" aria-label="Get directions to {escape(getattr(venue, "name", "this venue"))}">Directions</a>'
+        )
+    if call_href:
+        actions.append(
+            f'<a class="deal-utility-action" href="{escape(call_href)}" aria-label="Call {escape(getattr(venue, "name", "this venue"))}">Call</a>'
+        )
+
+    if not actions:
+        return ""
+
+    return f'<div class="deal-card-actions" aria-label="Venue actions">{"".join(actions)}</div>'
+
+
 def render_deal_card(
     deal: models.Deal,
     reference: datetime,
@@ -963,6 +1023,7 @@ def render_deal_card(
     neighborhood = ""
     if neighborhood_name:
         neighborhood = f'<span class="deal-chip">{escape(neighborhood_name)}</span>'
+    utility_actions = render_venue_utility_actions(deal.venue)
 
     return f"""
     <article class="deal-card" data-neighborhood="{neighborhood_attr}" data-lat="{lat_attr}" data-lng="{lng_attr}" data-order="{order_index}">
@@ -976,6 +1037,7 @@ def render_deal_card(
         <p class="deal-time">{time_label}</p>
         {neighborhood}
       </div>
+      {utility_actions}
     </article>
     """
 

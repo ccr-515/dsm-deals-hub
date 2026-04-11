@@ -7,11 +7,14 @@ import csv
 import json
 from pathlib import Path
 import re
+import sqlite3
 import unicodedata
 
 
 WEEKLY_MASTER_JSON_PATH = Path("/Users/camilorodriguez/Downloads/dsm_deals_hub_master_weekly_list.json")
 WEEKLY_MASTER_CSV_PATH = Path("/Users/camilorodriguez/Downloads/dsm_deals_hub_master_weekly_list.csv")
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DB_PATH = PROJECT_ROOT / "dsm_deals.db"
 
 EXPECTED_FIELDS = ("day", "venue", "neighborhood", "time", "title", "desc", "category")
 DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
@@ -121,6 +124,8 @@ class SiteVenue:
     neighborhood: str
     lat: float | None = None
     lng: float | None = None
+    address: str | None = None
+    phone: str | None = None
 
 
 @dataclass(frozen=True)
@@ -141,6 +146,108 @@ def _normalize_slug(value: str) -> str:
     ascii_value = normalized.encode("ascii", "ignore").decode("ascii")
     collapsed = re.sub(r"[^a-zA-Z0-9]+", "-", ascii_value.strip().lower())
     return collapsed.strip("-")
+
+
+def _clean_public_address(value: str | None) -> str | None:
+    if not value:
+        return None
+    cleaned = " ".join(str(value).split())
+    lowered = cleaned.lower()
+    if "pending manual verification" in lowered:
+        return None
+    if lowered in {"des moines metro", "greater des moines", "des moines area", "metro des moines"}:
+        return None
+    return cleaned or None
+
+
+def _clean_public_phone(value: str | None) -> str | None:
+    if not value:
+        return None
+    cleaned = " ".join(str(value).split())
+    digits = re.sub(r"\D+", "", cleaned)
+    if len(digits) < 10:
+        return None
+    return cleaned
+
+
+def _payload_fingerprint(payload: dict[str, str | float | None]) -> tuple[object, ...]:
+    return (
+        payload.get("address"),
+        payload.get("phone"),
+        payload.get("lat"),
+        payload.get("lng"),
+    )
+
+
+def _db_mtime_ns() -> int:
+    return DB_PATH.stat().st_mtime_ns if DB_PATH.exists() else 0
+
+
+@lru_cache(maxsize=4)
+def _load_verified_venue_metadata(db_mtime_ns: int) -> dict[str, dict[str, str | float | None]]:
+    del db_mtime_ns
+    if not DB_PATH.exists():
+        return {}
+
+    connection = sqlite3.connect(DB_PATH)
+    connection.row_factory = sqlite3.Row
+    try:
+        rows = connection.execute(
+            """
+            SELECT name, slug, address, phone, lat, lng
+            FROM venues
+            """
+        ).fetchall()
+    finally:
+        connection.close()
+
+    metadata: dict[str, dict[str, str | float | None]] = {}
+    for row in rows:
+        address = _clean_public_address(row["address"])
+        phone = _clean_public_phone(row["phone"])
+        lat = row["lat"]
+        lng = row["lng"]
+        if not address and not phone and (lat is None or lng is None):
+            continue
+
+        payload = {
+            "address": address,
+            "phone": phone,
+            "lat": lat,
+            "lng": lng,
+        }
+
+        slug_key = _normalize_slug(row["slug"] or "")
+        name_key = _normalize_slug(row["name"] or "")
+        for key in (slug_key, name_key):
+            if key and key not in metadata:
+                metadata[key] = payload
+
+    return metadata
+
+
+def _resolve_venue_metadata(
+    venue_slug: str,
+    venue_name: str,
+    venue_metadata: dict[str, dict[str, str | float | None]],
+) -> dict[str, str | float | None]:
+    name_key = _normalize_slug(venue_name)
+    for key in (venue_slug, name_key):
+        if key and key in venue_metadata:
+            return venue_metadata[key]
+
+    candidates: list[dict[str, str | float | None]] = []
+    for key, payload in venue_metadata.items():
+        if not key or not name_key:
+            continue
+        if key.startswith(f"{name_key}-") or name_key.startswith(f"{key}-"):
+            candidates.append(payload)
+
+    fingerprints = {_payload_fingerprint(payload) for payload in candidates}
+    if len(fingerprints) == 1 and candidates:
+        return candidates[0]
+
+    return {}
 
 
 def _normalize_day_name_token(value: str) -> str:
@@ -382,12 +489,13 @@ def _build_notes_meta(
 
 
 @lru_cache(maxsize=4)
-def _load_weekly_master_deals_cached(json_mtime_ns: int, csv_mtime_ns: int) -> tuple[SiteDeal, ...]:
+def _load_weekly_master_deals_cached(json_mtime_ns: int, csv_mtime_ns: int, db_mtime_ns: int) -> tuple[SiteDeal, ...]:
     del json_mtime_ns, csv_mtime_ns
     json_rows = _read_json_rows()
     csv_rows = _read_csv_rows()
     _validate_source_files(json_rows, csv_rows)
 
+    venue_metadata = _load_verified_venue_metadata(db_mtime_ns)
     venues_by_slug: dict[str, SiteVenue] = {}
     next_venue_id = 1
     deals: list[SiteDeal] = []
@@ -409,11 +517,16 @@ def _load_weekly_master_deals_cached(json_mtime_ns: int, csv_mtime_ns: int) -> t
         neighborhood = _normalize_neighborhood(row["neighborhood"])
 
         if venue_slug not in venues_by_slug:
+            metadata = _resolve_venue_metadata(venue_slug, row["venue"], venue_metadata)
             venues_by_slug[venue_slug] = SiteVenue(
                 id=next_venue_id,
                 name=row["venue"],
                 slug=venue_slug,
                 neighborhood=neighborhood,
+                lat=metadata.get("lat"),
+                lng=metadata.get("lng"),
+                address=metadata.get("address"),
+                phone=metadata.get("phone"),
             )
             next_venue_id += 1
 
@@ -450,6 +563,7 @@ def load_weekly_master_deals() -> list[SiteDeal]:
         _load_weekly_master_deals_cached(
             WEEKLY_MASTER_JSON_PATH.stat().st_mtime_ns,
             WEEKLY_MASTER_CSV_PATH.stat().st_mtime_ns,
+            _db_mtime_ns(),
         )
     )
 
