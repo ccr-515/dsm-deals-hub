@@ -1131,14 +1131,19 @@ h1 {
 }
 
 .icon-badge[data-icon-kind="neighborhood"][data-icon-render="image"] {
-  padding: 0.2rem;
+  padding: 0.08rem;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 242, 233, 0.82)),
     rgba(255, 248, 242, 0.9);
 }
 
 .icon-badge[data-icon-kind="neighborhood"][data-icon-render="image"]::after {
-  inset: 0.28rem;
+  inset: 0.22rem;
+}
+
+.icon-badge[data-icon-kind="neighborhood"][data-icon-render="image"] .icon-badge-image {
+  width: calc(100% - 0.18rem);
+  height: calc(100% - 0.18rem);
 }
 
 .icon-badge[data-icon-kind="day"] {
