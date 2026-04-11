@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session, joinedload
 from . import config, models, schemas
 from .database import Base, SessionLocal, engine
 from .migrations import run_migrations
+from .neighborhood_icons import neighborhood_icon_static_path, sync_neighborhood_icon_assets
 from .utils import (
     build_day_window,
     deal_is_live_now,
@@ -37,6 +38,7 @@ APP_DIR = Path(__file__).parent
 STATIC_DIR = APP_DIR / "static"
 HOME_TIMEZONE = ZoneInfo("America/Chicago")
 HOMEPAGE_SEED_SOURCE = "seed://homepage-curated-v2"
+sync_neighborhood_icon_assets()
 WEEKDAY_LONG = {
     "Mon": "Monday",
     "Tue": "Tuesday",
@@ -51,9 +53,8 @@ NEIGHBORHOOD_CENTERS = {
     "Altoona": (41.6446, -93.4652),
     "Beaverdale": (41.6156, -93.6712),
     "Clive": (41.6030, -93.7241),
-    "Court District": (41.5854, -93.6228),
-    "Des Moines Metro": (41.5868, -93.6250),
-    "Downtown Des Moines": (41.5868, -93.6250),
+    "Des Moines": (41.5868, -93.6250),
+    "Downtown": (41.5868, -93.6250),
     "East Village": (41.5912, -93.6118),
     "Grimes": (41.6883, -93.7911),
     "Ingersoll": (41.5866, -93.6596),
@@ -65,7 +66,6 @@ NEIGHBORHOOD_CENTERS = {
     "Valley Junction": (41.5750, -93.7110),
     "Waveland": (41.6009, -93.6824),
     "West Des Moines": (41.5772, -93.7113),
-    "Western Gateway": (41.5851, -93.6385),
 }
 DEAL_ICON_KEYWORDS = [
     ("wine", "🍷", ("wine",)),
@@ -83,9 +83,24 @@ DEAL_ICON_KEYWORDS = [
 ]
 BRAND_PLACEHOLDER_GLYPH = "DH"
 PUBLIC_NEIGHBORHOOD_LABELS = {
-    "des moines area": "Greater Des Moines",
+    "des moines area": "Des Moines",
+    "des moines metro": "Des Moines",
+    "court district": "Downtown",
+    "court avenue": "Downtown",
+    "western gateway": "Downtown",
+    "downtown des moines": "Downtown",
+    "prairie meadows": "Altoona",
+}
+NEIGHBORHOOD_ROUTE_ALIASES = {
+    "des-moines-area": "des-moines",
+    "des-moines-metro": "des-moines",
+    "court-district": "downtown",
+    "court-avenue": "downtown",
+    "western-gateway": "downtown",
+    "prairie-meadows": "altoona",
 }
 NEIGHBORHOOD_PLACEHOLDER_ICON_MAP = {
+    "Altoona": "AL",
     "Ankeny": "AN",
     "Beaverdale": "BV",
     "Clive": "CL",
@@ -116,6 +131,7 @@ NEIGHBORHOOD_PLACEHOLDER_ICON_MAP = {
     "Western Gateway": "WG",
 }
 NEIGHBORHOOD_ICON_TONES = {
+    "altoona": "sunrise",
     "ankeny": "meadow",
     "beaverdale": "grove",
     "clive": "meadow",
@@ -838,12 +854,18 @@ def render_icon_badge(
     size: str,
     icon_key: str,
     extra_class: str,
+    image_src: str | None = None,
 ) -> str:
     class_names = f"icon-badge icon-badge-{escape(size)} {escape(extra_class)}".strip()
+    content_html = (
+        f'<img class="icon-badge-image" src="{escape(image_src)}" alt="" loading="lazy" decoding="async" />'
+        if image_src
+        else f'<span class="icon-badge-glyph">{escape(glyph)}</span>'
+    )
     return (
         f'<span class="{class_names}" data-icon-kind="{escape(kind)}" '
-        f'data-icon-key="{escape(icon_key)}" aria-hidden="true">'
-        f'<span class="icon-badge-glyph">{escape(glyph)}</span>'
+        f'data-icon-key="{escape(icon_key)}" data-icon-render="{"image" if image_src else "glyph"}" aria-hidden="true">'
+        f"{content_html}"
         f"</span>"
     )
 
@@ -1276,10 +1298,17 @@ def render_browse_card(
         f'<span class="browse-card-pill">{escape(pill)}</span>'
         for pill in (pills or [])
     )
+    resolved_icon_kind = icon_kind or variant
+    resolved_icon_key = icon_key or normalize_slug(title)
+    image_src = None
+    if resolved_icon_kind == "neighborhood":
+        icon_asset_path = neighborhood_icon_static_path(resolved_icon_key)
+        if icon_asset_path:
+            image_src = site_href(f"/static/{icon_asset_path}")
     return f"""
     <a class="browse-card browse-card-{escape(variant)}" href="{href}">
       <div class="browse-card-top">
-        {render_icon_badge(icon, kind=icon_kind or variant, size="lg", icon_key=icon_key or normalize_slug(title), extra_class=f"browse-card-icon {icon_extra_class}".strip())}
+        {render_icon_badge(icon, kind=resolved_icon_kind, size="lg", icon_key=resolved_icon_key, extra_class=f"browse-card-icon {icon_extra_class}".strip(), image_src=image_src)}
         <div class="browse-card-pills">{pills_html}</div>
       </div>
       <div class="browse-card-body">
@@ -1417,7 +1446,7 @@ def neighborhood_groups(db: Session) -> List[dict]:
 
 
 def get_neighborhood_group_or_404(db: Session, slug: str) -> dict:
-    normalized = normalize_slug(slug)
+    normalized = NEIGHBORHOOD_ROUTE_ALIASES.get(normalize_slug(slug), normalize_slug(slug))
     for group in neighborhood_groups(db):
         if group["slug"] == normalized:
             return group
@@ -1774,6 +1803,24 @@ def deal_has_explicit_time_signal(deal: models.Deal) -> bool:
     )
 
 
+def deal_is_midday_food(deal: models.Deal) -> bool:
+    text = " ".join(
+        part
+        for part in (
+            deal.title,
+            deal.short_description,
+            weekly_content.site_deal_time_label(deal),
+            weekly_content.site_deal_category(deal),
+        )
+        if part
+    ).lower()
+    return (
+        weekly_content.site_deal_category(deal).lower() == "lunch special"
+        or "lunch" in text
+        or weekly_content.site_deal_day_part(deal) == "Brunch"
+    )
+
+
 NEIGHBORHOOD_FOOD_CATEGORIES = {
     "food special",
     "dinner special",
@@ -1795,6 +1842,7 @@ NEIGHBORHOOD_FOOD_KEYWORDS = (
     "taco",
     "pizza",
     "flatbread",
+    "brunch",
     "wing",
     "wings",
     "chicken",
@@ -1957,8 +2005,8 @@ def neighborhood_detail_sections(group: dict, reference: datetime) -> List[dict]
         (
             "both",
             "neighborhood-both",
-            "Food + Drinks",
-            "Food + Drinks",
+            "Both",
+            "Both",
             (
                 f"Places where the value is in the pairing: food plus drinks, combo pricing, or fuller happy-hour-style boards in {display_name}."
             ),
@@ -2088,7 +2136,7 @@ def render_neighborhood_detail_html(group: dict) -> str:
     )
     return render_page_document(
         f"DSM Deals Hub | {display_name}",
-        f"Browse featured dining deals in {display_name}, Des Moines.",
+        f"Browse featured dining deals in {display_name}.",
         "Neighborhood guide",
         display_name,
         neighborhood_feature_intro(group, now, food_count, drinks_count, both_count, today_count, live_music_count),
@@ -2207,7 +2255,7 @@ def sort_day_section_deals(day_code: str, deals: List[models.Deal], featured_ids
 
 def weekday_detail_sections(day_code: str, deals: List[models.Deal], featured_ids: set[int]) -> List[dict]:
     day_label = WEEKDAY_LONG[day_code]
-    buckets = {"Happy Hour": [], "Dinner": [], "Specials": [], "Late Night": []}
+    buckets = {"Happy Hour": [], "Midday": [], "Dinner": [], "Specials": [], "Late Night": []}
 
     for deal in deals:
         day_part = weekly_content.site_deal_day_part(deal)
@@ -2215,28 +2263,53 @@ def weekday_detail_sections(day_code: str, deals: List[models.Deal], featured_id
             buckets["Late Night"].append(deal)
         elif weekly_content.site_deal_is_happy_hour(deal):
             buckets["Happy Hour"].append(deal)
+        elif deal_is_midday_food(deal):
+            buckets["Midday"].append(deal)
         elif day_part == "Dinner":
             buckets["Dinner"].append(deal)
         else:
             buckets["Specials"].append(deal)
 
+    midday_deals = buckets["Midday"]
+    midday_title = "Lunch"
+    midday_intro = f"Earlier-day food-led stops and lunch-focused specials currently landing on the {day_label} board."
+    if midday_deals:
+        midday_has_brunch = any(
+            weekly_content.site_deal_day_part(deal) == "Brunch"
+            or "brunch" in f"{deal.title} {deal.short_description} {weekly_content.site_deal_time_label(deal)}".lower()
+            or "breakfast" in f"{deal.title} {deal.short_description} {weekly_content.site_deal_time_label(deal)}".lower()
+            for deal in midday_deals
+        )
+        midday_has_lunch = any(
+            "lunch" in f"{deal.title} {deal.short_description} {weekly_content.site_deal_time_label(deal)} {weekly_content.site_deal_category(deal)}".lower()
+            for deal in midday_deals
+        )
+        if midday_has_brunch and midday_has_lunch:
+            midday_title = "Brunch + Lunch"
+            midday_intro = f"Earlier-day food-led stops, from brunch boards to clear lunch windows, currently shaping the {day_label} guide."
+        elif midday_has_brunch:
+            midday_title = "Brunch"
+            midday_intro = f"Breakfast, brunch, and first-meal stops currently shaping the {day_label} board."
+
     intros = {
         "Happy Hour": f"Timed pours, patio windows, and after-work value that usually open the {day_label} board.",
+        "Midday": midday_intro,
         "Dinner": f"Dinner-led specials, bigger plates, and stronger evening picks currently landing on {day_label}.",
         "Specials": f"The main {day_label} board, from lunch runs to all-day house specials and neighborhood staples.",
         "Late Night": f"Later-night stops and extended windows that keep going after the main {day_label} dinner stretch.",
     }
 
     sections = []
-    for title in ("Happy Hour", "Dinner", "Specials", "Late Night"):
-        section_deals = buckets[title]
+    for bucket_key in ("Happy Hour", "Midday", "Dinner", "Specials", "Late Night"):
+        section_deals = buckets[bucket_key]
         if not section_deals:
             continue
         ordered = sort_day_section_deals(day_code, section_deals, featured_ids)
+        title = midday_title if bucket_key == "Midday" else bucket_key
         sections.append(
             {
                 "title": title,
-                "intro": intros[title],
+                "intro": intros[bucket_key],
                 "deals": ordered,
             }
         )
@@ -2254,12 +2327,26 @@ def weekday_detail_sections(day_code: str, deals: List[models.Deal], featured_id
 
 
 def weekend_detail_sections(day_code: str, deals: List[models.Deal], featured_ids: set[int]) -> List[dict]:
-    grouped: dict[str, List[models.Deal]] = {section: [] for section in weekly_content.WEEKEND_SECTION_ORDER}
+    ordered_keys = ["Brunch", "Afternoon", "Happy Hour", "Dinner", "Late Night", "Live Music", "Specials"]
+    grouped: dict[str, List[models.Deal]] = {section: [] for section in ordered_keys}
     for deal in deals:
-        grouped.setdefault(weekly_content.site_deal_day_part(deal), []).append(deal)
+        day_part = weekly_content.site_deal_day_part(deal)
+        if day_part == "Late Night":
+            grouped["Late Night"].append(deal)
+        elif day_part == "Live Music":
+            grouped["Live Music"].append(deal)
+        elif weekly_content.site_deal_is_happy_hour(deal):
+            grouped["Happy Hour"].append(deal)
+        elif day_part in {"Brunch", "Afternoon", "Dinner"}:
+            grouped[day_part].append(deal)
+        else:
+            grouped["Specials"].append(deal)
+
+    weekend_intros = dict(weekly_content.WEEKEND_SECTION_INTROS)
+    weekend_intros["Happy Hour"] = "Shorter pour windows, aperitivo-style stops, and drink-led value that are worth catching before dinner."
 
     sections = []
-    for title in weekly_content.WEEKEND_SECTION_ORDER:
+    for title in ordered_keys:
         section_deals = grouped.get(title) or []
         if not section_deals:
             continue
@@ -2267,7 +2354,7 @@ def weekend_detail_sections(day_code: str, deals: List[models.Deal], featured_id
         sections.append(
             {
                 "title": title,
-                "intro": weekly_content.WEEKEND_SECTION_INTROS[title],
+                "intro": weekend_intros[title],
                 "deals": ordered,
             }
         )
@@ -2308,6 +2395,10 @@ def day_detail_hero_text(day_code: str, deals: List[models.Deal], sections: List
         return (
             f"Open {day_label} with the best timed drink windows first, then move through the broader food and dinner boards across the city."
         )
+    if first_section in {"Lunch", "Brunch", "Brunch + Lunch"}:
+        return (
+            f"Start {day_label} with the stronger earlier-day picks first, then move into dinner, later windows, and the rest of the citywide board."
+        )
     return (
         f"A cleaner weekday edit for {day_label}, with the strongest current picks surfaced first and the rest of the board organized underneath."
     )
@@ -2318,23 +2409,36 @@ def render_day_detail_html(day_code: str, deals: List[models.Deal]) -> str:
     day_label = WEEKDAY_LONG[day_code]
     detail_sections, featured = day_detail_sections_for_page(day_code, deals)
     venue_count = len({deal.venue_id for deal in deals})
-    section_count = len(detail_sections)
+    happy_hour_count = sum(
+        1
+        for deal in deals
+        if weekly_content.site_deal_is_happy_hour(deal) and weekly_content.site_deal_day_part(deal) != "Late Night"
+    )
     guide_label = "Weekend guide" if day_code in {"Sat", "Sun"} else "Weekday edit"
     description = day_detail_hero_text(day_code, deals, detail_sections, featured)
+    stats = [
+        ("Specials", len(deals)),
+        ("Venues", venue_count),
+    ]
+    if happy_hour_count:
+        stats.append(("Happy Hour", happy_hour_count))
+    stats_html = "".join(
+        f"""
+      <div>
+        <span>{escape(label)}</span>
+        <strong>{value}</strong>
+      </div>
+        """
+        for label, value in stats
+    )
     utility_html = f"""
-    {render_day_page_nav(day_code)}
-    <div class="hero-stats" aria-label="{escape(day_label)} overview">
-      <div>
-        <span>Specials</span>
-        <strong>{len(deals)}</strong>
+    <div class="day-detail-utility">
+      <div class="day-nav-shell">
+        <p class="day-nav-label">Browse another day</p>
+        {render_day_page_nav(day_code)}
       </div>
-      <div>
-        <span>Venues</span>
-        <strong>{venue_count}</strong>
-      </div>
-      <div>
-        <span>Sections</span>
-        <strong>{section_count}</strong>
+      <div class="hero-stats day-detail-stats" aria-label="{escape(day_label)} overview">
+        {stats_html}
       </div>
     </div>
     """

@@ -46,6 +46,15 @@ DAY_ALIASES = {
     "sun": "Sunday",
     "sunday": "Sunday",
 }
+NEIGHBORHOOD_NORMALIZATION_MAP = {
+    "des moines area": "Des Moines",
+    "des moines metro": "Des Moines",
+    "court district": "Downtown",
+    "court avenue": "Downtown",
+    "western gateway": "Downtown",
+    "downtown des moines": "Downtown",
+    "prairie meadows": "Altoona",
+}
 WEEKEND_SECTION_ORDER = ["Brunch", "Afternoon", "Dinner", "Late Night", "Live Music", "Specials"]
 WEEKEND_SECTION_INTROS = {
     "Brunch": "Brunch tables, buffet stops, and first-round weekend pours.",
@@ -225,9 +234,8 @@ def _validate_source_files(json_rows: list[dict[str, str]], csv_rows: list[dict[
 def _normalize_neighborhood(value: str) -> str:
     if not value:
         return "Des Moines"
-    if " / " in value:
-        return value.split(" / ")[0].strip()
-    return value.strip()
+    cleaned = value.split(" / ")[0].strip() if " / " in value else value.strip()
+    return NEIGHBORHOOD_NORMALIZATION_MAP.get(cleaned.lower(), cleaned)
 
 
 def _ampm_to_hhmm(token: str) -> str:

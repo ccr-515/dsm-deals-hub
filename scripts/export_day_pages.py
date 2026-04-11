@@ -33,6 +33,7 @@ from app.main import (  # noqa: E402
     render_today_html,
     today_page_data,
 )
+from app.neighborhood_icons import sync_neighborhood_icon_assets  # noqa: E402
 
 
 def clear_existing_day_exports() -> None:
@@ -49,6 +50,7 @@ def clear_existing_day_exports() -> None:
 
 
 def main() -> None:
+    sync_neighborhood_icon_assets()
     db = SessionLocal()
     try:
         day_sections = days_page_sections(db)

@@ -17,7 +17,13 @@ if str(PROJECT_ROOT) not in sys.path:
 os.environ["DSM_DEALS_SITE_BASE_PATH"] = "dsm-deals-hub"
 
 from app.database import SessionLocal  # noqa: E402
-from app.main import neighborhood_groups, render_neighborhood_detail_html, render_neighborhoods_html  # noqa: E402
+from app.main import (  # noqa: E402
+    NEIGHBORHOOD_ROUTE_ALIASES,
+    neighborhood_groups,
+    render_neighborhood_detail_html,
+    render_neighborhoods_html,
+)
+from app.neighborhood_icons import sync_neighborhood_icon_assets  # noqa: E402
 
 
 def clear_existing_neighborhood_exports() -> None:
@@ -34,6 +40,7 @@ def clear_existing_neighborhood_exports() -> None:
 
 
 def main() -> None:
+    sync_neighborhood_icon_assets()
     db = SessionLocal()
     try:
         groups = neighborhood_groups(db)
@@ -48,6 +55,15 @@ def main() -> None:
         target_dir = NEIGHBORHOODS_DIR / group["slug"]
         target_dir.mkdir(parents=True, exist_ok=True)
         (target_dir / "index.html").write_text(render_neighborhood_detail_html(group))
+
+    groups_by_slug = {group["slug"]: group for group in groups}
+    for alias_slug, canonical_slug in NEIGHBORHOOD_ROUTE_ALIASES.items():
+        canonical_group = groups_by_slug.get(canonical_slug)
+        if canonical_group is None:
+            continue
+        alias_dir = NEIGHBORHOODS_DIR / alias_slug
+        alias_dir.mkdir(parents=True, exist_ok=True)
+        (alias_dir / "index.html").write_text(render_neighborhood_detail_html(canonical_group))
 
     print(f"Exported {len(groups)} neighborhood detail pages to {NEIGHBORHOODS_DIR}")
 
