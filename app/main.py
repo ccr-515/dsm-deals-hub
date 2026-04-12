@@ -1499,14 +1499,14 @@ def render_link_grid_section(
 
 
 def render_live_now_module(deals: List[models.Deal], reference: datetime) -> str:
-    preview_cards = "\n".join(
+    live_cards = "\n".join(
         render_deal_card(deal, reference, index, format_today_pick_time(deal, reference))
-        for index, deal in enumerate(deals[:2])
+        for index, deal in enumerate(deals)
     )
     if deals:
         details_body = f"""
         <div class="live-now-details-grid">
-          {preview_cards}
+          {live_cards}
         </div>
         """
     else:
