@@ -982,18 +982,34 @@ def venue_call_href(venue: object | None) -> Optional[str]:
     return None
 
 
+def render_utility_action_icon(kind: str) -> str:
+    if kind == "directions":
+        return """
+        <svg class="deal-utility-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M10 17.1c3.18-3.87 4.77-6.64 4.77-8.31A4.77 4.77 0 1 0 5.23 8.8c0 1.67 1.59 4.44 4.77 8.3Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="10" cy="8.7" r="1.9" stroke="currentColor" stroke-width="1.6"/>
+        </svg>
+        """
+    return """
+    <svg class="deal-utility-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path d="M6.32 3.56h2.02c.3 0 .56.2.64.48l.64 2.29a.7.7 0 0 1-.18.7l-1.03 1.03a10.54 10.54 0 0 0 3.53 3.53l1.03-1.03a.7.7 0 0 1 .7-.18l2.29.64c.28.08.48.34.48.64v2.02a.83.83 0 0 1-.83.83h-.63A11.48 11.48 0 0 1 4.5 4.4v-.63c0-.46.37-.83.82-.83Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    """
+
+
 def render_venue_utility_actions(venue: object | None) -> str:
     directions_href = venue_directions_href(venue)
     call_href = venue_call_href(venue)
     actions = []
+    venue_name = escape(getattr(venue, "name", "this venue"))
 
     if directions_href:
         actions.append(
-            f'<a class="deal-utility-action" href="{escape(directions_href)}" aria-label="Get directions to {escape(getattr(venue, "name", "this venue"))}">Directions</a>'
+            f'<a class="deal-utility-action deal-utility-action-icononly" data-action-kind="directions" href="{escape(directions_href)}" aria-label="Get directions to {venue_name}" title="Directions" target="_blank" rel="noopener noreferrer">{render_utility_action_icon("directions")}</a>'
         )
     if call_href:
         actions.append(
-            f'<a class="deal-utility-action" href="{escape(call_href)}" aria-label="Call {escape(getattr(venue, "name", "this venue"))}">Call</a>'
+            f'<a class="deal-utility-action deal-utility-action-icononly" data-action-kind="call" href="{escape(call_href)}" aria-label="Call {venue_name}" title="Call">{render_utility_action_icon("call")}</a>'
         )
 
     if not actions:
@@ -1291,14 +1307,15 @@ def render_collapsible_sections_script() -> str:
 def render_site_nav(current_page: str) -> str:
     links = [
         ("Today", site_href("/today"), current_page == "today"),
-        ("Neighborhoods", site_href("/neighborhoods"), current_page == "neighborhoods"),
         ("Days", site_href("/days"), current_page == "days"),
+        ("Neighborhoods", site_href("/neighborhoods"), current_page == "neighborhoods"),
         (PUBLIC_VENUES_LABEL, site_href("/for-venues"), current_page == "for-venues"),
     ]
     items = []
     for label, href, active in links:
         current_attr = ' aria-current="page"' if active else ""
-        items.append(f'<a href="{href}"{current_attr}>{escape(label)}</a>')
+        extra_class = ' class="site-nav-cta"' if label == PUBLIC_VENUES_LABEL else ""
+        items.append(f'<a href="{href}"{extra_class}{current_attr}>{escape(label)}</a>')
     return f"""
     <nav class="section-nav site-nav" aria-label="Site navigation">
       {''.join(items)}
