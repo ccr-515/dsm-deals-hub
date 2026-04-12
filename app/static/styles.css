@@ -1260,6 +1260,30 @@ h1 {
   text-shadow: 0 8px 16px rgba(16, 28, 19, 0.2);
 }
 
+.icon-badge[data-icon-kind="brand"][data-icon-render="image"] {
+  padding: 0.08rem;
+  border-color: rgba(63, 106, 80, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(247, 241, 233, 0.8)),
+    rgba(255, 248, 242, 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.88),
+    0 18px 30px rgba(43, 58, 44, 0.12),
+    0 0 18px rgba(63, 106, 80, 0.08);
+}
+
+.icon-badge[data-icon-kind="brand"][data-icon-render="image"]::after {
+  inset: 0.18rem;
+  border-color: rgba(255, 255, 255, 0.46);
+  border-radius: inherit;
+  opacity: 1;
+}
+
+.icon-badge[data-icon-kind="brand"][data-icon-render="image"] .icon-badge-image {
+  width: calc(100% - 0.08rem);
+  height: calc(100% - 0.08rem);
+}
+
 .icon-badge[data-icon-kind="neighborhood"] {
   min-width: 4.15rem;
   width: 4.15rem;
@@ -1937,6 +1961,81 @@ h1 {
   color: var(--muted);
 }
 
+.for-venues-note {
+  max-width: 38rem;
+  font-size: 0.95rem;
+}
+
+.form-embed-shell {
+  width: min(100%, 38rem);
+  min-height: 34rem;
+  padding: 1rem;
+  border: 1px solid rgba(63, 106, 80, 0.14);
+  border-radius: 1.45rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(247, 241, 233, 0.8)),
+    var(--surface-strong);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.84),
+    0 22px 36px rgba(43, 58, 44, 0.08);
+}
+
+.form-embed-shell iframe,
+.form-embed-shell .jotform-form,
+.form-embed-shell .google-form-frame {
+  width: 100%;
+  min-height: 32rem;
+  border: 0;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.form-embed-placeholder {
+  display: flex;
+  min-height: 32rem;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 1.4rem;
+  border: 1px dashed rgba(63, 106, 80, 0.22);
+  border-radius: 1.05rem;
+  background:
+    linear-gradient(180deg, rgba(249, 252, 249, 0.9), rgba(242, 247, 243, 0.84)),
+    rgba(244, 249, 245, 0.84);
+  text-align: center;
+}
+
+.form-embed-placeholder strong {
+  color: var(--green-deep);
+  font-size: 1rem;
+}
+
+.form-embed-placeholder p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.about-dsm-copy {
+  max-width: 50rem;
+}
+
+.about-dsm-copy h2 {
+  font-size: clamp(1.55rem, 3.2vw, 2.2rem);
+  color: var(--green-deep);
+}
+
+.about-dsm-copy p {
+  margin: 0.72rem 0 0;
+  color: var(--muted);
+}
+
+.about-dsm-note {
+  margin-top: 1rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--green-deep);
+}
+
 .empty-state-links {
   display: flex;
   flex-wrap: wrap;
@@ -2557,6 +2656,19 @@ h1 {
   .empty-state-cta {
     width: 100%;
     min-height: 3.22rem;
+  }
+
+  .form-embed-shell {
+    width: 100%;
+    min-height: 30rem;
+    padding: 0.82rem;
+  }
+
+  .form-embed-shell iframe,
+  .form-embed-shell .jotform-form,
+  .form-embed-shell .google-form-frame,
+  .form-embed-placeholder {
+    min-height: 28rem;
   }
 
   .empty-state-link {

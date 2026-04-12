@@ -83,9 +83,23 @@ DEAL_ICON_KEYWORDS = [
     ("beer", "🍺", ("beer", "pint")),
 ]
 BRAND_PLACEHOLDER_GLYPH = "DH"
+BRAND_MARK_STATIC_PATH = "/static/dsm-deals-hub-mark.png"
+FAVICON_STATIC_PATH = "/static/favicon.png"
+APPLE_TOUCH_ICON_STATIC_PATH = "/static/apple-touch-icon.png"
 BRAND_HOME_EYEBROW = "Curated daily"
 BRAND_META_LABEL = "Des Moines daily dining guide"
 PUBLIC_VENUES_LABEL = "Got a deal?"
+VENUE_SUBMISSION_EMBED_HTML = ""
+FOR_VENUES_ABOUT_HEADING = "Why I built DSM Deals Hub"
+FOR_VENUES_ABOUT_PARAGRAPH = (
+    "I built DSM Deals Hub because I got tired of good specials being scattered all over the place. "
+    "Some were buried in Instagram stories, some were on Facebook, some were outdated, and some were "
+    "impossible to find unless you already knew where to look. I wanted one clean place where people "
+    "in Des Moines could quickly see what is worth going out for today, what is live right now, and "
+    "what each neighborhood has to offer. At the same time, I wanted it to help local businesses get "
+    "more attention on the deals they actually need people to see."
+)
+FOR_VENUES_FOOTER_NOTE = "Local deals, curated by hand."
 PUBLIC_NEIGHBORHOOD_LABELS = {
     "des moines area": "Des Moines",
     "des moines metro": "Des Moines",
@@ -880,7 +894,7 @@ def render_brand_slot(current_page: str) -> str:
         return ""
     return f"""
     <a class="brand-slot brand-slot-compact" href="{home_href}" aria-label="DSM Deals Hub home">
-      {render_icon_badge(BRAND_PLACEHOLDER_GLYPH, kind="brand", size="brand", icon_key="dsm-deals-hub", extra_class="brand-mark")}
+      {render_icon_badge(BRAND_PLACEHOLDER_GLYPH, kind="brand", size="brand", icon_key="dsm-deals-hub", extra_class="brand-mark", image_src=site_href(BRAND_MARK_STATIC_PATH))}
       <span class="brand-wordmark">
         <span class="brand-kicker">DSM</span>
         <span class="brand-name">Deals Hub</span>
@@ -896,7 +910,7 @@ def render_brand_heading(title: str) -> str:
     return f"""
     <h1>
       <a class="brand-slot brand-slot-heading" href="{home_href}" aria-label="DSM Deals Hub home">
-        {render_icon_badge(BRAND_PLACEHOLDER_GLYPH, kind="brand", size="brand-hero", icon_key="dsm-deals-hub", extra_class="brand-mark")}
+        {render_icon_badge(BRAND_PLACEHOLDER_GLYPH, kind="brand", size="brand-hero", icon_key="dsm-deals-hub", extra_class="brand-mark", image_src=site_href(BRAND_MARK_STATIC_PATH))}
         <span class="brand-wordmark brand-wordmark-heading">
           <span class="brand-kicker">DSM</span>
           <span class="brand-name">{escape(brand_title)}</span>
@@ -1385,7 +1399,8 @@ def render_page_document(
       name="description"
       content="{escape(meta_description)}"
     />
-    <link rel="icon" type="image/svg+xml" href="{site_href("/static/favicon.svg")}" />
+    <link rel="icon" type="image/png" href="{site_href(FAVICON_STATIC_PATH)}" />
+    <link rel="apple-touch-icon" href="{site_href(APPLE_TOUCH_ICON_STATIC_PATH)}" />
     <link rel="stylesheet" href="{site_href("/static/styles.css")}" />
   </head>
   <body>
@@ -1528,7 +1543,7 @@ def render_live_now_module(deals: List[models.Deal], reference: datetime) -> str
             <div class="live-now-summary-copy">
               <span class="live-now-badge"><span class="live-now-dot" aria-hidden="true"></span>Live Now</span>
               <h2>Deals happening right now</h2>
-              <p>Catch the specials that are live at this moment. Support local, and don’t forget to tip.</p>
+              <p>Deals currently happening right now. Support local and don’t forget to tip.</p>
             </div>
             <div class="live-now-summary-side">
               <span class="section-count">{len(deals)} deals</span>
@@ -1720,7 +1735,7 @@ def render_homepage_html(sections: dict[str, List[models.Deal]], neighborhoods: 
     {render_section(
         "today-preview",
         "Today",
-        "We had a feeling you’d start here.",
+        "We suspect that’s why you’re here ;)",
         today_preview,
         "Nothing is on the board for today yet.",
         now,
@@ -1735,7 +1750,7 @@ def render_homepage_html(sections: dict[str, List[models.Deal]], neighborhoods: 
     {render_link_grid_section(
         "neighborhoods-preview",
         "Neighborhoods",
-        "Don’t want to go far? Start with your neighborhood.",
+        "Don’t wanna drive too far, check out each neighborhood",
         render_neighborhood_cards(neighborhoods, limit=6, context="homepage"),
         "Browse neighborhoods",
         site_href("/neighborhoods"),
@@ -1746,7 +1761,7 @@ def render_homepage_html(sections: dict[str, List[models.Deal]], neighborhoods: 
     {render_link_grid_section(
         "days-preview",
         "Days",
-        "For planners, deal hoppers, and everyone in between.",
+        "Oh yes we appreciate a planner, or a serial deal hopper",
         render_day_cards(day_sections, context="homepage"),
         "Browse all days",
         site_href("/days"),
@@ -2621,73 +2636,56 @@ def render_day_detail_html(day_code: str, deals: List[models.Deal]) -> str:
 
 
 def render_for_venues_html() -> str:
-    intro_panel = f"""
+    submission_embed = VENUE_SUBMISSION_EMBED_HTML.strip()
+    embed_block = (
+        submission_embed
+        if submission_embed
+        else """
+        <div class="form-embed-placeholder">
+          <strong>Submission form embed will appear here.</strong>
+          <p>This section is ready for a Google Form or Jotform embed.</p>
+        </div>
+        """
+    )
+    submission_panel = f"""
     <section class="content-section">
       <div class="section-panel section-panel-secondary">
         <div class="for-venues-panel">
           <div class="for-venues-copy">
-            <p class="section-kicker">{PUBLIC_VENUES_LABEL}</p>
-            <h2>Submit it for review.</h2>
-            <p>
-              Some days need help filling seats. If your business has a deal worth sharing, submit it for review. DSM Deals Hub is still curated by hand, so every listing stays useful, local, and worth opening.
-            </p>
+            <p class="section-kicker">Manual review</p>
+            <h2>Drop your deal details below and we’ll take a look.</h2>
+            <p>Every submission is reviewed by hand before it goes live.</p>
+            <p class="for-venues-note">Right now, submissions are manual. Later on, businesses may get a login to update deals directly.</p>
           </div>
-          <div class="live-empty-actions">
-            <div class="empty-state-links">
-              <a href="{site_href("/neighborhoods")}" class="empty-state-link">Browse neighborhoods</a>
-              <a href="{site_href("/days")}" class="empty-state-link">Browse days</a>
-            </div>
-            <div class="empty-state-cta" aria-label="Business submissions and login roadmap">
-              <span class="empty-state-cta-plus">+</span>
-              <span class="empty-state-cta-copy">
-                <strong>Venue tools are coming</strong>
-                <small>Direct logins and self-serve updates will live here later</small>
-              </span>
-            </div>
+          <div class="form-embed-shell" aria-label="Business submission form">
+            {embed_block}
           </div>
         </div>
       </div>
     </section>
     """
-    info_cards = "\n".join(
-        [
-            render_info_card(
-                "What fits the guide",
-                "🍽️",
-                "Curated, not everything",
-                "We prioritize restaurant, bar, brunch, buffet, seafood, burger, taco, wing, wine, and house-special deals that feel genuinely useful to readers.",
-            ),
-            render_info_card(
-                "How review works",
-                "🖐️",
-                "Reviewed before it goes live",
-                "This is not an open bulletin board. Deals are reviewed and added manually so the public guide stays clean, local, and easy to trust.",
-            ),
-            render_info_card(
-                "What comes next",
-                "⚙️",
-                "Direct business access later",
-                "Later on, businesses will be able to log in with a username and password to manage their deals directly without changing the public guide structure.",
-            ),
-        ]
-    )
+    about_panel = f"""
+    <section class="content-section">
+      <div class="section-panel">
+        <div class="about-dsm-copy">
+          <p class="section-kicker">About DSM Deals Hub</p>
+          <h2>{FOR_VENUES_ABOUT_HEADING}</h2>
+          <p>{FOR_VENUES_ABOUT_PARAGRAPH}</p>
+          <p class="about-dsm-note">{FOR_VENUES_FOOTER_NOTE}</p>
+        </div>
+      </div>
+    </section>
+    """
     main_content = f"""
-    {intro_panel}
-    {render_link_grid_section(
-        "venue-guidelines",
-        "How submissions will work",
-        "A quick look at what fits DSM Deals Hub, how review works, and where direct business access will land later.",
-        info_cards,
-        "Back home",
-        site_href("/"),
-    )}
+    {submission_panel}
+    {about_panel}
     """
     return render_page_document(
         f"DSM Deals Hub | {PUBLIC_VENUES_LABEL}",
         "Learn how businesses can submit deals for review and how direct account access will work later.",
         "For local businesses",
         PUBLIC_VENUES_LABEL,
-        "Some days need help filling seats. If your business has a deal worth sharing, submit it for review. Later on, businesses will be able to log in with a username and password to manage their deals directly.",
+        "If your business has a special worth sharing, send it our way. DSM Deals Hub is built to help people find real food and drink deals across Des Moines, and to help local spots fill seats on the days they need it most.",
         "for-venues",
         main_content,
     )
