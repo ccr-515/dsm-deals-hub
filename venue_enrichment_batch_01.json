@@ -1,0 +1,235 @@
+[
+  {
+    "name": "30Hop",
+    "slug": "30hop",
+    "address": "1535 SW Market Street Suite 100, Ankeny, IA 50023",
+    "phone": "(515) 289-0227",
+    "website": "https://www.30hop.com/location/ankeny",
+    "menu_url": null
+  },
+  {
+    "name": "AJ’s Steakhouse",
+    "slug": "ajs-steakhouse",
+    "address": "1 Prairie Meadows Dr, Altoona, IA 50009",
+    "phone": "(515) 957-3535",
+    "website": "https://www.prairiemeadows.com/dining/ajs-steakhouse",
+    "menu_url": null
+  },
+  {
+    "name": "Alba",
+    "slug": "alba",
+    "address": "524 E 6th St, Des Moines, IA 50309",
+    "phone": "(515) 244-0261",
+    "website": "https://www.albadsm.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Amruth",
+    "slug": "amruth",
+    "address": "9974 Swanson Blvd, Clive, IA 50325",
+    "phone": "(515) 207-1346",
+    "website": "https://amruthindiangrill.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Angry Goldfish",
+    "slug": "angry-goldfish",
+    "address": "2301 Southwest 9th Street, Des Moines, IA 50315",
+    "phone": "(515) 288-2358",
+    "website": "https://angrygoldfishdsm.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Angry Goldfish Pub & Eatery",
+    "slug": "angry-goldfish-pub-eatery",
+    "address": "2301 Southwest 9th Street, Des Moines, IA 50315",
+    "phone": "(515) 288-2358",
+    "website": "https://angrygoldfishdsm.com/",
+    "menu_url": null
+  },
+  {
+    "name": "B&B Grocery, Meat and Deli",
+    "slug": "b-b-grocery-meat-and-deli",
+    "address": "2001 SE 6th Street, Des Moines, IA 50315",
+    "phone": "(515) 243-7607",
+    "website": "https://bbgrocerymeatdeli.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Bar Nico",
+    "slug": "bar-nico",
+    "address": "428 E Locust Street, Des Moines, IA 50309",
+    "phone": "(515) 243-0611",
+    "website": "https://www.barnicodsm.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Barn Town Brewing",
+    "slug": "barn-town-brewing",
+    "address": "9500 University Ave, Suite 1110, West Des Moines, IA 50266",
+    "phone": "(515) 978-6767",
+    "website": "https://www.barntownbrewing.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Beaver Tap",
+    "slug": "beaver-tap",
+    "address": "4050 Urbandale Avenue, Des Moines, IA 50310",
+    "phone": "(515) 528-8125",
+    "website": "https://beavertapdsm.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Bevy’s Tavern",
+    "slug": "bevys-tavern",
+    "address": "1300 50th Street, West Des Moines, IA 50266",
+    "phone": "(515) 223-1046",
+    "website": "https://bevystavern.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Blue Sushi Sake Grill",
+    "slug": "blue-sushi-sake-grill",
+    "address": "316 Court Ave, Des Moines, IA 50309",
+    "phone": "(515) 379-6800",
+    "website": "https://www.bluesushisakegrill.com/locations/court-avenue",
+    "menu_url": null
+  },
+  {
+    "name": "Bubba",
+    "slug": "bubba",
+    "address": "200 10th Street, Des Moines, IA 50309",
+    "phone": "(515) 257-4744",
+    "website": "https://www.bubbadsm.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Buzzard Billy’s",
+    "slug": "buzzard-billys",
+    "address": "615 3rd St, Des Moines, IA 50309",
+    "phone": "(515) 244-2899",
+    "website": "https://buzzardbillys.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Caffrey’s Sports Pub",
+    "slug": "caffreys-sports-pub",
+    "address": "1320 Hickman Rd, Waukee, IA 50263",
+    "phone": "(515) 987-0552",
+    "website": "https://caffreyssportspub.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Cancun Grill & Cantina",
+    "slug": "cancun-grill-cantina",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Captain Roy’s",
+    "slug": "captain-roys",
+    "address": "1900 Saylor Rd, Des Moines, IA 50313",
+    "phone": "(515) 631-2223",
+    "website": "https://www.captainroys.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Centro",
+    "slug": "centro",
+    "address": "1003 Locust Street, Des Moines, IA 50309",
+    "phone": "(515) 248-1780",
+    "website": "https://www.centrodesmoines.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Ceviche Bar",
+    "slug": "ceviche-bar",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Chelsie’s Courtyard Diner",
+    "slug": "chelsies-courtyard-diner",
+    "address": "300 W Martin Luther King Jr Pkwy #170, Des Moines, IA 50309",
+    "phone": "(515) 630-8873",
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Chicago Speakeasy",
+    "slug": "chicago-speakeasy",
+    "address": "1520 Euclid Ave, Des Moines, IA 50313",
+    "phone": "(515) 243-3141",
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Christopher’s",
+    "slug": "christophers",
+    "address": "2816 Beaver Avenue, Des Moines, IA 50310",
+    "phone": "(515) 274-3694",
+    "website": "https://www.christophersdsm.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Chuck’s",
+    "slug": "chucks",
+    "address": "3610 6th Avenue, Des Moines, IA 50313",
+    "phone": "(515) 381-3118",
+    "website": "https://chucksdsm.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Club 2000",
+    "slug": "club-2000",
+    "address": "422 Indianola Rd, Des Moines, IA 50315",
+    "phone": "(515) 245-9769",
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Clyde’s Fine Diner",
+    "slug": "clydes-fine-diner",
+    "address": "111 E Grand Avenue, Suite 111, Des Moines, IA 50309",
+    "phone": "(515) 243-3686",
+    "website": "https://www.clydesfinediner.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Cosi Cucina",
+    "slug": "cosi-cucina",
+    "address": "1975 NW 86th Street, Clive, IA 50325",
+    "phone": "(515) 278-8148",
+    "website": "https://www.cosicucina.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Court Avenue Brewing Company",
+    "slug": "court-avenue-brewing-company",
+    "address": "309 Court Ave, Des Moines, IA 50309",
+    "phone": "(515) 282-2739",
+    "website": "https://www.courtavebrew.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Destination Grille",
+    "slug": "destination-grille",
+    "address": "2491 East 1st St, Grimes, IA 50111",
+    "phone": "(515) 355-1153",
+    "website": "https://www.destinationgrille.com/",
+    "menu_url": null
+  },
+  {
+    "name": "District 36",
+    "slug": "district-36",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+
+]
