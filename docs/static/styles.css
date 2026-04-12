@@ -1690,6 +1690,7 @@ h1 {
 .deal-card-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.55rem;
   margin-top: 0.82rem;
   padding-top: 0.82rem;
@@ -1700,8 +1701,9 @@ h1 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-width: 2.18rem;
   min-height: 2.18rem;
-  padding: 0.48rem 0.82rem;
+  padding: 0.48rem;
   border-radius: var(--radius-pill);
   border: 1px solid rgba(63, 106, 80, 0.12);
   background:
@@ -1711,8 +1713,6 @@ h1 {
     inset 0 1px 0 rgba(255, 255, 255, 0.74),
     0 10px 18px rgba(74, 62, 44, 0.06);
   color: var(--green-deep);
-  font-size: 0.85rem;
-  font-weight: 700;
   line-height: 1;
   text-decoration: none;
   transition:
@@ -1733,17 +1733,16 @@ h1 {
   outline: none;
 }
 
-.deal-utility-action::before {
-  content: "↗";
-  margin-right: 0.38rem;
-  font-size: 0.92rem;
-  line-height: 1;
+.deal-utility-action-icononly {
+  border-radius: 999px;
 }
 
-.deal-utility-action[href^="tel:"]::before {
-  content: "•";
-  margin-right: 0.42rem;
-  font-size: 1.1rem;
+.deal-utility-icon {
+  width: 1rem;
+  height: 1rem;
+  display: block;
+  stroke: currentColor;
+  flex-shrink: 0;
 }
 
 .empty-state {
@@ -2330,8 +2329,8 @@ h1 {
 
   .deal-utility-action {
     min-height: 2.34rem;
-    padding: 0.56rem 0.86rem;
-    font-size: 0.84rem;
+    min-width: 2.34rem;
+    padding: 0.54rem;
   }
 
   .browse-card {
