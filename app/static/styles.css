@@ -177,9 +177,9 @@ a {
 }
 
 .brand-slot-heading {
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 0.2rem 0.1rem 0.32rem 0;
+  align-items: center;
+  gap: 1.18rem;
+  padding: 0.12rem 0.1rem 0.32rem 0;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -1228,9 +1228,9 @@ h1 {
 }
 
 .icon-badge-brand-hero {
-  width: 2.95rem;
-  height: 2.95rem;
-  border-radius: 1.05rem;
+  width: 4.3rem;
+  height: 4.3rem;
+  border-radius: 1.3rem;
 }
 
 .icon-badge[data-icon-kind="brand"] {
@@ -1411,7 +1411,39 @@ h1 {
 }
 
 .brand-slot-heading .brand-mark {
-  margin-top: 0.16rem;
+  margin-top: 0;
+}
+
+.brand-slot-heading .icon-badge[data-icon-kind="brand"][data-icon-render="image"] {
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.brand-slot-heading .icon-badge[data-icon-kind="brand"][data-icon-render="image"]::before,
+.brand-slot-heading .icon-badge[data-icon-kind="brand"][data-icon-render="image"]::after {
+  display: none;
+}
+
+.brand-slot-heading .icon-badge[data-icon-kind="brand"][data-icon-render="image"] .icon-badge-image {
+  width: 100%;
+  height: 100%;
+  filter:
+    drop-shadow(0 16px 24px rgba(43, 58, 44, 0.12))
+    drop-shadow(0 2px 6px rgba(43, 58, 44, 0.1));
+}
+
+.brand-slot-heading:hover .icon-badge[data-icon-kind="brand"][data-icon-render="image"],
+.brand-slot-heading:focus-visible .icon-badge[data-icon-kind="brand"][data-icon-render="image"] {
+  box-shadow: none;
+}
+
+.brand-slot-heading:hover .icon-badge[data-icon-kind="brand"][data-icon-render="image"] .icon-badge-image,
+.brand-slot-heading:focus-visible .icon-badge[data-icon-kind="brand"][data-icon-render="image"] .icon-badge-image {
+  filter:
+    drop-shadow(0 18px 28px rgba(43, 58, 44, 0.14))
+    drop-shadow(0 3px 8px rgba(207, 114, 67, 0.12));
 }
 
 .browse-card-pills {
@@ -2208,6 +2240,15 @@ h1 {
   .brand-name {
     font-size: 1.08rem;
     text-wrap: balance;
+  }
+
+  .brand-slot-heading {
+    gap: 0.96rem;
+  }
+
+  .brand-slot-heading .icon-badge-brand-hero {
+    width: 3.8rem;
+    height: 3.8rem;
   }
 
   .brand-meta {
