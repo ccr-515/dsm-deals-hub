@@ -1,0 +1,122 @@
+[
+  {
+    "name": "The Lift",
+    "slug": "the-lift",
+    "address": "222 4th St, Des Moines, IA 50309",
+    "phone": "(515) 288-3777",
+    "website": "https://www.dmlift.com/",
+    "menu_url": null
+  },
+  {
+    "name": "The Station on Ingersoll",
+    "slug": "the-station-on-ingersoll",
+    "address": "3124 Ingersoll Ave, Des Moines, IA 50312",
+    "phone": "(515) 381-0052",
+    "website": "https://www.thestationdsm.com/",
+    "menu_url": null
+  },
+  {
+    "name": "The Stuffed Olive",
+    "slug": "the-stuffed-olive",
+    "address": null,
+    "phone": null,
+    "website": "https://www.thestuffedolive.com/",
+    "menu_url": null
+  },
+  {
+    "name": "The Tavern Grill",
+    "slug": "the-tavern-grill",
+    "address": null,
+    "phone": null,
+    "website": "https://www.thetaverngrill.com/",
+    "menu_url": null
+  },
+  {
+    "name": "The Urban Grill",
+    "slug": "the-urban-grill",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "The Walnut",
+    "slug": "the-walnut",
+    "address": "1417 Walnut St, Des Moines, IA 50309",
+    "phone": "(515) 282-1000",
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Tito’s Lounge",
+    "slug": "titos-lounge",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Trostel’s Greenbriar",
+    "slug": "trostels-greenbriar",
+    "address": "5810 Merle Hay Rd, Johnston, IA 50131",
+    "phone": "(515) 253-0124",
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Up Down",
+    "slug": "up-down",
+    "address": "500 E Locust St, Des Moines, IA 50309",
+    "phone": "(515) 243-4322",
+    "website": "https://updownarcadebar.com/des-moines/",
+    "menu_url": null
+  },
+  {
+    "name": "Up Down Arcade Bar",
+    "slug": "up-down-arcade-bar",
+    "address": "500 E Locust St, Des Moines, IA 50309",
+    "phone": "(515) 243-4322",
+    "website": "https://updownarcadebar.com/des-moines/",
+    "menu_url": null
+  },
+  {
+    "name": "Uptown Bar & Grill",
+    "slug": "uptown-bar-grill",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Urban Cellars",
+    "slug": "urban-cellars",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Walker’s Place",
+    "slug": "walkers-place",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Westown Tap Bar & Restaurant",
+    "slug": "westown-tap-bar-restaurant",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Wilson Orchard & Farm",
+    "slug": "wilson-orchard-farm",
+    "address": "4823 Dingleberry Rd, Cumming, IA 50061",
+    "phone": "(515) 981-6828",
+    "website": "https://www.wilsonsorchard.com/",
+    "menu_url": null
+  }
+]
