@@ -1,0 +1,162 @@
+[
+  {
+    "name": "District 36",
+    "slug": "district-36",
+    "address": "137 5th St, West Des Moines, IA 50265",
+    "phone": "(515) 328-5151",
+    "website": "https://www.district36winebar.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Eastside Eddie’s",
+    "slug": "eastside-eddies",
+    "address": "3517 E 26th St, Des Moines, IA 50317",
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "G Mig’s",
+    "slug": "g-migs",
+    "address": "128 5th St, West Des Moines, IA 50265",
+    "phone": "(515) 499-0269",
+    "website": "https://gmigs.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Gameday",
+    "slug": "gameday",
+    "address": "3800 Merle Hay Rd Suite 1220, Des Moines, IA 50310",
+    "phone": "(515) 635-0705",
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Gilroy’s",
+    "slug": "gilroys",
+    "address": "1238 8th St, West Des Moines, IA 50265",
+    "phone": "(515) 453-1900",
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Grand Junction",
+    "slug": "grand-junction",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Guesthouse Tavern & Oyster",
+    "slug": "guesthouse-tavern-oyster",
+    "address": "9500 University Ave, West Des Moines, IA 50266",
+    "phone": "(515) 650-7259",
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Guesthouse Tavern and Oyster",
+    "slug": "guesthouse-tavern-and-oyster",
+    "address": "9500 University Ave, West Des Moines, IA 50266",
+    "phone": "(515) 650-7259",
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Istanbul Cafe and Bakery",
+    "slug": "istanbul-cafe-and-bakery",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Jethro’s",
+    "slug": "jethros",
+    "address": null,
+    "phone": null,
+    "website": "https://www.jethrosdesmoines.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Kelly’s Little Nipper",
+    "slug": "kellys-little-nipper",
+    "address": "1701 E Grand Ave, Des Moines, IA 50316",
+    "phone": "(515) 265-2031",
+    "website": "https://www.kellyslittlenipper.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Mad Meatball",
+    "slug": "mad-meatball",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Maggie’s Rumble Room",
+    "slug": "maggies-rumble-room",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "MALO",
+    "slug": "malo",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Maxie’s Supper Club",
+    "slug": "maxies-supper-club",
+    "address": "1311 Grand Ave, West Des Moines, IA 50265",
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Mickey’s Irish Pub",
+    "slug": "mickeys-irish-pub",
+    "address": "50 SE Laurel St, Waukee, IA 50263",
+    "phone": "(515) 987-9604",
+    "website": "https://mickeyswaukee.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Mullet’s Norwalk",
+    "slug": "mullets-norwalk",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Paula’s",
+    "slug": "paulas",
+    "address": "524 Elm St, West Des Moines, IA 50265",
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Pelican Post",
+    "slug": "pelican-post",
+    "address": "265 50th St, West Des Moines, IA 50265",
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Prime & Providence",
+    "slug": "prime-providence",
+    "address": "595 S 60th St, West Des Moines, IA 50266",
+    "phone": "(515) 650-7259",
+    "website": null,
+    "menu_url": null
+  }
+]
