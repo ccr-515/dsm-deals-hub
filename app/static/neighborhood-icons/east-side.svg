@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <title>East Side</title>
+  <g stroke="#242b31" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M256 68c-47 0-84 37-84 83 0 25 14 53 42 89l42 52 42-52c28-36 42-64 42-89 0-46-37-83-84-83Z"/>
+    <circle cx="256" cy="151" r="22"/>
+    <path d="M122 312c0-24 19-43 43-43h182c24 0 43 19 43 43v83c0 24-19 43-43 43H165c-24 0-43-19-43-43Z"/>
+    <path d="M151 452h210"/>
+  </g>
+  <path d="M184 438h144" stroke="#cf7243" stroke-width="12" stroke-linecap="round" opacity="0.95"/>
+  <circle cx="360" cy="110" r="10" fill="#3f6a50" opacity="0.95"/>
+  <text
+    x="256"
+    y="386"
+    fill="#242b31"
+    font-family="Avenir Next, Segoe UI, Helvetica Neue, Arial, sans-serif"
+    font-size="136"
+    font-weight="800"
+    letter-spacing="8"
+    text-anchor="middle"
+  >ES</text>
+</svg>

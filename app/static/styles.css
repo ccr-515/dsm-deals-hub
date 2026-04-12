@@ -1307,19 +1307,28 @@ h1 {
 }
 
 .icon-badge[data-icon-kind="neighborhood"][data-icon-render="image"] {
-  padding: 0.08rem;
+  padding: 0.18rem;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 242, 233, 0.82)),
     rgba(255, 248, 242, 0.9);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 18px 30px rgba(52, 66, 52, 0.11),
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 0 16px rgba(95, 255, 154, 0.12),
+    0 0 28px rgba(207, 114, 67, 0.08);
 }
 
 .icon-badge[data-icon-kind="neighborhood"][data-icon-render="image"]::after {
-  inset: 0.2rem;
+  inset: 0.28rem;
 }
 
 .icon-badge[data-icon-kind="neighborhood"][data-icon-render="image"] .icon-badge-image {
-  width: calc(100% - 0.08rem);
-  height: calc(100% - 0.08rem);
+  width: calc(100% - 0.22rem);
+  height: calc(100% - 0.22rem);
+  filter:
+    drop-shadow(0 0 6px rgba(95, 255, 154, 0.12))
+    drop-shadow(0 0 9px rgba(207, 114, 67, 0.08));
 }
 
 .icon-badge[data-icon-kind="day"] {
@@ -1354,6 +1363,25 @@ h1 {
   border-color: rgba(207, 114, 67, 0.18);
 }
 
+.icon-tone-civic[data-icon-kind="neighborhood"][data-icon-render="image"],
+.icon-tone-market[data-icon-kind="neighborhood"][data-icon-render="image"],
+.icon-tone-sunrise[data-icon-kind="neighborhood"][data-icon-render="image"] {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 18px 30px rgba(74, 62, 44, 0.11),
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 0 14px rgba(207, 114, 67, 0.12),
+    0 0 24px rgba(214, 135, 87, 0.11);
+}
+
+.icon-tone-market[data-icon-kind="neighborhood"][data-icon-render="image"] .icon-badge-image,
+.icon-tone-sunrise[data-icon-kind="neighborhood"][data-icon-render="image"] .icon-badge-image,
+.icon-tone-civic[data-icon-kind="neighborhood"][data-icon-render="image"] .icon-badge-image {
+  filter:
+    drop-shadow(0 0 6px rgba(214, 135, 87, 0.14))
+    drop-shadow(0 0 9px rgba(207, 114, 67, 0.1));
+}
+
 .icon-tone-market[data-icon-kind="neighborhood"] {
   background:
     linear-gradient(180deg, rgba(251, 254, 248, 0.92), rgba(238, 246, 236, 0.82)),
@@ -1368,6 +1396,25 @@ h1 {
     rgba(239, 248, 244, 0.9);
   color: #30595a;
   border-color: rgba(78, 116, 108, 0.16);
+}
+
+.icon-tone-meadow[data-icon-kind="neighborhood"][data-icon-render="image"],
+.icon-tone-grove[data-icon-kind="neighborhood"][data-icon-render="image"],
+.icon-tone-river[data-icon-kind="neighborhood"][data-icon-render="image"] {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 18px 30px rgba(52, 66, 52, 0.11),
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 0 14px rgba(95, 255, 154, 0.13),
+    0 0 24px rgba(63, 106, 80, 0.11);
+}
+
+.icon-tone-meadow[data-icon-kind="neighborhood"][data-icon-render="image"] .icon-badge-image,
+.icon-tone-grove[data-icon-kind="neighborhood"][data-icon-render="image"] .icon-badge-image,
+.icon-tone-river[data-icon-kind="neighborhood"][data-icon-render="image"] .icon-badge-image {
+  filter:
+    drop-shadow(0 0 6px rgba(95, 255, 154, 0.14))
+    drop-shadow(0 0 9px rgba(63, 106, 80, 0.1));
 }
 
 .icon-tone-grove[data-icon-kind="neighborhood"] {
@@ -1416,7 +1463,9 @@ h1 {
 
 .brand-slot-heading .icon-badge[data-icon-kind="brand"][data-icon-render="image"] {
   padding: 0;
+  overflow: visible;
   border-color: transparent;
+  border-radius: 0;
   background: transparent;
   box-shadow: none;
 }
@@ -1429,6 +1478,7 @@ h1 {
 .brand-slot-heading .icon-badge[data-icon-kind="brand"][data-icon-render="image"] .icon-badge-image {
   width: 100%;
   height: 100%;
+  border-radius: 0;
   filter:
     drop-shadow(0 16px 24px rgba(43, 58, 44, 0.12))
     drop-shadow(0 2px 6px rgba(43, 58, 44, 0.1));
