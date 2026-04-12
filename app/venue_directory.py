@@ -99,6 +99,12 @@ def load_venue_directory() -> list[VenueMetadata]:
     return list(_load_venue_directory_cached(VENUE_DIRECTORY_PATH.stat().st_mtime_ns))
 
 
+def venue_directory_mtime_ns() -> int:
+    if not VENUE_DIRECTORY_PATH.exists():
+        return 0
+    return VENUE_DIRECTORY_PATH.stat().st_mtime_ns
+
+
 @lru_cache(maxsize=4)
 def _venue_directory_index_cached(mtime_ns: int) -> dict[str, VenueMetadata]:
     index: dict[str, VenueMetadata] = {}
@@ -113,7 +119,7 @@ def _venue_directory_index_cached(mtime_ns: int) -> dict[str, VenueMetadata]:
 def venue_directory_index() -> dict[str, VenueMetadata]:
     if not VENUE_DIRECTORY_PATH.exists():
         return {}
-    return _venue_directory_index_cached(VENUE_DIRECTORY_PATH.stat().st_mtime_ns)
+    return _venue_directory_index_cached(venue_directory_mtime_ns())
 
 
 def match_venue_metadata(name: str, slug: str | None = None) -> VenueMetadata | None:

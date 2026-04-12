@@ -16,7 +16,8 @@ FOR_VENUES_DIR = DOCS_DIR / "for-venues"
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-os.environ["DSM_DEALS_SITE_BASE_PATH"] = "dsm-deals-hub"
+# Vercel/static exports in this project should use root-relative public paths.
+os.environ.pop("DSM_DEALS_SITE_BASE_PATH", None)
 
 from app.database import SessionLocal  # noqa: E402
 from app.main import (  # noqa: E402
@@ -34,6 +35,7 @@ from app.main import (  # noqa: E402
     today_page_data,
 )
 from app.neighborhood_icons import sync_neighborhood_icon_assets  # noqa: E402
+from app.weekly_master_content import reset_weekly_master_deals_cache  # noqa: E402
 
 
 def clear_existing_day_exports() -> None:
@@ -51,6 +53,7 @@ def clear_existing_day_exports() -> None:
 
 def main() -> None:
     sync_neighborhood_icon_assets()
+    reset_weekly_master_deals_cache()
     db = SessionLocal()
     try:
         day_sections = days_page_sections(db)
