@@ -1,0 +1,162 @@
+[
+  {
+    "name": "Cancun Grill & Cantina",
+    "slug": "cancun-grill-cantina",
+    "address": "3855 121st St, Urbandale, IA 50323",
+    "phone": "(515) 270-1870",
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Ceviche Bar",
+    "slug": "ceviche-bar",
+    "address": "223 E Walnut St, Des Moines, IA 50309",
+    "phone": "(515) 528-2065",
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "District 36",
+    "slug": "district-36",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Django",
+    "slug": "django",
+    "address": "1420 Locust St, Des Moines, IA 50309",
+    "phone": "(515) 288-0268",
+    "website": "https://www.djangodesmoines.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Eastside Eddie’s",
+    "slug": "eastside-eddies",
+    "address": "3517 E 26th St, Des Moines, IA 50317",
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Eatery A",
+    "slug": "eatery-a",
+    "address": "2932 Ingersoll Ave, Des Moines, IA 50312",
+    "phone": "(515) 282-8085",
+    "website": "https://www.eateryadsm.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Fresko",
+    "slug": "fresko",
+    "address": "909 Locust St Suite 103, Des Moines, IA 50309",
+    "phone": "(515) 630-7009",
+    "website": "https://www.freskodsm.com/",
+    "menu_url": null
+  },
+  {
+    "name": "G Mig’s",
+    "slug": "g-migs",
+    "address": "128 5th St, West Des Moines, IA 50265",
+    "phone": null,
+    "website": "https://gmigs.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Gameday",
+    "slug": "gameday",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Gilroy’s",
+    "slug": "gilroys",
+    "address": "1238 8th St, West Des Moines, IA 50265",
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Grand Junction",
+    "slug": "grand-junction",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Graziano Brothers",
+    "slug": "graziano-brothers",
+    "address": "1601 S Union St, Des Moines, IA 50315",
+    "phone": "(515) 244-7103",
+    "website": "https://grazianobrothers.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Guesthouse Tavern & Oyster",
+    "slug": "guesthouse-tavern-oyster",
+    "address": "9500 University Ave, West Des Moines, IA 50266",
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Guesthouse Tavern and Oyster",
+    "slug": "guesthouse-tavern-and-oyster",
+    "address": "9500 University Ave, West Des Moines, IA 50266",
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Harbinger",
+    "slug": "harbinger",
+    "address": "2724 Ingersoll Ave, Des Moines, IA 50312",
+    "phone": "(515) 244-1314",
+    "website": "https://harbingerdsm.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Heavenly Asian",
+    "slug": "heavenly-asian",
+    "address": "225 5th St, West Des Moines, IA 50265",
+    "phone": "(515) 255-5598",
+    "website": "https://heavenlyasiancuisine.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Hessen Haus",
+    "slug": "hessen-haus",
+    "address": "101 SW 4th St, Des Moines, IA 50309",
+    "phone": "(515) 288-2520",
+    "website": "https://hessenhaus.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Istanbul Cafe and Bakery",
+    "slug": "istanbul-cafe-and-bakery",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Istanbul Grill Cafe & Bakery",
+    "slug": "istanbul-grill-cafe-bakery",
+    "address": "3281 100th St, Urbandale, IA 50322",
+    "phone": "(515) 207-1292",
+    "website": "https://istanbulgrilliowa.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Jethro’s",
+    "slug": "jethros",
+    "address": null,
+    "phone": null,
+    "website": "https://www.jethrosdesmoines.com/",
+    "menu_url": null
+  }
+]
