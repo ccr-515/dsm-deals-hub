@@ -1,0 +1,162 @@
+[
+  {
+    "name": "Johnny’s Hall of Fame",
+    "slug": "johnnys-hall-of-fame",
+    "address": "302 Court Ave, Des Moines, IA 50309",
+    "phone": "(515) 280-6679",
+    "website": "https://www.johnnyshalloffame.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Kelly’s Little Nipper",
+    "slug": "kellys-little-nipper",
+    "address": "1701 E Grand Ave, Des Moines, IA 50316",
+    "phone": null,
+    "website": "https://www.kellyslittlenipper.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Louie’s Wine Dive",
+    "slug": "louies-wine-dive",
+    "address": "4040 University Ave, Suite A, Des Moines, IA 50311",
+    "phone": "(515) 777-3416",
+    "website": "https://www.louieswinedive.com/location/louies-wine-dive-des-moines/",
+    "menu_url": null
+  },
+  {
+    "name": "Lucky Horse",
+    "slug": "lucky-horse",
+    "address": "2331 University Ave, Des Moines, IA 50311",
+    "phone": "(515) 381-9088",
+    "website": "https://luckyhorsedsm.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Mad Meatball",
+    "slug": "mad-meatball",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Maggie’s Rumble Room",
+    "slug": "maggies-rumble-room",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "MALO",
+    "slug": "malo",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Maxie’s Supper Club",
+    "slug": "maxies-supper-club",
+    "address": "1311 Grand Ave, West Des Moines, IA 50265",
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Mickey’s Irish Pub",
+    "slug": "mickeys-irish-pub",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Mullet’s Norwalk",
+    "slug": "mullets-norwalk",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Paula’s",
+    "slug": "paulas",
+    "address": "524 Elm St, West Des Moines, IA 50265",
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Pelican Post",
+    "slug": "pelican-post",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Prime & Providence",
+    "slug": "prime-providence",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Revival House",
+    "slug": "revival-house",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Shirley’s Bar & Grill",
+    "slug": "shirleys-bar-grill",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "ShortE’s BBQ",
+    "slug": "shortes-bbq",
+    "address": "8805 Chambery Blvd, Johnston, IA 50131",
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Smoking Goat Pub",
+    "slug": "smoking-goat-pub",
+    "address": "3015 Merle Hay Rd, Des Moines, IA 50310",
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Striking Sparrow",
+    "slug": "striking-sparrow",
+    "address": "1930 SE 6th St, Des Moines, IA 50315",
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Sully’s Irish Pub",
+    "slug": "sullys-irish-pub",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "The Bartender’s Handshake",
+    "slug": "the-bartenders-handshake",
+    "address": null,
+    "phone": null,
+    "website": null,
+    "menu_url": null
+  }
+]
