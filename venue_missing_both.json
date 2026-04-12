@@ -1,0 +1,146 @@
+[
+  {
+    "name": "Istanbul Cafe and Bakery",
+    "slug": "istanbul-cafe-and-bakery",
+    "address": "3281 100th St, Urbandale, IA 50322",
+    "phone": "(515) 207-1292",
+    "website": "https://istanbulgrilliowa.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Jethro’s",
+    "slug": "jethros",
+    "address": "721 3rd St, Des Moines, IA 50309",
+    "phone": "(515) 279-3300",
+    "website": "https://www.jethrosdesmoines.com/",
+    "menu_url": null
+  },
+  {
+    "name": "MALO",
+    "slug": "malo",
+    "address": "900 Mulberry St, Des Moines, IA 50309",
+    "phone": "(515) 244-5000",
+    "website": "https://www.malodesmoines.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Mullet’s Norwalk",
+    "slug": "mullets-norwalk",
+    "address": "1951 E 18th St Ste 101, Norwalk, IA 50211",
+    "phone": "(515) 348-6960",
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Revival House",
+    "slug": "revival-house",
+    "address": "316 Court Ave, Des Moines, IA 50309",
+    "phone": "(515) 379-6800",
+    "website": "https://revivalhousebar.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Shirley’s Bar & Grill",
+    "slug": "shirleys-bar-grill",
+    "address": "9250 University Ave Suite 117, West Des Moines, IA 50266",
+    "phone": "(515) 414-8986",
+    "website": "https://www.shirleysbarandgrill.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Sully’s Irish Pub",
+    "slug": "sullys-irish-pub",
+    "address": "110 Grand Ave, West Des Moines, IA 50265",
+    "phone": "(515) 255-9970",
+    "website": "https://www.sullysdesmoines.com/",
+    "menu_url": null
+  },
+  {
+    "name": "The Bartender’s Handshake",
+    "slug": "the-bartenders-handshake",
+    "address": "3615 Ingersoll Ave, Des Moines, IA 50312",
+    "phone": "(515) 630-3008",
+    "website": "https://thebartendershandshake.com/",
+    "menu_url": null
+  },
+  {
+    "name": "The Beerhouse",
+    "slug": "the-beerhouse",
+    "address": "4810 86th St, Urbandale, IA 50322",
+    "phone": "(515) 278-1821",
+    "website": "https://beerhouseia.com/",
+    "menu_url": null
+  },
+  {
+    "name": "The Dam Pub",
+    "slug": "the-dam-pub",
+    "address": "2710 Beaver Ave, Des Moines, IA 50310",
+    "phone": "(515) 279-4449",
+    "website": "http://dampubdsm.com/",
+    "menu_url": null
+  },
+  {
+    "name": "The Stuffed Olive",
+    "slug": "the-stuffed-olive",
+    "address": "216 Court Ave STE 100, Des Moines, IA 50309",
+    "phone": "(515) 243-4456",
+    "website": "https://www.thestuffedolive.com/",
+    "menu_url": null
+  },
+  {
+    "name": "The Tavern Grill",
+    "slug": "the-tavern-grill",
+    "address": "101 Jordan Creek Pkwy Suite 12520, West Des Moines, IA 50266",
+    "phone": "(515) 444-3310",
+    "website": "https://www.thetaverngrill.com/",
+    "menu_url": null
+  },
+  {
+    "name": "The Urban Grill",
+    "slug": "the-urban-grill",
+    "address": "3651 86th St, Urbandale, IA 50322",
+    "phone": "(515) 278-1016",
+    "website": "https://www.theurbangrilldm.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Tito’s Lounge",
+    "slug": "titos-lounge",
+    "address": "3916 NW Urbandale Dr, Urbandale, IA 50322",
+    "phone": "(515) 214-1066",
+    "website": "https://titosloungeia.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Uptown Bar & Grill",
+    "slug": "uptown-bar-grill",
+    "address": "201 SE Main St, Grimes, IA 50111",
+    "phone": "(515) 986-1290",
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Urban Cellars",
+    "slug": "urban-cellars",
+    "address": "640 S 50th St Suite #2110, West Des Moines, IA 50265",
+    "phone": "(515) 226-3230",
+    "website": null,
+    "menu_url": null
+  },
+  {
+    "name": "Walker’s Place",
+    "slug": "walkers-place",
+    "address": "475 NE Broadway Ave, Des Moines, IA 50313",
+    "phone": "(515) 561-6701",
+    "website": "https://walkersplacebar.com/",
+    "menu_url": null
+  },
+  {
+    "name": "Westown Tap Bar & Restaurant",
+    "slug": "westown-tap-bar-restaurant",
+    "address": "3530 Westown Pkwy, West Des Moines, IA 50266",
+    "phone": "(515) 732-1470",
+    "website": "https://www.westowntap.com/",
+    "menu_url": null
+  }
+]
