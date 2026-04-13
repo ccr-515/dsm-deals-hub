@@ -1284,6 +1284,21 @@ h1 {
   height: calc(100% - 0.08rem);
 }
 
+.brand-slot-compact .icon-badge[data-icon-kind="brand"][data-icon-render="image"] {
+  overflow: visible;
+  padding: 0.14rem;
+}
+
+.brand-slot-compact .icon-badge[data-icon-kind="brand"][data-icon-render="image"]::after {
+  inset: 0.22rem;
+}
+
+.brand-slot-compact .icon-badge[data-icon-kind="brand"][data-icon-render="image"] .icon-badge-image {
+  width: calc(100% - 0.22rem);
+  height: calc(100% - 0.22rem);
+  border-radius: 0;
+}
+
 .icon-badge[data-icon-kind="neighborhood"] {
   min-width: 4.15rem;
   width: 4.15rem;
@@ -2282,6 +2297,11 @@ h1 {
     padding: 0.34rem 0.52rem 0.34rem 0.34rem;
   }
 
+  .brand-slot-compact {
+    width: auto;
+    max-width: 100%;
+  }
+
   .brand-kicker {
     font-size: 0.66rem;
     letter-spacing: 0.22em;
@@ -2337,7 +2357,6 @@ h1 {
     font-size: 0.76rem;
   }
 
-  .section-nav.site-nav,
   .section-nav.day-nav {
     flex-wrap: nowrap;
     overflow-x: auto;
@@ -2348,6 +2367,21 @@ h1 {
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     scroll-padding-inline: 0.325rem;
+  }
+
+  .section-nav.site-nav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0.08rem 1rem 0.52rem 0.02rem;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scroll-padding-left: 0.02rem;
+    scroll-padding-right: 1rem;
   }
 
   .section-nav.site-nav::-webkit-scrollbar,
@@ -2407,6 +2441,7 @@ h1 {
   .hero-stats,
   .deal-grid,
   .browse-card-grid,
+  .browse-card-grid-days,
   .browse-card-grid-compact,
   .live-now-details-grid {
     grid-template-columns: 1fr;
@@ -2678,7 +2713,11 @@ h1 {
   }
 
   .live-now-summary-side {
-    align-self: flex-start;
+    width: 100%;
+    align-self: stretch;
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: center;
   }
 
   .neighborhood-chip {
@@ -2883,6 +2922,7 @@ h1 {
   }
 
   .deal-card-actions {
+    justify-content: flex-start;
     gap: 0.62rem;
     margin-top: 0.78rem;
     padding-top: 0.78rem;
