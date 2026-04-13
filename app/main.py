@@ -96,6 +96,11 @@ FOR_VENUES_TRUST_LINE = "Every submission is reviewed by hand before it goes liv
 FOR_VENUES_FUTURE_NOTE = (
     "Right now, submissions are manual. Later on, businesses may get a login to update deals directly."
 )
+FOR_VENUES_TRUST_POINTS = (
+    "Free to submit",
+    "Local Des Moines audience",
+    "Reviewed before publishing",
+)
 FOR_VENUES_ABOUT_HEADING = "Why I built DSM Deals Hub"
 FOR_VENUES_ABOUT_PARAGRAPH = (
     "I built DSM Deals Hub because too many good deals are scattered all over the place. "
@@ -1548,7 +1553,7 @@ def render_live_now_module(deals: List[models.Deal], reference: datetime) -> str
             <div class="live-now-summary-copy">
               <span class="live-now-badge"><span class="live-now-dot" aria-hidden="true"></span>Live Now</span>
               <h2>Deals happening right now</h2>
-              <p>Deals currently happening right now. Support local and don’t forget to tip.</p>
+              <p>Open now across Des Moines. The board updates through the day, so check back later today or tomorrow for the next round.</p>
             </div>
             <div class="live-now-summary-side">
               <span class="section-count">{len(deals)} deals</span>
@@ -1779,14 +1784,19 @@ def render_homepage_html(sections: dict[str, List[models.Deal]], neighborhoods: 
     <section id="for-venues" class="content-section homepage-section homepage-section-venues">
       <div class="section-panel section-panel-secondary homepage-panel homepage-panel-venues">
         <div class="for-venues-panel">
-          <div class="for-venues-copy">
-            <p class="section-kicker">{PUBLIC_VENUES_LABEL}</p>
-            <h2>Curated for readers. Ready for venue submissions.</h2>
+            <div class="for-venues-copy">
+              <p class="section-kicker">{PUBLIC_VENUES_LABEL}</p>
+            <h2>Own a spot here? Submit your deal.</h2>
             <p>
-              DSM Deals Hub stays hand-curated so the public side reads like a local guide, not a feed dump. Deal submissions and future self-serve tools still live here as the business side grows.
+              DSM Deals Hub stays hand-curated so the public side reads like a local guide, not a feed dump. Free to submit, reviewed before publishing, and seen by a local Des Moines audience looking for what is worth opening today.
             </p>
           </div>
           <div class="live-empty-actions">
+            <div class="for-venues-trust-strip" aria-label="Business submission trust points">
+              <span class="browse-card-pill">{FOR_VENUES_TRUST_POINTS[0]}</span>
+              <span class="browse-card-pill">{FOR_VENUES_TRUST_POINTS[1]}</span>
+              <span class="browse-card-pill">{FOR_VENUES_TRUST_POINTS[2]}</span>
+            </div>
             <div class="empty-state-links">
               <a href="{site_href("/for-venues")}" class="empty-state-link">{PUBLIC_VENUES_LABEL}</a>
               <a href="{site_href("/neighborhoods")}" class="empty-state-link">Browse neighborhoods</a>
@@ -1795,7 +1805,7 @@ def render_homepage_html(sections: dict[str, List[models.Deal]], neighborhoods: 
               <span class="empty-state-cta-plus">+</span>
               <span class="empty-state-cta-copy">
                 <strong>Share your deal</strong>
-                <small>Accepting deals for today!</small>
+                <small>Want your special featured here?</small>
               </span>
             </a>
           </div>
@@ -1806,10 +1816,10 @@ def render_homepage_html(sections: dict[str, List[models.Deal]], neighborhoods: 
     """
     return render_page_document(
         "DSM Deals Hub",
-        "Curated food and drink deals across Des Moines, updated manually.",
+        "Manually curated Des Moines food and drink specials, with live picks, day-by-day browsing, and business submissions reviewed before publishing.",
         BRAND_HOME_EYEBROW,
         "DSM Deals Hub",
-        "A hand-curated daily guide to neighborhood specials, happy hour, brunch, dinner plans, and weekly favorites across Des Moines.",
+        "Manually curated Des Moines food and drink specials. Start with Today for what is live now, then browse Days and Neighborhoods to see what is worth going out for.",
         "home",
         main_content,
         utility_html=utility_html,
@@ -2655,16 +2665,26 @@ def render_for_venues_html() -> str:
     submission_panel = f"""
     <section class="content-section">
       <div class="section-panel section-panel-secondary">
-        <div class="for-venues-panel">
-          <div class="for-venues-copy">
-            <p class="section-kicker">Manual review</p>
-            <p>{FOR_VENUES_TRUST_LINE}</p>
-          </div>
+        <div class="for-venues-copy">
+          <p class="section-kicker">For local businesses</p>
+          <h2>{PUBLIC_VENUES_LABEL}</h2>
+          <p>
+            If your business has a special worth sharing, send it our way. DSM Deals Hub helps local readers find real food and drink deals across Des Moines, and it helps spots fill seats on the days they need it most.
+          </p>
+          <p>{FOR_VENUES_TRUST_LINE}</p>
+          <p class="for-venues-note">{FOR_VENUES_FUTURE_NOTE}</p>
+        </div>
+        <div class="for-venues-trust-strip" aria-label="Business submission trust points">
+          <span class="browse-card-pill">{FOR_VENUES_TRUST_POINTS[0]}</span>
+          <span class="browse-card-pill">{FOR_VENUES_TRUST_POINTS[1]}</span>
+          <span class="browse-card-pill">{FOR_VENUES_TRUST_POINTS[2]}</span>
+        </div>
+        <div class="for-venues-form-block">
+          <p class="for-venues-form-intro">Drop your deal details below and we’ll take a look.</p>
           <div class="form-embed-shell" aria-label="Business submission form">
             {embed_block}
           </div>
         </div>
-        <p class="for-venues-note">{FOR_VENUES_FUTURE_NOTE}</p>
       </div>
     </section>
     """
@@ -2675,6 +2695,7 @@ def render_for_venues_html() -> str:
           <p class="section-kicker">About DSM Deals Hub</p>
           <h2>{FOR_VENUES_ABOUT_HEADING}</h2>
           <p>{FOR_VENUES_ABOUT_PARAGRAPH}</p>
+          <p class="about-dsm-note">Local deals, curated by hand.</p>
         </div>
       </div>
     </section>
@@ -2685,7 +2706,7 @@ def render_for_venues_html() -> str:
     """
     return render_page_document(
         f"DSM Deals Hub | {PUBLIC_VENUES_LABEL}",
-        "Learn how businesses can submit deals for review and how direct account access will work later.",
+        "Free business deal submissions for Des Moines spots, reviewed by hand before publishing.",
         "For local businesses",
         PUBLIC_VENUES_LABEL,
         "If your business has a special worth sharing, send it our way. DSM Deals Hub is built to help people find real food and drink deals across Des Moines, and to help local spots fill seats on the days they need it most.",

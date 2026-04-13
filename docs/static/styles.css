@@ -2063,6 +2063,23 @@ h1 {
   font-size: 0.95rem;
 }
 
+.for-venues-trust-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.95rem;
+}
+
+.for-venues-form-block {
+  margin-top: 1rem;
+}
+
+.for-venues-form-intro {
+  margin: 0 0 0.8rem;
+  color: var(--muted);
+  font-size: 0.96rem;
+}
+
 .form-embed-shell {
   width: 100%;
   max-width: none;
@@ -2363,13 +2380,16 @@ h1 {
   .section-nav.day-nav {
     flex-wrap: nowrap;
     overflow-x: auto;
-    width: calc(100% + 0.65rem);
-    margin: 0 -0.325rem;
-    padding: 0.08rem 0.325rem 0.52rem;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0.08rem 1rem 0.52rem 0.02rem;
     scroll-snap-type: x proximity;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
-    scroll-padding-inline: 0.325rem;
+    overscroll-behavior-x: contain;
+    scroll-padding-left: 0.02rem;
+    scroll-padding-right: 1rem;
   }
 
   .section-nav.site-nav {
