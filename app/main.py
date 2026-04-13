@@ -1791,13 +1791,13 @@ def render_homepage_html(sections: dict[str, List[models.Deal]], neighborhoods: 
               <a href="{site_href("/for-venues")}" class="empty-state-link">{PUBLIC_VENUES_LABEL}</a>
               <a href="{site_href("/neighborhoods")}" class="empty-state-link">Browse neighborhoods</a>
             </div>
-            <div class="empty-state-cta" aria-label="Businesses can submit a deal">
+            <a class="empty-state-cta" href="{site_href("/for-venues")}" aria-label="Share your deal">
               <span class="empty-state-cta-plus">+</span>
               <span class="empty-state-cta-copy">
                 <strong>Share your deal</strong>
-                <small>Venue submissions will live here</small>
+                <small>Accepting deals for today!</small>
               </span>
-            </div>
+            </a>
           </div>
         </div>
       </div>
@@ -1818,8 +1818,7 @@ def render_homepage_html(sections: dict[str, List[models.Deal]], neighborhoods: 
 
 def render_today_html(data: dict) -> str:
     now = datetime.now(HOME_TIMEZONE).replace(tzinfo=None)
-    happy_hour_labels = [format_today_pick_time(deal, now) for deal in data["happy_hour"]]
-    specials_labels = [format_today_pick_time(deal, now) for deal in data["specials"]]
+    today_sections, _featured = day_detail_sections_for_page(data["day_code"], data["all"])
     utility_html = f"""
     <div class="hero-stats" aria-label="Today overview">
       <div>
@@ -1845,26 +1844,26 @@ def render_today_html(data: dict) -> str:
           </div>
         </section>
         """
+    sections_html = "".join(
+        render_section(
+            f"today-{normalize_slug(section['title'])}",
+            section["title"],
+            section["intro"],
+            section["deals"],
+            f"No {section['title'].lower()} picks are listed for {data['day_label']} yet.",
+            now,
+            time_labels=[format_today_pick_time(deal, now) for deal in section["deals"]],
+            section_class="content-section day-detail-section",
+            panel_class="section-panel homepage-panel homepage-panel-today day-detail-panel",
+            kicker_label=section["title"],
+            collapsible=True,
+            initially_open=index == 0,
+        )
+        for index, section in enumerate(today_sections)
+    )
     main_content = f"""
     {featured_empty}
-    {render_section(
-        "today-happy-hour",
-        "Happy Hour",
-        "Timed pours, patio windows, and after-work stops worth opening first today.",
-        data["happy_hour"],
-        f"No happy hour picks are listed for {data['day_label']} yet.",
-        now,
-        time_labels=happy_hour_labels,
-    )}
-    {render_section(
-        "today-specials",
-        "Specials",
-        "The strongest food-led picks and house specials on today’s board.",
-        data["specials"],
-        f"No featured specials are listed for {data['day_label']} yet.",
-        now,
-        time_labels=specials_labels,
-    )}
+    {sections_html}
     """
     return render_page_document(
         "DSM Deals Hub | Today",
@@ -1875,6 +1874,7 @@ def render_today_html(data: dict) -> str:
         "today",
         main_content,
         utility_html=utility_html,
+        include_toggle_script=True,
     )
 
 
