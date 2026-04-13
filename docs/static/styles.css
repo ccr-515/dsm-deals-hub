@@ -3160,3 +3160,31 @@ h1 {
     flex: 0 0 auto !important;
   }
 }
+
+
+
+/* FIX: mobile neighborhood icon rendering */
+@media (max-width: 720px) {
+  .browse-card-icon,
+  .icon-badge[data-icon-kind="neighborhood"] {
+    width: 3.25rem !important;
+    height: 3.25rem !important;
+    min-width: 3.25rem !important;
+    min-height: 3.25rem !important;
+    padding: 0.2rem !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    flex: 0 0 auto !important;
+  }
+
+  .browse-card-icon .icon-badge-image,
+  .icon-badge[data-icon-kind="neighborhood"] .icon-badge-image {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+  }
+}
