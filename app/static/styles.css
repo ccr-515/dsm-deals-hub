@@ -2041,6 +2041,10 @@ h1 {
   gap: 1rem 1.25rem;
 }
 
+.for-venues-panel {
+  align-items: start;
+}
+
 .live-now-copy,
 .for-venues-copy {
   max-width: 42rem;
@@ -2080,6 +2084,7 @@ h1 {
 .form-embed-shell iframe,
 .form-embed-shell .jotform-form,
 .form-embed-shell .google-form-frame {
+  display: block;
   width: 100%;
   min-height: 32rem;
   border: 0;

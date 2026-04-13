@@ -89,17 +89,22 @@ APPLE_TOUCH_ICON_STATIC_PATH = "/static/apple-touch-icon.png"
 BRAND_HOME_EYEBROW = "Curated daily"
 BRAND_META_LABEL = "Des Moines daily dining guide"
 PUBLIC_VENUES_LABEL = "Got a deal?"
-VENUE_SUBMISSION_EMBED_HTML = ""
+VENUE_SUBMISSION_EMBED_HTML = """
+<iframe src="https://docs.google.com/forms/d/e/1FAIpQLScBo9-2_gReSzkBRcQo6wM_8jZL4c9tV4kF2GTQeaIrtWmrdw/viewform?embedded=true" width="100%" height="2400" frameborder="0" marginheight="0" marginwidth="0" class="google-form-frame">Loading…</iframe>
+"""
+FOR_VENUES_TRUST_LINE = "Every submission is reviewed by hand before it goes live."
+FOR_VENUES_FUTURE_NOTE = (
+    "Right now, submissions are manual. Later on, businesses may get a login to update deals directly."
+)
 FOR_VENUES_ABOUT_HEADING = "Why I built DSM Deals Hub"
 FOR_VENUES_ABOUT_PARAGRAPH = (
-    "I built DSM Deals Hub because I got tired of good specials being scattered all over the place. "
-    "Some were buried in Instagram stories, some were on Facebook, some were outdated, and some were "
-    "impossible to find unless you already knew where to look. I wanted one clean place where people "
-    "in Des Moines could quickly see what is worth going out for today, what is live right now, and "
-    "what each neighborhood has to offer. At the same time, I wanted it to help local businesses get "
-    "more attention on the deals they actually need people to see."
+    "I built DSM Deals Hub because too many good deals are scattered all over the place. "
+    "Some are buried in Instagram stories, some are on Facebook, some are outdated, and some are "
+    "impossible to find unless you already know where to look. I wanted one clean place where people "
+    "in Des Moines could quickly see what is worth going out for today, what is happening right now, "
+    "and what each neighborhood has to offer. At the same time, I wanted it to help local businesses "
+    "get more attention on the deals they actually need people to see."
 )
-FOR_VENUES_FOOTER_NOTE = "Local deals, curated by hand."
 PUBLIC_NEIGHBORHOOD_LABELS = {
     "des moines area": "Des Moines",
     "des moines metro": "Des Moines",
@@ -2653,14 +2658,13 @@ def render_for_venues_html() -> str:
         <div class="for-venues-panel">
           <div class="for-venues-copy">
             <p class="section-kicker">Manual review</p>
-            <h2>Drop your deal details below and we’ll take a look.</h2>
-            <p>Every submission is reviewed by hand before it goes live.</p>
-            <p class="for-venues-note">Right now, submissions are manual. Later on, businesses may get a login to update deals directly.</p>
+            <p>{FOR_VENUES_TRUST_LINE}</p>
           </div>
           <div class="form-embed-shell" aria-label="Business submission form">
             {embed_block}
           </div>
         </div>
+        <p class="for-venues-note">{FOR_VENUES_FUTURE_NOTE}</p>
       </div>
     </section>
     """
@@ -2671,7 +2675,6 @@ def render_for_venues_html() -> str:
           <p class="section-kicker">About DSM Deals Hub</p>
           <h2>{FOR_VENUES_ABOUT_HEADING}</h2>
           <p>{FOR_VENUES_ABOUT_PARAGRAPH}</p>
-          <p class="about-dsm-note">{FOR_VENUES_FOOTER_NOTE}</p>
         </div>
       </div>
     </section>
