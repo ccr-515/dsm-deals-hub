@@ -2033,16 +2033,11 @@ h1 {
   gap: 0.85rem;
 }
 
-.live-now-inline,
 .for-venues-panel {
-  display: grid;
-  grid-template-columns: minmax(0, 1.3fr) auto;
-  align-items: center;
-  gap: 1rem 1.25rem;
-}
-
-.for-venues-panel {
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
 }
 
 .live-now-copy,
@@ -2063,12 +2058,14 @@ h1 {
 }
 
 .for-venues-note {
+  margin-top: 1rem;
   max-width: 38rem;
   font-size: 0.95rem;
 }
 
 .form-embed-shell {
-  width: min(100%, 38rem);
+  width: 100%;
+  max-width: none;
   min-height: 34rem;
   padding: 1rem;
   border: 1px solid rgba(63, 106, 80, 0.14);
@@ -2755,9 +2752,7 @@ h1 {
   }
 
   .empty-state-featured,
-  .live-now-inline,
   .for-venues-panel {
-    grid-template-columns: 1fr;
     gap: 1.08rem;
   }
 
@@ -2774,11 +2769,6 @@ h1 {
 
   .live-empty-copy p:last-child {
     max-width: none;
-  }
-
-  .live-now-inline,
-  .for-venues-panel {
-    gap: 1rem;
   }
 
   .live-empty-actions,
