@@ -3006,3 +3006,54 @@ h1 {
     flex: 0 0 auto !important;
   }
 }
+
+
+
+/* HARD FIX: mobile pill rows must scroll */
+@media (max-width: 720px) {
+  .hero-panel,
+  .section-panel,
+  .hero-utility,
+  .section-heading,
+  .section-nav-wrap {
+    overflow: visible !important;
+  }
+
+  .site-nav,
+  .day-nav {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0.25rem 1rem 0.25rem 0.5rem !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-x: contain !important;
+    touch-action: pan-x !important;
+    scrollbar-width: none !important;
+    scroll-padding-left: 0.5rem !important;
+    scroll-padding-right: 1rem !important;
+  }
+
+  .site-nav::-webkit-scrollbar,
+  .day-nav::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .site-nav > a,
+  .site-nav > button,
+  .day-nav > a,
+  .day-nav > button {
+    display: inline-flex !important;
+    vertical-align: top !important;
+    margin-right: 0.5rem !important;
+    white-space: nowrap !important;
+  }
+
+  .site-nav > *:last-child,
+  .day-nav > *:last-child {
+    margin-right: 1rem !important;
+  }
+}
