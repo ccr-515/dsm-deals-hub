@@ -3,7 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from html.parser import HTMLParser
+import os
 from pathlib import Path
+import re
 import sys
 from zoneinfo import ZoneInfo
 
@@ -12,6 +14,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+os.environ.pop("DSM_DEALS_SITE_BASE_PATH", None)
+
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -19,15 +23,17 @@ from app.weekly_master_content import load_weekly_master_deals, neighborhood_gro
 
 
 DOCS_ROOT = PROJECT_ROOT / "docs"
-GITHUB_PAGES_BASE = "/dsm-deals-hub"
-EXPECTED_STYLESHEET = f"{GITHUB_PAGES_BASE}/static/styles.css"
-EXPECTED_FAVICON = f"{GITHUB_PAGES_BASE}/static/favicon.svg"
+EXPECTED_STYLESHEET = "/static/styles.css"
+EXPECTED_FAVICON = "/static/favicon.svg"
 DAY_SLUGS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+VISIBLE_UTILITY_LABEL_RE = re.compile(r">(?:\s*)(Directions|Call)(?:\s*)</a>")
+PLAIN_UTILITY_CLASS_RE = re.compile(r'class="deal-utility-action(?![^"]*deal-utility-action-icononly)[^"]*"')
 
 
 @dataclass
 class HtmlAudit:
     hrefs: list[str]
+    srcs: list[str]
     stylesheet_links: list[str]
     favicon_links: list[str]
 
@@ -36,6 +42,7 @@ class ExportParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__()
         self.hrefs: list[str] = []
+        self.srcs: list[str] = []
         self.stylesheet_links: list[str] = []
         self.favicon_links: list[str] = []
 
@@ -43,6 +50,8 @@ class ExportParser(HTMLParser):
         attr_map = dict(attrs)
         if tag == "a" and attr_map.get("href"):
             self.hrefs.append(attr_map["href"])
+        if tag in {"img", "script", "source"} and attr_map.get("src"):
+            self.srcs.append(attr_map["src"])
         if tag == "link" and attr_map.get("href"):
             rel = attr_map.get("rel", "")
             href = attr_map["href"]
@@ -57,17 +66,18 @@ def parse_html(path: Path) -> HtmlAudit:
     parser.feed(path.read_text())
     return HtmlAudit(
         hrefs=parser.hrefs,
+        srcs=parser.srcs,
         stylesheet_links=parser.stylesheet_links,
         favicon_links=parser.favicon_links,
     )
 
 
 def export_target_exists(href: str) -> bool:
-    if href == f"{GITHUB_PAGES_BASE}/":
+    if href == "/":
         return (DOCS_ROOT / "index.html").exists()
-    if not href.startswith(f"{GITHUB_PAGES_BASE}/"):
+    if not href.startswith("/"):
         return False
-    relative = href[len(GITHUB_PAGES_BASE) :].lstrip("/")
+    relative = href.lstrip("/")
     target = DOCS_ROOT / relative
     if href.endswith("/"):
         target = target / "index.html"
@@ -79,6 +89,7 @@ def audit_exported_docs() -> list[str]:
     html_files = sorted(DOCS_ROOT.rglob("*.html"))
 
     for page in html_files:
+        raw_html = page.read_text()
         audit = parse_html(page)
         if audit.stylesheet_links != [EXPECTED_STYLESHEET]:
             failures.append(f"{page}: stylesheet links were {audit.stylesheet_links!r}")
@@ -88,11 +99,35 @@ def audit_exported_docs() -> list[str]:
         for href in audit.hrefs:
             if href.startswith(("http://", "https://", "mailto:", "tel:", "#")):
                 continue
-            if not href.startswith(f"{GITHUB_PAGES_BASE}/") and href != f"{GITHUB_PAGES_BASE}/":
-                failures.append(f"{page}: non-GitHub-Pages-safe href {href!r}")
+            if href.startswith("/dsm-deals-hub/"):
+                failures.append(f"{page}: deprecated GitHub Pages href {href!r}")
+                continue
+            if not href.startswith("/") and href != "/":
+                failures.append(f"{page}: non-root-relative href {href!r}")
                 continue
             if not export_target_exists(href):
                 failures.append(f"{page}: missing exported target for {href!r}")
+
+        for src in audit.srcs:
+            if src.startswith(("http://", "https://", "data:")):
+                continue
+            if src.startswith("/dsm-deals-hub/"):
+                failures.append(f"{page}: deprecated GitHub Pages src {src!r}")
+                continue
+            if not src.startswith("/"):
+                failures.append(f"{page}: non-root-relative src {src!r}")
+
+        if VISIBLE_UTILITY_LABEL_RE.search(raw_html):
+            failures.append(f"{page}: visible text utility labels still rendered")
+
+        if PLAIN_UTILITY_CLASS_RE.search(raw_html):
+            failures.append(f"{page}: utility action missing icon-only class")
+
+        if 'class="deal-card-actions"' in raw_html:
+            if 'class="deal-utility-action deal-utility-action-icononly"' not in raw_html:
+                failures.append(f"{page}: utility row missing icon-only actions")
+            if 'aria-label="Get directions to ' not in raw_html and 'aria-label="Call ' not in raw_html:
+                failures.append(f"{page}: utility row missing accessible icon labels")
 
     return failures
 

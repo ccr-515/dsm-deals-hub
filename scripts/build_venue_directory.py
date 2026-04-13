@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+"""Build the editable venue directory from the weekly master dataset.
+
+This script is intentionally conservative:
+- It extracts unique venues from the current weekly dataset.
+- It preserves existing manual enrichment in venue_directory.json.
+- It only fills address/phone/website when a safer existing local source has it.
+"""
+
 import json
 from pathlib import Path
 import sqlite3
