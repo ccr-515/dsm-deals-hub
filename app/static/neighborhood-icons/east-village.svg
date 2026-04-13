@@ -1,21 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
   <title>East Village</title>
-  <g stroke="#242b31" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M256 68c-47 0-84 37-84 83 0 25 14 53 42 89l42 52 42-52c28-36 42-64 42-89 0-46-37-83-84-83Z"/>
-    <circle cx="256" cy="151" r="22"/>
-    <path d="M122 312c0-24 19-43 43-43h182c24 0 43 19 43 43v83c0 24-19 43-43 43H165c-24 0-43-19-43-43Z"/>
-    <path d="M151 452h210"/>
-  </g>
-  <path d="M184 438h144" stroke="#cf7243" stroke-width="12" stroke-linecap="round" opacity="0.95"/>
-  <circle cx="360" cy="110" r="10" fill="#3f6a50" opacity="0.95"/>
-  <text
-    x="256"
-    y="386"
-    fill="#242b31"
-    font-family="Avenir Next, Segoe UI, Helvetica Neue, Arial, sans-serif"
-    font-size="136"
-    font-weight="800"
-    letter-spacing="8"
-    text-anchor="middle"
-  >EV</text>
+
+  <defs>
+    <linearGradient id="bg" x1="92" y1="70" x2="420" y2="446" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f7f1df"/>
+      <stop offset="1" stop-color="#eef3de"/>
+    </linearGradient>
+    <linearGradient id="sage" x1="124" y1="124" x2="376" y2="388" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#dfe9c8"/>
+      <stop offset="1" stop-color="#b9d09f"/>
+    </linearGradient>
+    <linearGradient id="green" x1="142" y1="100" x2="384" y2="414" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5f8258"/>
+      <stop offset="1" stop-color="#476a4d"/>
+    </linearGradient>
+    <linearGradient id="orange" x1="180" y1="112" x2="386" y2="388" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f6b46b"/>
+      <stop offset="1" stop-color="#cf7243"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="256" cy="430" rx="184" ry="28" fill="#dfe7cc" opacity="0.7"/>
+  <path d="M140 344h232" stroke="#476a4d" stroke-width="18" stroke-linecap="round"/>
+  <rect x="156" y="190" width="52" height="154" rx="8" fill="#f7f1df" stroke="#476a4d" stroke-width="16"/>
+  <rect x="214" y="158" width="64" height="186" rx="8" fill="#dbe7c4" stroke="#476a4d" stroke-width="16"/>
+  <rect x="284" y="204" width="56" height="140" rx="8" fill="#f7f1df" stroke="#476a4d" stroke-width="16"/>
+  <path d="M170 240h20M170 276h20M170 312h20" stroke="#cf7243" stroke-width="10" stroke-linecap="round"/>
+  <path d="M232 208h40M232 244h40M232 280h40" stroke="#cf7243" stroke-width="10" stroke-linecap="round"/>
+  <path d="M296 242h28M296 278h28" stroke="#cf7243" stroke-width="10" stroke-linecap="round"/>
+  <path d="M126 334c28-26 58-40 94-46 36 6 66 20 94 46" stroke="#3f6a50" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="356" cy="128" r="10" fill="#cf7243"/>
+
 </svg>

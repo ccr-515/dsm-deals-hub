@@ -1,21 +1,31 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
   <title>Cumming</title>
-  <g stroke="#242b31" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M256 68c-47 0-84 37-84 83 0 25 14 53 42 89l42 52 42-52c28-36 42-64 42-89 0-46-37-83-84-83Z"/>
-    <circle cx="256" cy="151" r="22"/>
-    <path d="M122 312c0-24 19-43 43-43h182c24 0 43 19 43 43v83c0 24-19 43-43 43H165c-24 0-43-19-43-43Z"/>
-    <path d="M151 452h210"/>
-  </g>
-  <path d="M184 438h144" stroke="#cf7243" stroke-width="12" stroke-linecap="round" opacity="0.95"/>
-  <circle cx="360" cy="110" r="10" fill="#3f6a50" opacity="0.95"/>
-  <text
-    x="256"
-    y="386"
-    fill="#242b31"
-    font-family="Avenir Next, Segoe UI, Helvetica Neue, Arial, sans-serif"
-    font-size="136"
-    font-weight="800"
-    letter-spacing="8"
-    text-anchor="middle"
-  >CU</text>
+
+  <defs>
+    <linearGradient id="bg" x1="92" y1="70" x2="420" y2="446" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f7f1df"/>
+      <stop offset="1" stop-color="#eef3de"/>
+    </linearGradient>
+    <linearGradient id="sage" x1="124" y1="124" x2="376" y2="388" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#dfe9c8"/>
+      <stop offset="1" stop-color="#b9d09f"/>
+    </linearGradient>
+    <linearGradient id="green" x1="142" y1="100" x2="384" y2="414" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5f8258"/>
+      <stop offset="1" stop-color="#476a4d"/>
+    </linearGradient>
+    <linearGradient id="orange" x1="180" y1="112" x2="386" y2="388" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f6b46b"/>
+      <stop offset="1" stop-color="#cf7243"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="256" cy="430" rx="184" ry="28" fill="#dfe7cc" opacity="0.7"/>
+  <path d="M154 350c38-46 70-78 102-96 32 18 64 50 102 96" fill="#dbe7c4" stroke="#476a4d" stroke-width="16" stroke-linejoin="round"/>
+  <path d="M190 308h132l-10 42H200l-10-42Z" fill="#f7f1df" stroke="#476a4d" stroke-width="14" stroke-linejoin="round"/>
+  <path d="M206 244c0-28 22-50 50-50s50 22 50 50v28h-100v-28Z" fill="#f7f1df" stroke="#476a4d" stroke-width="16" stroke-linejoin="round"/>
+  <path d="M200 246h112" stroke="#cf7243" stroke-width="12" stroke-linecap="round"/>
+  <path d="M164 364c32-14 64-20 92-20s60 6 92 20" stroke="#cf7243" stroke-width="12" stroke-linecap="round"/>
+  <path d="M328 210c0-18 14-32 32-32" stroke="#3f6a50" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="356" cy="178" r="10" fill="#cf7243"/>
+
 </svg>
