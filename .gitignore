@@ -2,3 +2,7 @@
 __pycache__/
 *.pyc
 .DS_Store
+.vercel/
+.claude/
+dsm_deals.db
+local-data/

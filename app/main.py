@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from html import escape
 import json
 import os
@@ -6,6 +6,8 @@ from pathlib import Path
 import re
 from typing import List, Optional
 from urllib.parse import quote_plus
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
@@ -33,7 +35,8 @@ from .utils import (
 from . import weekly_master_content as weekly_content
 
 Base.metadata.create_all(bind=engine)
-run_migrations(engine)
+if engine.url.get_backend_name() == "sqlite":
+    run_migrations(engine)
 
 APP_DIR = Path(__file__).parent
 STATIC_DIR = APP_DIR / "static"
@@ -1592,9 +1595,236 @@ def is_happy_hour_deal(deal: models.Deal) -> bool:
     return False
 
 
+def _supabase_config() -> Optional[tuple[str, str]]:
+    base_url = (
+        os.getenv("SUPABASE_URL")
+        or os.getenv("NEXT_PUBLIC_SUPABASE_URL")
+        or ""
+    ).strip().rstrip("/")
+    api_key = next(
+        (
+            os.getenv(name)
+            for name in (
+                "SUPABASE_SERVICE_ROLE_KEY",
+                "SUPABASE_ANON_KEY",
+                "SUPABASE_KEY",
+                "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+            )
+            if os.getenv(name)
+        ),
+        "",
+    ).strip()
+    if not base_url or not api_key:
+        return None
+    return base_url, api_key
+
+
+def _parse_supabase_datetime(value: object) -> Optional[datetime]:
+    if not value:
+        return None
+    if isinstance(value, datetime):
+        parsed = value
+    else:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    if parsed.tzinfo is not None:
+        parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
+    return parsed
+
+
+def _fallback_supabase_notes_private(row: dict, reference: datetime) -> str:
+    day_code = weekly_content.normalize_day_code_value(reference.strftime("%a"))
+    day_name = weekly_content.DAY_CODE_TO_NAME[day_code]
+    start_time = row.get("start_time")
+    end_time = row.get("end_time")
+    title = row.get("title") or ""
+    description = row.get("short_description") or ""
+
+    if start_time and end_time:
+        start_label = format_clock(*parse_hhmm(start_time))
+        end_label = format_clock(*parse_hhmm(end_time))
+        time_label = f"{start_label} to {end_label}"
+    elif start_time:
+        time_label = f"After {format_clock(*parse_hhmm(start_time))}"
+    else:
+        time_label = f"Today"
+
+    text = f"{title} {description}".lower()
+    category = "Drink special" if any(
+        keyword in text for keyword in ("happy hour", "wine", "beer", "pint", "cocktail", "martini")
+    ) else "Food and drink special"
+    day_part = weekly_content._classify_day_part(category, time_label, title, description, start_time)
+    happy_hour = weekly_content._is_happy_hour(category, time_label, title, description, start_time)
+    return weekly_content._build_notes_meta(
+        day_name=day_name,
+        day_code=day_code,
+        time_label=time_label,
+        category=category,
+        day_part=day_part,
+        happy_hour=happy_hour,
+    )
+
+
+def _load_supabase_rows(table: str, select: str, filters: list[tuple[str, str]]) -> list[dict]:
+    config = _supabase_config()
+    if config is None:
+        return []
+
+    base_url, api_key = config
+    query = urlencode([("select", select), *filters])
+    request = Request(
+        f"{base_url}/rest/v1/{table}?{query}",
+        headers={
+            "apikey": api_key,
+            "Authorization": f"Bearer {api_key}",
+            "Accept": "application/json",
+        },
+        method="GET",
+    )
+
+    with urlopen(request, timeout=10) as response:
+        payload = response.read().decode("utf-8")
+
+    rows = json.loads(payload)
+    if not isinstance(rows, list):
+        raise RuntimeError(f"Unexpected Supabase response for {table}")
+    return [row for row in rows if isinstance(row, dict)]
+
+
+def _build_supabase_venue(row: dict) -> models.Venue:
+    return models.Venue(
+        id=row["id"],
+        owner_id=row.get("owner_id"),
+        name=row["name"],
+        slug=row["slug"],
+        address=row["address"],
+        neighborhood=row.get("neighborhood"),
+        lat=row.get("lat"),
+        lng=row.get("lng"),
+        phone=row.get("phone"),
+        website=row.get("website"),
+        hours_json=row.get("hours_json"),
+        description=row.get("description"),
+        created_at=_parse_supabase_datetime(row.get("created_at")) or datetime.utcnow(),
+        updated_at=_parse_supabase_datetime(row.get("updated_at")) or datetime.utcnow(),
+    )
+
+
+def _build_supabase_deal(row: dict, venue: models.Venue, reference: datetime) -> models.Deal:
+    notes_private = row.get("notes_private")
+    if notes_private:
+        try:
+            payload = json.loads(notes_private)
+            if not isinstance(payload, dict) or not payload.get("day_code"):
+                notes_private = _fallback_supabase_notes_private(row, reference)
+        except (TypeError, ValueError):
+            notes_private = _fallback_supabase_notes_private(row, reference)
+    else:
+        notes_private = _fallback_supabase_notes_private(row, reference)
+
+    return models.Deal(
+        id=row["id"],
+        venue_id=row["venue_id"],
+        title=row["title"],
+        short_description=row["short_description"],
+        type=models.DealType(row["type"]),
+        weekday_pattern=row.get("weekday_pattern"),
+        start_time=row.get("start_time"),
+        end_time=row.get("end_time"),
+        start_at=_parse_supabase_datetime(row.get("start_at")),
+        end_at=_parse_supabase_datetime(row.get("end_at")),
+        age_21_plus=bool(row.get("age_21_plus", False)),
+        menu_link=row.get("menu_link"),
+        image_url=row.get("image_url"),
+        sponsored=bool(row.get("sponsored", False)),
+        status=models.Status(row["status"]),
+        source_type=row.get("source_type") or "admin",
+        source_url=row.get("source_url"),
+        source_text=row.get("source_text"),
+        source_posted_at=_parse_supabase_datetime(row.get("source_posted_at")),
+        notes_private=notes_private,
+        freeze_minutes=row.get("freeze_minutes"),
+        created_at=_parse_supabase_datetime(row.get("created_at")) or datetime.utcnow(),
+        updated_at=_parse_supabase_datetime(row.get("updated_at")) or datetime.utcnow(),
+        venue=venue,
+    )
+
+
+def _load_supabase_today_deals(reference: datetime) -> Optional[List[models.Deal]]:
+    config = _supabase_config()
+    if config is None:
+        return None
+
+    try:
+        venues = {
+            row["id"]: _build_supabase_venue(row)
+            for row in _load_supabase_rows(
+                "venues",
+                "id,owner_id,name,slug,address,neighborhood,lat,lng,phone,website,hours_json,description,created_at,updated_at",
+                [("order", "id.asc")],
+            )
+        }
+        deals = []
+        for row in _load_supabase_rows(
+            "deals",
+            "id,venue_id,title,short_description,type,weekday_pattern,start_time,end_time,start_at,end_at,age_21_plus,menu_link,image_url,sponsored,status,source_type,source_url,source_text,source_posted_at,notes_private,freeze_minutes,created_at,updated_at",
+            [
+                ("type", "eq.weekly"),
+                ("status", "eq.live"),
+                ("order", "id.asc"),
+            ],
+        ):
+            venue = venues.get(row["venue_id"])
+            if venue is None:
+                continue
+            deal = _build_supabase_deal(row, venue, reference)
+            if deal.weekday_pattern and matches_weekday_pattern(deal.weekday_pattern, reference):
+                deals.append(deal)
+        return deals
+    except Exception:
+        return None
+
+
+def _load_db_today_deals(db: Session, reference: datetime) -> List[models.Deal]:
+    return [
+        deal
+        for deal in load_public_deals(db)
+        if deal.type == models.DealType.weekly
+        and deal.weekday_pattern
+        and matches_weekday_pattern(deal.weekday_pattern, reference)
+    ]
+
+
 def today_page_data(db: Session) -> dict:
-    del db
-    return weekly_content.today_page_data(datetime.now(HOME_TIMEZONE).replace(tzinfo=None))
+    reference = datetime.now(HOME_TIMEZONE).replace(tzinfo=None)
+    day_code = weekly_content.normalize_day_code_value(reference.strftime("%a"))
+    db_deals = _load_db_today_deals(db, reference)
+    if db_deals:
+        all_today = weekly_content.sort_day_deals(db_deals)
+        happy_hour = [deal for deal in all_today if weekly_content.site_deal_is_happy_hour(deal)]
+        specials = [deal for deal in all_today if deal not in happy_hour]
+        return {
+            "day_code": day_code,
+            "day_label": weekly_content.DAY_CODE_TO_NAME[day_code],
+            "all": all_today,
+            "happy_hour": happy_hour,
+            "specials": specials,
+        }
+
+    supabase_deals = _load_supabase_today_deals(reference)
+    if supabase_deals is None:
+        return weekly_content.today_page_data(reference)
+
+    all_today = weekly_content.sort_day_deals(supabase_deals)
+    happy_hour = [deal for deal in all_today if weekly_content.site_deal_is_happy_hour(deal)]
+    specials = [deal for deal in all_today if deal not in happy_hour]
+    day_code = weekly_content.normalize_day_code_value(reference.strftime("%a"))
+    return {
+        "day_code": day_code,
+        "day_label": weekly_content.DAY_CODE_TO_NAME[day_code],
+        "all": all_today,
+        "happy_hour": happy_hour,
+        "specials": specials,
+    }
 
 
 def neighborhood_groups(db: Session) -> List[dict]:
