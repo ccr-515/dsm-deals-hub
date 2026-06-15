@@ -24,14 +24,6 @@
     "menu_url": null
   },
   {
-    "name": "Django",
-    "slug": "django",
-    "address": "1420 Locust St, Des Moines, IA 50309",
-    "phone": "(515) 288-0268",
-    "website": "https://www.djangodesmoines.com/",
-    "menu_url": null
-  },
-  {
     "name": "Eastside Eddie’s",
     "slug": "eastside-eddies",
     "address": "3517 E 26th St, Des Moines, IA 50317",

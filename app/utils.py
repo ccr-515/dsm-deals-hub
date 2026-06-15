@@ -95,21 +95,50 @@ def build_day_window(day_ref: datetime, start_time: str, end_time: str) -> tuple
     return start_dt, end_dt
 
 
-def deal_is_live_now(deal, now: Optional[datetime] = None) -> bool:
+def live_now_window_for_deal(deal, now: Optional[datetime] = None) -> Optional[tuple[datetime, datetime]]:
     now = now or datetime.utcnow()
+
     if deal.status != models.Status.live:
-        return False
+        return None
 
     if deal.type == models.DealType.last_minute:
-        return bool(deal.start_at and deal.end_at and deal.start_at <= now <= deal.end_at)
+        if not deal.start_at or not deal.end_at:
+            return None
+        if deal.start_at <= now < deal.end_at:
+            return deal.start_at, deal.end_at
+        return None
 
     if not all([deal.weekday_pattern, deal.start_time, deal.end_time]):
-        return False
-    if not matches_weekday_pattern(deal.weekday_pattern, now):
-        return False
+        return None
 
-    start_dt, end_dt = build_day_window(now, deal.start_time, deal.end_time)
-    return start_dt <= now <= end_dt
+    candidates = (now, now - timedelta(days=1))
+    for candidate in candidates:
+        if not matches_weekday_pattern(deal.weekday_pattern, candidate):
+            continue
+        start_dt, end_dt = build_day_window(candidate, deal.start_time, deal.end_time)
+        if end_dt <= start_dt:
+            end_dt += timedelta(days=1)
+        if start_dt <= now <= end_dt:
+            return start_dt, end_dt
+
+    return None
+
+
+def deal_is_live_now(deal, now: Optional[datetime] = None) -> bool:
+    return live_now_window_for_deal(deal, now) is not None
+
+
+def sort_live_now_deals(deals, now: Optional[datetime] = None):
+    now = now or datetime.utcnow()
+
+    return sorted(
+        deals,
+        key=lambda deal: (
+            (live_now_window_for_deal(deal, now) or (None, None))[1] or datetime.max,
+            getattr(getattr(deal, "venue", None), "name", "").lower(),
+            getattr(deal, "title", "").lower(),
+        ),
+    )
 
 
 def deal_overlaps_window(deal, window_start: datetime, window_end: datetime) -> bool:

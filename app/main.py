@@ -31,6 +31,7 @@ from .utils import (
     next_occurrence_start,
     normalize_slug,
     parse_hhmm,
+    sort_live_now_deals,
 )
 from . import weekly_master_content as weekly_content
 
@@ -614,8 +615,16 @@ def deal_matches_day_code(deal: models.Deal, day_code: str) -> bool:
 
 
 def homepage_sections(db: Session) -> dict[str, List[models.Deal]]:
-    del db
-    return weekly_content.homepage_sections(datetime.now(HOME_TIMEZONE).replace(tzinfo=None))
+    now = datetime.now(HOME_TIMEZONE).replace(tzinfo=None)
+    live_deals = sort_live_now_deals(
+        [deal for deal in load_public_deals(db) if deal_is_live_now(deal, now)],
+        now,
+    )
+    weekly_sections = weekly_content.homepage_sections(now)
+    return {
+        "live": live_deals,
+        "today": weekly_sections["today"],
+    }
 
 
 def homepage_metadata(deal: models.Deal) -> dict:
@@ -1524,6 +1533,7 @@ def render_link_grid_section(
 
 
 def render_live_now_module(deals: List[models.Deal], reference: datetime) -> str:
+    details_class = "live-now-module has-live-deals" if deals else "live-now-module"
     live_cards = "\n".join(
         render_deal_card(deal, reference, index, format_today_pick_time(deal, reference))
         for index, deal in enumerate(deals)
@@ -1548,7 +1558,7 @@ def render_live_now_module(deals: List[models.Deal], reference: datetime) -> str
     return f"""
     <section id="live-now" class="content-section content-section-secondary homepage-section homepage-section-live">
       <div class="section-panel section-panel-secondary section-panel-live">
-        <details class="live-now-module">
+        <details class="{details_class}">
           <summary class="live-now-summary">
             <div class="live-now-summary-copy">
               <span class="live-now-badge"><span class="live-now-dot" aria-hidden="true"></span>Live Now</span>
