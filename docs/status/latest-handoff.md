@@ -1,114 +1,143 @@
 # Camilo OS Handoff
 
 Project: DSM Deals Hub
-Phase: Dynamic deployment prep
-Task: Vercel FastAPI entrypoint + DATABASE_URL bootstrap
-Date: 2026-06-14
-Source: Codex
+Phase: Preview deployment recovery
+Task: Rotate Supabase DB password and repair Vercel DATABASE_URL
+Date: 2026-06-15
+Source: Chrome and Terminal
 
 ## Changed files
 
-- [app/database.py](/Users/camilorodriguez/Documents/dsm_deals_mvp/app/database.py)
-- [app/main.py](/Users/camilorodriguez/Documents/dsm_deals_mvp/app/main.py)
-- [api/index.py](/Users/camilorodriguez/Documents/dsm_deals_mvp/api/index.py)
-- [requirements.txt](/Users/camilorodriguez/Documents/dsm_deals_mvp/requirements.txt)
-- [vercel.json](/Users/camilorodriguez/Documents/dsm_deals_mvp/vercel.json)
 - [docs/status/latest-handoff.md](/Users/camilorodriguez/Documents/dsm_deals_mvp/docs/status/latest-handoff.md)
 - [docs/status/handoff-log.md](/Users/camilorodriguez/Documents/dsm_deals_mvp/docs/status/handoff-log.md)
 - [local-data/project-status.json](/Users/camilorodriguez/Documents/dsm_deals_mvp/local-data/project-status.json)
+- `.env.preview.local` local verification artifact updated
+
+External changes:
+
+- Supabase project `ooyfemuayqwjwazxyclx` database password rotated.
+- Vercel project `dsm-deals-hub` `DATABASE_URL` entries replaced for Production+Preview, Preview branch `post-static-transition`, and Development.
 
 ## What works
 
-- FastAPI is now exposed through a Vercel-compatible `api/index.py` entrypoint.
-- `vercel.json` rewrites public routes to the FastAPI app.
-- `app/database.py` now defaults to SQLite locally and normalizes `DATABASE_URL` for Postgres/Supabase in production.
-- Postgres uses `NullPool` for serverless safety.
-- Today page data now prefers a DB-backed query before falling back to the older content path.
-- Direct FastAPI route smoke checks passed for primary and detail routes.
+- Vercel no longer has the known bad blank/command-text branch `DATABASE_URL`.
+- Preview branch `post-static-transition` env pull produced a nonblank `DATABASE_URL` after recreating the branch row as non-sensitive.
+- Shape check passed after normalizing Vercel CLI wrapper quotes in `.env.preview.local`: nonblank, ends with `/postgres`, no trailing `/postgres `, no `npx vercel` command text.
+- Supabase pooler connection verified locally: host `aws-1-us-east-2.pooler.supabase.com`, port `6543`, database `postgres`, `select 1` returned `1`.
+- `from app.main import app` succeeded.
+- Vercel preview build completed and deployment reached READY: `https://dsm-deals-saonlwlwo-ccr-515s-projects.vercel.app`.
+- Production was not deployed.
 
 ## Still placeholder
 
-- The checked-in `docs/` export tree still exists and is not yet removed.
-- Exported static HTML is still stale relative to the new dynamic runtime path.
+- No UI, HTML, or CSS work was performed.
+- Production promotion remains intentionally held until preview works.
+- Browser smoke check not verified.
 
 ## Broken or risky
 
-- `scripts/qa_public_site.py` still reports the legacy exported favicon mismatch in `docs/`.
-- `app.main` still performs schema creation on import; SQLite-only migrations are now guarded, but broader Supabase migration strategy is still pending.
+- Preview `/today` smoke test failed with `FUNCTION_INVOCATION_FAILED`.
+- `npx vercel@latest curl /today --deployment "https://dsm-deals-saonlwlwo-ccr-515s-projects.vercel.app"` returned: `A server error has occurred`.
+- Vercel CLI writes pulled URL values with dotenv wrapper quotes; the local `.env.preview.local` line was normalized for the user's literal check, but the dashboard value itself should be treated as the source of truth.
+- Development and Preview branch entries are non-sensitive because Vercel does not expose sensitive values through `env pull`, and Development cannot be sensitive in the dashboard.
 
 ## Current project status
 
-Ready for local review of the dynamic Vercel path. Not deployed.
+Blocked at preview validation. Environment wiring and DB connectivity are fixed enough for local import/connect checks, but the live preview `/today` route fails.
 
 ## Next recommended build
 
-- Set `DATABASE_URL` in Vercel, install the new Postgres driver, and run a Vercel preview plus one live Supabase-backed smoke test.
+Inspect Vercel function logs for deployment `dpl_4QqGWTiUq8jngfDtVMno7ycsojTj`, fix the preview runtime error, redeploy preview only, and rerun `/today`.
 
 ## Suggested dashboard update
 
-Status: active
-Next action: Wire Vercel environment variables and preview the FastAPI deployment
-Blocked: false
-Blocker reason:
+Status: blocked
+Next action: Inspect Vercel function logs for preview `/today` failure
+Blocked: true
+Blocker reason: Preview deployment returns `FUNCTION_INVOCATION_FAILED` for `/today`.
 Priority: high
-Confidence: 82
-Portfolio readiness: 4
+Confidence: 63
+Portfolio readiness: 3
 Money potential: 4
 Maintenance burden: 3
 
+## Verification
+
+- Build command: `npx vercel@latest --yes`
+- Build result: Passed; Vercel preview deployment READY.
+- `npm run build`: Not applicable; no `package.json` exists in this repo.
+- Env pull: `npx vercel@latest env pull .env.preview.local --environment=preview --git-branch=post-static-transition --yes`
+- Env shape check: Passed after local dotenv quote normalization.
+- DB check: Passed; `db select 1: 1`.
+- App import: Passed; `APP IMPORT OK`.
+- Preview smoke: Failed; `/today` returned `FUNCTION_INVOCATION_FAILED`.
+- Browser smoke check not verified.
+
 ## Machine handoff JSON
 
+```json
 {
   "handoffVersion": "1.0",
   "projectName": "DSM Deals Hub",
-  "phase": "Dynamic deployment prep",
-  "taskName": "Vercel FastAPI entrypoint + DATABASE_URL bootstrap",
-  "date": "2026-06-14",
-  "source": "Codex",
+  "phase": "Preview deployment recovery",
+  "taskName": "Rotate Supabase DB password and repair Vercel DATABASE_URL",
+  "date": "2026-06-15",
+  "source": "Chrome and Terminal",
   "changedFiles": [
-    "app/database.py",
-    "app/main.py",
-    "api/index.py",
-    "requirements.txt",
-    "vercel.json",
     "docs/status/latest-handoff.md",
     "docs/status/handoff-log.md",
-    "local-data/project-status.json"
+    "local-data/project-status.json",
+    ".env.preview.local"
+  ],
+  "externalChanges": [
+    "Rotated Supabase database password for project ooyfemuayqwjwazxyclx.",
+    "Replaced Vercel DATABASE_URL entries for Production+Preview, Preview branch post-static-transition, and Development."
   ],
   "whatWorks": [
-    "FastAPI now has a Vercel-compatible api/index.py entrypoint.",
-    "vercel.json rewrites public routes to the FastAPI app.",
-    "DATABASE_URL is normalized for postgres:// and postgresql:// and falls back to SQLite locally.",
-    "Postgres uses NullPool for serverless safety.",
-    "Today page data now prefers the DB-backed path before falling back.",
-    "Primary and detail routes passed a direct FastAPI smoke test."
+    "Branch preview DATABASE_URL is nonblank after env pull.",
+    "DATABASE_URL shape check passed after local dotenv quote normalization.",
+    "Supabase pooler connection returned select 1 = 1.",
+    "app.main import succeeded.",
+    "Vercel preview build completed and deployment reached READY.",
+    "Production was not deployed."
   ],
   "placeholders": [
-    "The checked-in docs/ export tree still exists.",
-    "Static exported HTML is still stale relative to the dynamic runtime path."
+    "No UI, HTML, or CSS work was performed.",
+    "Production promotion remains intentionally held.",
+    "Browser smoke check not verified."
   ],
   "risks": [
-    "Legacy exported docs still point at the old favicon in the QA script.",
-    "SQLite-only migrations are guarded, but a fuller Supabase migration policy is still pending."
+    "Preview /today returns FUNCTION_INVOCATION_FAILED.",
+    "Vercel CLI wraps pulled URL values in dotenv quotes; local verification artifact was normalized.",
+    "Development and preview branch DATABASE_URL entries are non-sensitive due Vercel dashboard and env pull constraints."
   ],
-  "currentStatus": "Ready for local review of the dynamic Vercel path. Not deployed.",
-  "nextRecommendedBuild": "Set DATABASE_URL in Vercel, install the Postgres driver, and run a Vercel preview plus a live Supabase smoke test.",
+  "currentStatus": "Blocked at preview validation. Environment wiring and local DB/app checks pass, but live preview /today fails.",
+  "nextRecommendedBuild": "Inspect Vercel function logs for dpl_4QqGWTiUq8jngfDtVMno7ycsojTj, fix the runtime error, redeploy preview only, and rerun /today.",
   "suggestedDashboardUpdate": {
-    "status": "active",
-    "nextAction": "Wire Vercel environment variables and preview the FastAPI deployment",
-    "blocked": false,
-    "blockerReason": "",
+    "status": "blocked",
+    "nextAction": "Inspect Vercel function logs for preview /today failure",
+    "blocked": true,
+    "blockerReason": "Preview deployment returns FUNCTION_INVOCATION_FAILED for /today.",
     "priority": "high",
-    "confidence": 82,
-    "portfolioReadiness": 4,
+    "confidence": 63,
+    "portfolioReadiness": 3,
     "moneyPotential": 4,
     "maintenanceBurden": 3
   },
   "verification": {
     "buildRun": true,
-    "buildCommand": "python -m compileall app api scripts",
+    "buildCommand": "npx vercel@latest --yes",
     "buildPassed": true,
+    "npmRunBuild": "not applicable; no package.json exists",
+    "envPullCommand": "npx vercel@latest env pull .env.preview.local --environment=preview --git-branch=post-static-transition --yes",
+    "envShapeCheckPassed": true,
+    "dbSelectOnePassed": true,
+    "appImportPassed": true,
+    "previewSmokeCommand": "npx vercel@latest curl /today --deployment https://dsm-deals-saonlwlwo-ccr-515s-projects.vercel.app",
+    "previewSmokePassed": false,
+    "previewSmokeFailure": "FUNCTION_INVOCATION_FAILED",
     "browserChecked": false,
-    "notes": "Syntax compilation passed. scripts/qa_public_site.py still flags stale exported-docs favicon links, but direct FastAPI smoke checks for primary and detail routes returned 200."
+    "notes": "Browser smoke check not verified. Production was not deployed. A temporary .env.development.local pull was used to confirm Vercel CLI quote behavior and then removed."
   }
 }
+```
