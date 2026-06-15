@@ -43,7 +43,8 @@ APP_DIR = Path(__file__).parent
 STATIC_DIR = APP_DIR / "static"
 HOME_TIMEZONE = ZoneInfo("America/Chicago")
 HOMEPAGE_SEED_SOURCE = "seed://homepage-curated-v2"
-sync_neighborhood_icon_assets()
+if os.getenv('VERCEL') != '1':
+    sync_neighborhood_icon_assets()
 WEEKDAY_LONG = {
     "Mon": "Monday",
     "Tue": "Tuesday",
