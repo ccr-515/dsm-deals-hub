@@ -620,10 +620,10 @@ def homepage_sections(db: Session) -> dict[str, List[models.Deal]]:
         [deal for deal in load_public_deals(db) if deal_is_live_now(deal, now)],
         now,
     )
-    weekly_sections = weekly_content.homepage_sections(now)
+    today_data = today_page_data(db)
     return {
         "live": live_deals,
-        "today": weekly_sections["today"],
+        "today": today_data["all"],
     }
 
 
