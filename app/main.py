@@ -34,7 +34,8 @@ from .utils import (
 )
 from . import weekly_master_content as weekly_content
 
-Base.metadata.create_all(bind=engine)
+if engine.url.get_backend_name() == "sqlite":
+    Base.metadata.create_all(bind=engine)
 if engine.url.get_backend_name() == "sqlite":
     run_migrations(engine)
 
