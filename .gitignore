@@ -6,3 +6,7 @@ __pycache__/
 .claude/
 dsm_deals.db
 local-data/
+
+.env*
+!.env.example
+.vercel
