@@ -1,5 +1,6 @@
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, Enum, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, Enum, ForeignKey, JSON, Text
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import enum
@@ -40,7 +41,7 @@ class Venue(Base):
     lng = Column(Float, nullable=True)
     phone = Column(String, nullable=True)
     website = Column(String, nullable=True)
-    hours_json = Column(Text, nullable=True)
+    hours_json = Column(JSON().with_variant(JSONB(), "postgresql"), nullable=True)
     description = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -91,3 +92,31 @@ class MetricEvent(Base):
     kind = Column(String, nullable=False)  # view|click_menu|click_directions|click_call|save|share
     ts = Column(DateTime, default=datetime.utcnow)
     ip_hash = Column(String, nullable=True)
+
+
+class DealIntakeSubmission(Base):
+    __tablename__ = "deal_intake_submissions"
+    id = Column(Integer, primary_key=True, index=True)
+    raw_text = Column(Text, nullable=False)
+    source_url = Column(String, nullable=True)
+    source_platform = Column(String, nullable=True)
+    notes = Column(Text, nullable=True)
+    parsed_json = Column(Text, nullable=True)
+    status = Column(String, default="submitted", nullable=False)
+    confidence = Column(Float, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    reviewed_at = Column(DateTime, nullable=True)
+    applied_at = Column(DateTime, nullable=True)
+    error_message = Column(Text, nullable=True)
+
+
+class DealChangeLog(Base):
+    __tablename__ = "deal_change_log"
+    id = Column(Integer, primary_key=True, index=True)
+    action = Column(String, nullable=False)
+    deal_id = Column(Integer, ForeignKey("deals.id"), nullable=True)
+    venue_id = Column(Integer, ForeignKey("venues.id"), nullable=True)
+    before_json = Column(Text, nullable=True)
+    after_json = Column(Text, nullable=True)
+    source_text = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)

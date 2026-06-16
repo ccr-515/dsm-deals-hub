@@ -1,25 +1,30 @@
 from datetime import datetime, timedelta, timezone
+from difflib import SequenceMatcher
+import hashlib
+import hmac
 from html import escape
 import json
+import logging
 import os
 from pathlib import Path
 import re
 from typing import List, Optional
 from urllib.parse import quote_plus
 from urllib.parse import urlencode
-from urllib.request import Request, urlopen
+from urllib.request import Request as UrlRequest, urlopen
 from zoneinfo import ZoneInfo
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query
+from fastapi import Depends, FastAPI, Form, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, or_
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, joinedload
 
 from . import config, models, schemas
 from .database import Base, SessionLocal, engine
-from .migrations import run_migrations
+from .migrations import run_migrations, schema_report
 from .neighborhood_icons import neighborhood_icon_static_path, sync_neighborhood_icon_assets
 from .utils import (
     build_day_window,
@@ -37,7 +42,9 @@ from . import weekly_master_content as weekly_content
 
 if engine.url.get_backend_name() == "sqlite":
     Base.metadata.create_all(bind=engine)
-if engine.url.get_backend_name() == "sqlite":
+    run_migrations(engine)
+else:
+    Base.metadata.create_all(bind=engine)
     run_migrations(engine)
 
 APP_DIR = Path(__file__).parent
@@ -335,6 +342,7 @@ def format_weekly_master_time_label(
     return raw_label
 
 app = FastAPI(title="DSM Deals MVP")
+logger = logging.getLogger(__name__)
 
 app.add_middleware(
     CORSMiddleware,
@@ -354,10 +362,46 @@ def get_db():
         db.close()
 
 
-def require_admin(x_admin_key: Optional[str] = Header(None)):
-    if x_admin_key != config.ADMIN_KEY:
+def current_admin_key() -> str:
+    return os.getenv("ADMIN_KEY", "").strip()
+
+
+def admin_key_is_valid(value: Optional[str]) -> bool:
+    admin_key = current_admin_key()
+    supplied = str(value or "").strip()
+    return bool(admin_key and supplied) and hmac.compare_digest(supplied, admin_key)
+
+
+def admin_session_cookie_value(admin_key: Optional[str] = None) -> str:
+    secret = (admin_key if admin_key is not None else current_admin_key()).strip().encode("utf-8")
+    signature = hmac.new(secret, b"dsm-deals-admin-session", hashlib.sha256).hexdigest()
+    return f"v1:{signature}"
+
+
+def admin_session_is_valid(value: Optional[str]) -> bool:
+    admin_key = current_admin_key()
+    supplied = str(value or "").strip()
+    if not admin_key or not supplied:
+        return False
+    return hmac.compare_digest(supplied, admin_session_cookie_value(admin_key))
+
+
+def is_admin_authorized(request: Request) -> bool:
+    admin_key = current_admin_key()
+    header_key = request.headers.get("x-admin-key", "").strip()
+    if admin_key and header_key and hmac.compare_digest(header_key, admin_key):
+        return True
+    return admin_session_is_valid(request.cookies.get("admin_session"))
+
+
+def require_admin(request: Request):
+    if not is_admin_authorized(request):
         raise HTTPException(status_code=401, detail="Unauthorized")
     return True
+
+
+def require_admin_password(request: Request):
+    return require_admin(request)
 
 
 def get_venue_or_404(db: Session, venue_id: int) -> models.Venue:
@@ -614,12 +658,76 @@ def deal_matches_day_code(deal: models.Deal, day_code: str) -> bool:
     return weekly_content.site_deal_matches_day_code(deal, day_code)
 
 
+def has_public_display_metadata(deal: models.Deal) -> bool:
+    if not deal.notes_private:
+        return False
+    try:
+        payload = json.loads(deal.notes_private)
+    except (TypeError, ValueError):
+        return False
+    return isinstance(payload, dict) and all(
+        key in payload
+        for key in ("day_code", "day_name", "time_label", "category", "day_part", "today_bucket")
+    )
+
+
+def ensure_public_display_metadata(deal: models.Deal, reference: datetime) -> None:
+    if has_public_display_metadata(deal):
+        return
+
+    day_code = weekly_content.normalize_day_code_value(reference.strftime("%a"))
+    day_name = weekly_content.DAY_CODE_TO_NAME[day_code]
+    start_time = deal.start_time
+    end_time = deal.end_time
+    title = deal.title or ""
+    description = deal.short_description or ""
+
+    if start_time and end_time:
+        start_label = format_clock(*parse_hhmm(start_time))
+        end_label = format_clock(*parse_hhmm(end_time))
+        time_label = f"{start_label} to {end_label}"
+    elif start_time:
+        time_label = f"After {format_clock(*parse_hhmm(start_time))}"
+    else:
+        time_label = "Today"
+
+    text = f"{title} {description}".lower()
+    category = "Drink special" if any(
+        keyword in text for keyword in ("happy hour", "wine", "beer", "pint", "cocktail", "martini")
+    ) else "Food and drink special"
+    day_part = weekly_content._classify_day_part(category, time_label, title, description, start_time)
+    happy_hour = weekly_content._is_happy_hour(category, time_label, title, description, start_time)
+
+    existing = {}
+    if deal.notes_private:
+        try:
+            existing_payload = json.loads(deal.notes_private)
+            if isinstance(existing_payload, dict):
+                existing = existing_payload
+        except (TypeError, ValueError):
+            existing = {}
+    display_meta = json.loads(
+        weekly_content._build_notes_meta(
+            day_name=day_name,
+            day_code=day_code,
+            time_label=time_label,
+            category=category,
+            day_part=day_part,
+            happy_hour=happy_hour,
+        )
+    )
+    display_meta["site_source"] = "database"
+    deal.notes_private = json.dumps({**existing, **display_meta})
+
+
 def homepage_sections(db: Session) -> dict[str, List[models.Deal]]:
     now = datetime.now(HOME_TIMEZONE).replace(tzinfo=None)
     live_deals = sort_live_now_deals(
         [deal for deal in load_public_deals(db) if deal_is_live_now(deal, now)],
         now,
     )
+    for deal in live_deals:
+        ensure_public_display_metadata(deal, now)
     today_data = today_page_data(db)
     return {
         "live": live_deals,
@@ -1683,7 +1791,7 @@ def _load_supabase_rows(table: str, select: str, filters: list[tuple[str, str]])
 
     base_url, api_key = config
     query = urlencode([("select", select), *filters])
-    request = Request(
+    request = UrlRequest(
         f"{base_url}/rest/v1/{table}?{query}",
         headers={
             "apikey": api_key,
@@ -1797,13 +1905,16 @@ def _load_supabase_today_deals(reference: datetime) -> Optional[List[models.Deal
 
 
 def _load_db_today_deals(db: Session, reference: datetime) -> List[models.Deal]:
-    return [
+    deals = [
         deal
         for deal in load_public_deals(db)
         if deal.type == models.DealType.weekly
         and deal.weekday_pattern
         and matches_weekday_pattern(deal.weekday_pattern, reference)
     ]
+    for deal in deals:
+        ensure_public_display_metadata(deal, reference)
+    return deals
 
 
 def today_page_data(db: Session) -> dict:
@@ -2936,6 +3047,991 @@ def render_for_venues_html() -> str:
     )
 
 
+INTAKE_ACTIONS = {
+    "add_deal",
+    "update_deal",
+    "archive_deal",
+    "venue_closed",
+    "ignore",
+    "needs_human_review",
+}
+LOW_CONFIDENCE_THRESHOLD = 0.65
+FREEZE_SENTINEL_MINUTES = 525600
+DAY_ALIASES = {
+    "monday": "Mon",
+    "mondays": "Mon",
+    "mon": "Mon",
+    "tuesday": "Tue",
+    "tuesdays": "Tue",
+    "tue": "Tue",
+    "tues": "Tue",
+    "wednesday": "Wed",
+    "wednesdays": "Wed",
+    "wed": "Wed",
+    "thursday": "Thu",
+    "thursdays": "Thu",
+    "thu": "Thu",
+    "thur": "Thu",
+    "thurs": "Thu",
+    "friday": "Fri",
+    "fridays": "Fri",
+    "fri": "Fri",
+    "saturday": "Sat",
+    "saturdays": "Sat",
+    "sat": "Sat",
+    "sunday": "Sun",
+    "sundays": "Sun",
+    "sun": "Sun",
+    "daily": "All",
+    "everyday": "All",
+    "every day": "All",
+    "all": "All",
+}
+
+
+def json_default(value):
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if hasattr(value, "value"):
+        return value.value
+    return str(value)
+
+
+def compact_text(value: object) -> str:
+    return " ".join(str(value or "").split()).strip()
+
+
+def clean_optional(value: object) -> Optional[str]:
+    cleaned = compact_text(value)
+    return cleaned or None
+
+
+def normalize_intake_time(value: object) -> Optional[str]:
+    cleaned = compact_text(value)
+    if not cleaned:
+        return None
+    try:
+        parse_hhmm(cleaned)
+        return cleaned
+    except Exception:
+        pass
+    match = re.fullmatch(r"(?i)(\d{1,2})(?::(\d{2}))?\s*([ap])\.?m\.?", cleaned)
+    if not match:
+        return None
+    hour = int(match.group(1))
+    minute = int(match.group(2) or "0")
+    meridiem = match.group(3).lower()
+    if meridiem == "p" and hour != 12:
+        hour += 12
+    if meridiem == "a" and hour == 12:
+        hour = 0
+    if not (0 <= hour <= 23 and 0 <= minute <= 59):
+        return None
+    return f"{hour:02d}:{minute:02d}"
+
+
+def normalize_intake_datetime(value: object) -> Optional[str]:
+    cleaned = compact_text(value)
+    if not cleaned:
+        return None
+    try:
+        return datetime.fromisoformat(cleaned.replace("Z", "+00:00")).isoformat()
+    except Exception:
+        return None
+
+
+def normalize_intake_days(value: object) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        days: list[str] = []
+        for part in value:
+            mapped = DAY_ALIASES.get(compact_text(part).lower().rstrip("."))
+            if mapped == "All":
+                return DAY_ORDER.copy()
+            if mapped and mapped not in days:
+                days.append(mapped)
+        return days
+    text = compact_text(value).lower()
+    if not text:
+        return []
+    if any(phrase in text for phrase in ("daily", "everyday", "every day", "all week")):
+        return DAY_ORDER.copy()
+    days: list[str] = []
+    day_patterns = [
+        ("Mon", r"\bmondays?\b|\bmon\.?\b"),
+        ("Tue", r"\btuesdays?\b|\btues?\.?\b"),
+        ("Wed", r"\bwednesdays?\b|\bwed\.?\b"),
+        ("Thu", r"\bthursdays?\b|\bthurs?\.?\b|\bthu\.?\b"),
+        ("Fri", r"\bfridays?\b|\bfri\.?\b"),
+        ("Sat", r"\bsaturdays?\b|\bsat\.?\b"),
+        ("Sun", r"\bsundays?\b|\bsun\.?\b"),
+    ]
+    for day_code, pattern in day_patterns:
+        if re.search(pattern, text, flags=re.IGNORECASE) and day_code not in days:
+            days.append(day_code)
+    if days:
+        return days
+    raw_parts = re.split(r"[,/&+]|\band\b|\bthrough\b|\bthru\b|-", text, flags=re.IGNORECASE)
+    for part in raw_parts:
+        mapped = DAY_ALIASES.get(compact_text(part).lower().rstrip("."))
+        if mapped == "All":
+            return DAY_ORDER.copy()
+        if mapped and mapped not in days:
+            days.append(mapped)
+    return days
+
+
+def infer_venue_name_from_text(raw_text: str) -> Optional[str]:
+    cleaned = re.sub(r"(?i)^\s*test\s+deal\s*:\s*", "", compact_text(raw_text))
+    if not cleaned:
+        return None
+    match = re.match(
+        r"(?P<venue>[A-Z0-9][A-Za-z0-9'&.\- ]{1,80}?)\s+"
+        r"(?:has|have|offers?|serves?|features?|is offering|is serving|announced|posted)\b",
+        cleaned,
+    )
+    if match:
+        return clean_optional(match.group("venue"))
+    return None
+
+
+def infer_deal_title_from_text(raw_text: str) -> Optional[str]:
+    cleaned = re.sub(r"(?i)^\s*test\s+deal\s*:\s*", "", compact_text(raw_text))
+    match = re.search(
+        r"\b(?:has|have|offers?|serves?|features?|is offering|is serving)\s+(.+?)"
+        r"(?=\s+(?:every|on)\s+(?:mon|monday|tue|tues|tuesday|wed|wednesday|thu|thur|thurs|thursday|fri|friday|sat|saturday|sun|sunday)s?\b|\s+from\s+\d|\s+between\s+\d|[.!?]|$)",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    if match:
+        return clean_optional(match.group(1))
+    first_line = next((line.strip() for line in raw_text.splitlines() if line.strip()), "")
+    return clean_optional(re.sub(r"(?i)^\s*test\s+deal\s*:\s*", "", first_line)[:90])
+
+
+def normalize_match_text(value: object) -> str:
+    return " ".join(re.findall(r"[a-z0-9]+", compact_text(value).lower()))
+
+
+def match_tokens(value: object) -> set[str]:
+    return set(re.findall(r"[a-z0-9]+", compact_text(value).lower()))
+
+
+def find_venue_by_name_input(db: Session, venue_query: object) -> Optional[models.Venue]:
+    query_text = normalize_match_text(venue_query)
+    if not query_text:
+        return None
+    venues = db.query(models.Venue).order_by(models.Venue.name.asc()).all()
+    exact = [venue for venue in venues if normalize_match_text(venue.name) == query_text]
+    if len(exact) == 1:
+        return exact[0]
+    scored = []
+    for venue in venues:
+        venue_text = normalize_match_text(venue.name)
+        ratio = SequenceMatcher(None, query_text, venue_text).ratio()
+        overlap = len(match_tokens(query_text) & match_tokens(venue.name))
+        if query_text in venue_text or venue_text in query_text:
+            ratio += 0.2
+        scored.append((ratio, overlap, venue))
+    scored.sort(key=lambda item: (-item[0], -item[1], item[2].name.lower()))
+    if scored and (scored[0][0] >= 0.78 or scored[0][1] >= 2):
+        return scored[0][2]
+    return None
+
+
+def sanitize_intake_payload(payload: dict, raw_text: str) -> dict:
+    action = compact_text(payload.get("action") or "needs_human_review")
+    if action not in INTAKE_ACTIONS:
+        action = "needs_human_review"
+    warnings = payload.get("warnings")
+    if isinstance(warnings, str):
+        warnings = [warnings]
+    if not isinstance(warnings, list):
+        warnings = []
+    try:
+        confidence = float(payload.get("confidence", 0))
+    except (TypeError, ValueError):
+        confidence = 0.0
+    confidence = min(max(confidence, 0.0), 1.0)
+    start_at = normalize_intake_datetime(payload.get("start_at"))
+    end_at = normalize_intake_datetime(payload.get("end_at"))
+    deal_type = compact_text(payload.get("deal_type")).lower()
+    if deal_type not in {"weekly", "last_minute"}:
+        deal_type = "last_minute" if start_at or end_at else "weekly"
+    return {
+        "action": action,
+        "venue_name": clean_optional(payload.get("venue_name")),
+        "venue_address": clean_optional(payload.get("venue_address")),
+        "deal_title": clean_optional(payload.get("deal_title")),
+        "description": clean_optional(payload.get("description")),
+        "days": normalize_intake_days(payload.get("days")),
+        "start_time": normalize_intake_time(payload.get("start_time")),
+        "end_time": normalize_intake_time(payload.get("end_time")),
+        "start_at": start_at,
+        "end_at": end_at,
+        "deal_type": deal_type,
+        "status": compact_text(payload.get("status") or "live") or "live",
+        "confidence": confidence,
+        "warnings": [compact_text(item) for item in warnings if compact_text(item)],
+        "source_text": raw_text,
+    }
+
+
+def rules_deal_parse(raw_text: str) -> dict:
+    lower = raw_text.lower()
+    days = normalize_intake_days(raw_text)
+    times = re.findall(r"(?i)\b\d{1,2}(?::\d{2})?\s*[ap]\.?m\.?", raw_text)
+    venue_name = infer_venue_name_from_text(raw_text)
+    deal_title = infer_deal_title_from_text(raw_text)
+    action = "archive_deal" if any(word in lower for word in ("closed", "cancelled", "canceled", "no longer")) else "add_deal"
+    return sanitize_intake_payload(
+        {
+            "action": action,
+            "venue_name": venue_name,
+            "deal_title": deal_title or "Deal from source post",
+            "description": raw_text[:280],
+            "days": days,
+            "start_time": times[0] if len(times) >= 1 else None,
+            "end_time": times[1] if len(times) >= 2 else None,
+            "deal_type": "weekly",
+            "status": "draft",
+            "confidence": 0.25,
+            "warnings": ["Rules parser used. Review all fields before approving."],
+        },
+        raw_text,
+    )
+
+
+def mock_deal_parse(raw_text: str) -> dict:
+    parsed = rules_deal_parse(raw_text)
+    parsed["confidence"] = 0.1
+    parsed["warnings"] = ["Mock parser used for tests. Fill fields manually before approving."]
+    return parsed
+
+
+def empty_manual_proposal(raw_text: str, warning: str) -> dict:
+    return sanitize_intake_payload(
+        {
+            "action": "needs_human_review",
+            "venue_name": None,
+            "venue_address": None,
+            "deal_title": None,
+            "description": None,
+            "days": [],
+            "start_time": None,
+            "end_time": None,
+            "deal_type": "weekly",
+            "status": "draft",
+            "confidence": 0,
+            "warnings": [warning],
+        },
+        raw_text,
+    )
+
+
+def ollama_deal_parse(raw_text: str) -> dict:
+    if os.getenv("VERCEL") == "1":
+        raise RuntimeError("Ollama is local-only. Run the admin intake locally.")
+    base_url = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")
+    schema_hint = {
+        "action": "add_deal|update_deal|archive_deal|venue_closed|ignore|needs_human_review",
+        "venue_name": "string|null",
+        "venue_address": "string|null",
+        "deal_title": "string|null",
+        "description": "string|null",
+        "days": ["Mon|Tue|Wed|Thu|Fri|Sat|Sun"],
+        "start_time": "HH:MM|null",
+        "end_time": "HH:MM|null",
+        "start_at": "ISO datetime|null",
+        "end_at": "ISO datetime|null",
+        "deal_type": "weekly|last_minute",
+        "status": "draft|queued|live",
+        "confidence": "0.0-1.0",
+        "warnings": ["string"],
+        "source_text": "verbatim source text",
+    }
+    body = {
+        "model": os.getenv("OLLAMA_MODEL", "qwen2.5:7b"),
+        "format": "json",
+        "stream": False,
+        "messages": [
+            {
+                "role": "system",
+                "content": (
+                    "You parse restaurant deal posts for a human-reviewed admin queue. "
+                    "Return one JSON object only. Never include SQL, markdown, prose, or code. "
+                    "Use null for unknown values and warnings for uncertainty. You cannot mutate a database."
+                ),
+            },
+            {"role": "user", "content": f"Return JSON matching this schema:\n{json.dumps(schema_hint)}\n\nSource post:\n{raw_text}"},
+        ],
+    }
+    request = UrlRequest(
+        f"{base_url}/api/chat",
+        data=json.dumps(body).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urlopen(request, timeout=25) as response:
+        response_payload = json.loads(response.read().decode("utf-8"))
+    parsed = json.loads(response_payload["message"]["content"])
+    if not isinstance(parsed, dict):
+        raise ValueError("Ollama response was not a JSON object")
+    return sanitize_intake_payload(parsed, raw_text)
+
+
+def parse_deal_post_with_provider(raw_text: str) -> dict:
+    provider = configured_llm_provider()
+    if provider == "mock":
+        return mock_deal_parse(raw_text)
+    if provider == "rules":
+        return rules_deal_parse(raw_text)
+    if provider == "ollama":
+        return ollama_deal_parse(raw_text)
+    raise RuntimeError(f"Unsupported LLM_PROVIDER: {provider}")
+
+
+def configured_llm_provider() -> str:
+    provider = os.getenv("LLM_PROVIDER", "rules").strip().lower() or "rules"
+    if os.getenv("VERCEL") == "1" and os.getenv("VERCEL_ENV", "preview") == "preview":
+        return "rules"
+    return provider
+
+
+def parsed_submission_json(submission: models.DealIntakeSubmission) -> dict:
+    if not submission.parsed_json:
+        return {}
+    try:
+        payload = json.loads(submission.parsed_json)
+    except (TypeError, ValueError):
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def venue_match_score(parsed: dict, venue: models.Venue) -> int:
+    venue_name = normalize_match_text(parsed.get("venue_name"))
+    venue_address = normalize_match_text(parsed.get("venue_address"))
+    source_text = normalize_match_text(parsed.get("source_text"))
+    name = normalize_match_text(venue.name)
+    address = normalize_match_text(venue.address)
+    score = 0
+    if venue_name and venue_name == name:
+        score += 120
+    elif venue_name and (venue_name in name or name in venue_name):
+        score += 90
+    elif venue_name:
+        ratio = SequenceMatcher(None, venue_name, name).ratio()
+        if ratio >= 0.86:
+            score += 75
+        score += min(len(match_tokens(venue_name) & match_tokens(name)) * 20, 60)
+    if source_text and name and re.search(rf"\b{re.escape(name)}\b", source_text):
+        score += 95
+    if venue_address and address and (venue_address in address or address in venue_address):
+        score += 45
+    return score
+
+
+def find_intake_venue_matches(db: Session, parsed: dict) -> list[models.Venue]:
+    scored = [(venue_match_score(parsed, venue), venue) for venue in db.query(models.Venue).order_by(models.Venue.name.asc()).all()]
+    return [venue for score, venue in sorted(scored, key=lambda item: (-item[0], item[1].name.lower())) if score >= 45][:8]
+
+
+def find_duplicate_deal_candidates(db: Session, parsed: dict, venues: list[models.Venue]) -> list[models.Deal]:
+    if not venues:
+        return []
+    title_tokens = set(re.findall(r"[a-z0-9]+", compact_text(parsed.get("deal_title")).lower()))
+    parsed_days = set(parsed.get("days") or [])
+    deals = (
+        db.query(models.Deal)
+        .options(joinedload(models.Deal.venue))
+        .filter(
+            models.Deal.venue_id.in_([venue.id for venue in venues]),
+            models.Deal.status.in_([models.Status.draft, models.Status.queued, models.Status.live]),
+        )
+        .all()
+    )
+    duplicates = []
+    for deal in deals:
+        deal_tokens = set(re.findall(r"[a-z0-9]+", f"{deal.title} {deal.short_description}".lower()))
+        day_overlap = not parsed_days or bool(parsed_days & set(weekday_pattern_parts(deal.weekday_pattern)))
+        title_overlap = not title_tokens or len(title_tokens & deal_tokens) >= min(2, len(title_tokens))
+        time_overlap = not parsed.get("start_time") or parsed.get("start_time") == deal.start_time
+        if day_overlap and title_overlap and time_overlap:
+            duplicates.append(deal)
+    return duplicates[:8]
+
+
+def intake_warnings(parsed: dict, venue_matches: list[models.Venue], duplicate_deals: list[models.Deal]) -> list[str]:
+    warnings = list(parsed.get("warnings") or [])
+    action = parsed.get("action")
+    if action in {"add_deal", "update_deal", "archive_deal", "venue_closed"}:
+        if not parsed.get("venue_name") and not venue_matches:
+            warnings.append("Missing venue.")
+        elif not venue_matches:
+            warnings.append("Venue was not found. This remains a draft proposal.")
+        elif len(venue_matches) > 1:
+            warnings.append("Multiple possible venue matches. Pick one before approving.")
+    if action in {"add_deal", "update_deal"}:
+        if not parsed.get("days") and parsed.get("deal_type") == "weekly":
+            warnings.append("Missing day.")
+        source_lower = compact_text(parsed.get("source_text")).lower()
+        if any(phrase in source_lower for phrase in ("today", "tomorrow", "tonight", "this week", "this weekend")) and not parsed.get("start_at"):
+            warnings.append("Vague date.")
+        if not parsed.get("start_time") and not parsed.get("start_at"):
+            warnings.append("Vague time.")
+    if duplicate_deals:
+        warnings.append("Duplicate possible deal.")
+    seen = set()
+    return [warning for warning in warnings if not (warning.lower() in seen or seen.add(warning.lower()))]
+
+
+def analyze_submission(db: Session, submission: models.DealIntakeSubmission) -> None:
+    try:
+        parsed = parse_deal_post_with_provider(submission.raw_text)
+        venue_matches = find_intake_venue_matches(db, parsed)
+        duplicates = find_duplicate_deal_candidates(db, parsed, venue_matches)
+        parsed["warnings"] = intake_warnings(parsed, venue_matches, duplicates)
+        parsed["_system"] = {
+            "llm_provider": configured_llm_provider(),
+            "llm_can_write_database": False,
+            "venue_match_ids": [venue.id for venue in venue_matches],
+            "duplicate_deal_ids": [deal.id for deal in duplicates],
+        }
+        submission.parsed_json = json.dumps(parsed, indent=2, default=json_default)
+        submission.confidence = parsed["confidence"]
+        submission.status = "needs_human_review" if parsed["confidence"] < LOW_CONFIDENCE_THRESHOLD or parsed["warnings"] else "analyzed"
+        submission.error_message = None
+    except Exception as exc:
+        parsed = empty_manual_proposal(submission.raw_text, str(exc))
+        venue_matches = find_intake_venue_matches(db, parsed)
+        duplicates = find_duplicate_deal_candidates(db, parsed, venue_matches)
+        parsed["warnings"] = intake_warnings(parsed, venue_matches, duplicates)
+        parsed["_system"] = {
+            "llm_provider": configured_llm_provider(),
+            "llm_can_write_database": False,
+            "manual_fallback": True,
+        }
+        submission.parsed_json = json.dumps(parsed, indent=2, default=json_default)
+        submission.confidence = parsed["confidence"]
+        submission.status = "needs_human_review"
+        submission.error_message = str(exc)
+
+
+def deal_snapshot(deal: models.Deal) -> dict:
+    return {
+        "id": deal.id,
+        "venue_id": deal.venue_id,
+        "title": deal.title,
+        "short_description": deal.short_description,
+        "type": deal.type.value,
+        "weekday_pattern": deal.weekday_pattern,
+        "start_time": deal.start_time,
+        "end_time": deal.end_time,
+        "start_at": deal.start_at.isoformat() if deal.start_at else None,
+        "end_at": deal.end_at.isoformat() if deal.end_at else None,
+        "status": deal.status.value,
+        "source_type": deal.source_type,
+        "source_url": deal.source_url,
+        "source_text": deal.source_text,
+        "notes_private": deal.notes_private,
+        "freeze_minutes": deal.freeze_minutes,
+    }
+
+
+def log_deal_change(db: Session, action: str, deal: Optional[models.Deal], venue_id: Optional[int], before: Optional[dict], source_text: Optional[str]) -> None:
+    db.add(
+        models.DealChangeLog(
+            action=action,
+            deal_id=deal.id if deal else None,
+            venue_id=venue_id,
+            before_json=json.dumps(before, indent=2, default=json_default) if before is not None else None,
+            after_json=json.dumps(deal_snapshot(deal), indent=2, default=json_default) if deal else None,
+            source_text=source_text,
+        )
+    )
+
+
+def notes_for_intake(submission: models.DealIntakeSubmission) -> str:
+    return json.dumps({"intake_submission_id": submission.id, "source_platform": submission.source_platform, "admin_notes": submission.notes})
+
+
+def selected_venue_for_submission(db: Session, parsed: dict, explicit_venue_id: Optional[int]) -> models.Venue:
+    if explicit_venue_id:
+        return get_venue_or_404(db, explicit_venue_id)
+    system_meta = parsed.get("_system") if isinstance(parsed.get("_system"), dict) else {}
+    selected_venue_id = system_meta.get("selected_venue_id")
+    if selected_venue_id:
+        return get_venue_or_404(db, int(selected_venue_id))
+    matches = find_intake_venue_matches(db, parsed)
+    if len(matches) == 1:
+        return matches[0]
+    if not matches:
+        raise HTTPException(status_code=400, detail="Venue not found. Pick or create a venue before approving.")
+    raise HTTPException(status_code=400, detail="Multiple venue matches. Pick one before approving.")
+
+
+def status_from_intake(value: object, default: models.Status = models.Status.live) -> models.Status:
+    try:
+        return models.Status(compact_text(value) or default.value)
+    except ValueError:
+        return default
+
+
+def apply_intake_submission(db: Session, submission: models.DealIntakeSubmission, explicit_venue_id: Optional[int]) -> Optional[models.Deal]:
+    parsed = parsed_submission_json(submission)
+    if not parsed:
+        raise HTTPException(status_code=400, detail="Submission has no parsed proposal")
+    action = parsed.get("action")
+    now = datetime.utcnow()
+    if action in {"ignore", "needs_human_review"}:
+        submission.status = "reviewed"
+        submission.reviewed_at = now
+        db.commit()
+        return None
+    venue = selected_venue_for_submission(db, parsed, explicit_venue_id)
+    source_type = "scrape" if submission.source_platform else "admin"
+    desired_status = status_from_intake(parsed.get("status"), models.Status.live)
+    if action == "add_deal":
+        if not parsed.get("deal_title") or not parsed.get("description"):
+            raise HTTPException(status_code=400, detail="Deal title and description are required")
+        if parsed.get("deal_type") == "last_minute":
+            start_at = datetime.fromisoformat(parsed["start_at"]) if parsed.get("start_at") else None
+            end_at = datetime.fromisoformat(parsed["end_at"]) if parsed.get("end_at") else None
+            validate_last_minute_range(start_at, end_at)
+            deal = models.Deal(venue_id=venue.id, title=parsed["deal_title"], short_description=parsed["description"], type=models.DealType.last_minute, start_at=start_at, end_at=end_at, source_type=source_type, source_url=submission.source_url, source_text=submission.raw_text, notes_private=notes_for_intake(submission), status=desired_status)
+        else:
+            days = parsed.get("days") or []
+            if not days or not parsed.get("start_time") or not parsed.get("end_time"):
+                raise HTTPException(status_code=400, detail="Weekly deals require day, start time, and end time")
+            validate_weekly_range(parsed["start_time"], parsed["end_time"])
+            enforce_weekly_cap(db, venue.id)
+            weekday_pattern = "All" if set(days) == set(DAY_ORDER) else ",".join(days)
+            deal = models.Deal(venue_id=venue.id, title=parsed["deal_title"], short_description=parsed["description"], type=models.DealType.weekly, weekday_pattern=weekday_pattern, start_time=parsed["start_time"], end_time=parsed["end_time"], source_type=source_type, source_url=submission.source_url, source_text=submission.raw_text, notes_private=notes_for_intake(submission), status=desired_status)
+        db.add(deal)
+        db.flush()
+        log_deal_change(db, "intake_add_deal", deal, venue.id, None, submission.raw_text)
+        applied_deal = deal
+    elif action in {"update_deal", "archive_deal"}:
+        duplicates = find_duplicate_deal_candidates(db, parsed, [venue])
+        if len(duplicates) != 1:
+            raise HTTPException(status_code=400, detail="Pick a single existing deal before updating or archiving.")
+        deal = duplicates[0]
+        before = deal_snapshot(deal)
+        if action == "archive_deal":
+            deal.status = models.Status.archived
+        else:
+            if parsed.get("deal_title"):
+                deal.title = parsed["deal_title"]
+            if parsed.get("description"):
+                deal.short_description = parsed["description"]
+            if parsed.get("days"):
+                days = parsed["days"]
+                deal.weekday_pattern = "All" if set(days) == set(DAY_ORDER) else ",".join(days)
+            if parsed.get("start_time"):
+                deal.start_time = parsed["start_time"]
+            if parsed.get("end_time"):
+                deal.end_time = parsed["end_time"]
+            if parsed.get("status"):
+                deal.status = desired_status
+            deal.source_url = submission.source_url or deal.source_url
+            deal.source_text = submission.raw_text
+            validate_deal_shape(deal.type, {"weekday_pattern": deal.weekday_pattern, "start_time": deal.start_time, "end_time": deal.end_time, "start_at": deal.start_at, "end_at": deal.end_at})
+        deal.updated_at = now
+        log_deal_change(db, f"intake_{action}", deal, venue.id, before, submission.raw_text)
+        applied_deal = deal
+    elif action == "venue_closed":
+        deals = db.query(models.Deal).filter(models.Deal.venue_id == venue.id, models.Deal.status.in_([models.Status.draft, models.Status.queued, models.Status.live])).all()
+        for deal in deals:
+            before = deal_snapshot(deal)
+            deal.status = models.Status.archived
+            deal.updated_at = now
+            log_deal_change(db, "intake_venue_closed_archive", deal, venue.id, before, submission.raw_text)
+        applied_deal = deals[0] if deals else None
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported intake action")
+    submission.status = "applied"
+    submission.reviewed_at = now
+    submission.applied_at = now
+    db.commit()
+    return applied_deal
+
+
+def admin_badge(label: str, tone: str = "neutral") -> str:
+    return f'<span class="admin-badge admin-badge-{escape(tone)}">{escape(label)}</span>'
+
+
+def admin_shell(title: str, main_content: str) -> str:
+    return f"""<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{escape(title)} | DSM Deals Admin</title>
+    <link rel="stylesheet" href="{site_href("/static/styles.css")}" />
+  </head>
+  <body class="admin-body">
+    <main class="admin-console">
+      <header class="admin-header">
+        <div><p class="admin-kicker">DSM Deals Hub</p><h1>{escape(title)}</h1></div>
+        <nav class="admin-nav" aria-label="Admin navigation">
+          <a href="/admin/intake">Intake</a><a href="/admin/review">Review</a><a href="/admin/deals">Deals</a><a href="/">Public site</a>
+        </nav>
+      </header>
+      {main_content}
+    </main>
+  </body>
+</html>"""
+
+
+def render_admin_login_html(error: Optional[str] = None, next_path: str = "/admin/intake") -> str:
+    error_html = f'<div class="admin-alert admin-alert-danger">{escape(error)}</div>' if error else ""
+    safe_next = next_path if next_path.startswith("/admin/") else "/admin/intake"
+    return admin_shell(
+        "Admin Login",
+        f"""
+        {error_html}
+        <section class="admin-panel admin-login-panel">
+          <form class="admin-form" method="post" action="/admin/login">
+            <input type="hidden" name="next_path" value="{escape(safe_next)}" />
+            <label>
+              <span>Password</span>
+              <input name="password" type="password" autocomplete="current-password" required autofocus />
+            </label>
+            <button class="admin-primary-button" type="submit">Log in</button>
+          </form>
+        </section>
+        """,
+    )
+
+
+def render_admin_intake_html(error: Optional[str] = None) -> str:
+    error_html = f'<div class="admin-alert admin-alert-danger">{escape(error)}</div>' if error else ""
+    return admin_shell(
+        "Deal Intake",
+        f"""
+        {error_html}
+        <section class="admin-panel">
+          <form class="admin-form" method="post" action="/admin/intake">
+            <label><span>Paste deal post</span><textarea name="raw_text" rows="14" required placeholder="Paste the original restaurant post here"></textarea></label>
+            <div class="admin-form-grid">
+              <label><span>Source URL</span><input name="source_url" type="url" placeholder="https://..." /></label>
+              <label><span>Source platform</span><input name="source_platform" placeholder="Facebook, Instagram, website..." /></label>
+            </div>
+            <label><span>Notes</span><textarea name="notes" rows="4" placeholder="Private admin context"></textarea></label>
+            <button class="admin-primary-button" type="submit">Analyze deal</button>
+          </form>
+        </section>
+        """,
+    )
+
+
+def render_day_checkbox(day_code: str, selected_days: list[str]) -> str:
+    checked = "checked" if day_code in selected_days else ""
+    return f'<label class="admin-check-row"><input type="checkbox" name="days" value="{day_code}" {checked} /><span>{escape(WEEKDAY_LONG[day_code])}</span></label>'
+
+
+def venue_select_options(venues: list[models.Venue], selected_venue_id: Optional[int]) -> str:
+    options = ['<option value="">Select venue</option>']
+    for venue in venues:
+        selected = "selected" if selected_venue_id == venue.id else ""
+        options.append(f'<option value="{venue.id}" {selected}>{escape(venue.name)} - {escape(venue.address)}</option>')
+    return "".join(options)
+
+
+def venue_to_admin_lookup_json(venue: models.Venue, counts: Optional[dict] = None, owner_name: Optional[str] = None) -> dict:
+    venue_counts = counts or {"deal_count": 0, "live_deal_count": 0}
+    return {
+        "id": venue.id,
+        "owner_id": venue.owner_id,
+        "owner_name": owner_name,
+        "name": venue.name,
+        "slug": venue.slug,
+        "address": venue.address,
+        "neighborhood": venue.neighborhood,
+        "lat": venue.lat,
+        "lng": venue.lng,
+        "phone": venue.phone,
+        "website": venue.website,
+        "hours_json": venue.hours_json,
+        "description": venue.description,
+        "created_at": venue.created_at.isoformat() if venue.created_at else None,
+        "updated_at": venue.updated_at.isoformat() if venue.updated_at else None,
+        "deal_count": venue_counts.get("deal_count", 0),
+        "live_deal_count": venue_counts.get("live_deal_count", 0),
+    }
+
+
+def create_intake_venue(
+    db: Session,
+    *,
+    name: object,
+    address: object,
+    neighborhood: object,
+    source_text: Optional[str],
+) -> Optional[models.Venue]:
+    venue_name = clean_optional(name)
+    venue_address = clean_optional(address)
+    if not venue_name or not venue_address:
+        return None
+    existing = find_venue_by_name_input(db, venue_name)
+    if existing:
+        return existing
+    slug = ensure_unique_venue_slug(db, venue_name)
+    venue = models.Venue(
+        name=venue_name,
+        slug=slug,
+        address=venue_address,
+        neighborhood=clean_optional(neighborhood),
+    )
+    db.add(venue)
+    db.flush()
+    log_deal_change(db, "admin_create_venue_from_intake", None, venue.id, None, source_text)
+    return venue
+
+
+def render_manual_proposal_form(
+    submission: models.DealIntakeSubmission,
+    parsed: dict,
+    all_venues: list[models.Venue],
+    venue_matches: Optional[list[models.Venue]] = None,
+) -> str:
+    system_meta = parsed.get("_system") if isinstance(parsed.get("_system"), dict) else {}
+    selected_venue_id = system_meta.get("selected_venue_id")
+    try:
+        selected_venue_id = int(selected_venue_id) if selected_venue_id else None
+    except (TypeError, ValueError):
+        selected_venue_id = None
+    if selected_venue_id is None and venue_matches and len(venue_matches) == 1:
+        selected_venue_id = venue_matches[0].id
+    has_venue_match = bool(venue_matches)
+    action_options = "".join(
+        f'<option value="{action}" {"selected" if parsed.get("action") == action else ""}>{action}</option>'
+        for action in sorted(INTAKE_ACTIONS)
+    )
+    status_options = "".join(
+        f'<option value="{status.value}" {"selected" if parsed.get("status") == status.value else ""}>{status.value}</option>'
+        for status in [models.Status.draft, models.Status.queued, models.Status.live, models.Status.archived]
+    )
+    deal_type_options = "".join(
+        f'<option value="{deal_type}" {"selected" if parsed.get("deal_type") == deal_type else ""}>{deal_type}</option>'
+        for deal_type in ["weekly", "last_minute"]
+    )
+    day_checks = "".join(render_day_checkbox(day_code, parsed.get("days") or []) for day_code in DAY_ORDER)
+    venue_query_value = parsed.get("venue_name") or ""
+    venue_datalist = "".join(f'<option value="{escape(venue.name)}">{escape(venue.address)}</option>' for venue in all_venues)
+    create_name_value = parsed.get("venue_name") or ""
+    create_address_value = parsed.get("venue_address") or ""
+    missing_venue_html = (
+        '<div class="admin-alert admin-alert-danger"><strong>No matching venue found.</strong> Pick an existing venue or create a venue before approving.</div>'
+        if not has_venue_match
+        else ""
+    )
+    return f"""
+    <section class="admin-panel">
+      <h2>Edit Proposal</h2>
+      {missing_venue_html}
+      <form class="admin-form" method="post" action="/admin/review/{submission.id}/manual">
+        <div class="admin-form-grid">
+          <label><span>Action</span><select name="action">{action_options}</select></label>
+          <label><span>Venue search</span><input name="venue_query" list="admin-venue-options" value="{escape(str(venue_query_value))}" placeholder="Start typing a venue name" /></label>
+          <label><span>Venue dropdown</span><select name="venue_id">{venue_select_options(all_venues, selected_venue_id)}</select></label>
+          <label><span>Status</span><select name="status">{status_options}</select></label>
+          <label><span>Deal type</span><select name="deal_type">{deal_type_options}</select></label>
+        </div>
+        <datalist id="admin-venue-options">{venue_datalist}</datalist>
+        <label><span>Deal title</span><input name="deal_title" value="{escape(str(parsed.get("deal_title") or ""))}" /></label>
+        <label><span>Description</span><textarea name="description" rows="4">{escape(str(parsed.get("description") or ""))}</textarea></label>
+        <div class="admin-check-grid">{day_checks}</div>
+        <div class="admin-form-grid">
+          <label><span>Start time</span><input name="start_time" value="{escape(str(parsed.get("start_time") or ""))}" placeholder="HH:MM" /></label>
+          <label><span>End time</span><input name="end_time" value="{escape(str(parsed.get("end_time") or ""))}" placeholder="HH:MM" /></label>
+          <label><span>Start date/time</span><input name="start_at" value="{escape(str(parsed.get("start_at") or ""))}" placeholder="2026-06-15T17:00:00" /></label>
+          <label><span>End date/time</span><input name="end_at" value="{escape(str(parsed.get("end_at") or ""))}" placeholder="2026-06-15T19:00:00" /></label>
+        </div>
+        <label><span>Source URL</span><input name="source_url" type="url" value="{escape(submission.source_url or "")}" placeholder="https://..." /></label>
+        <section class="admin-subpanel">
+          <h3>Create venue</h3>
+          <div class="admin-form-grid">
+            <label><span>Venue name</span><input name="create_venue_name" value="{escape(str(create_name_value))}" placeholder="Lua Brewing" /></label>
+            <label><span>Venue address</span><input name="create_venue_address" value="{escape(str(create_address_value))}" placeholder="Street address" /></label>
+            <label><span>Neighborhood</span><input name="create_venue_neighborhood" placeholder="Downtown" /></label>
+          </div>
+        </section>
+        <button class="admin-primary-button" type="submit">Save manual proposal</button>
+      </form>
+    </section>
+    """
+
+
+def render_admin_review_html(submission: Optional[models.DealIntakeSubmission], venue_matches: list[models.Venue], duplicate_deals: list[models.Deal], all_venues: list[models.Venue], edit_mode: bool = False) -> str:
+    if submission is None:
+        return admin_shell("Review Deal", '<section class="admin-panel"><p class="admin-empty">No intake submissions are waiting for review.</p></section>')
+    parsed = parsed_submission_json(submission)
+    warning_html = "".join(f"<li>{escape(warning)}</li>" for warning in (parsed.get("warnings") or [])) or "<li>No warnings.</li>"
+    blockers = approval_blockers(parsed, venue_matches)
+    blocker_html = "".join(f"<li>{escape(blocker)}</li>" for blocker in blockers)
+    approval_blocker_html = f'<div class="admin-alert admin-alert-danger"><strong>Approval blocked</strong><ul>{blocker_html}</ul></div>' if blockers else ""
+    approve_disabled = "disabled" if blockers else ""
+    venue_required = "required" if len(venue_matches) > 1 else ""
+    venue_options = "".join(f'<label class="admin-radio-row"><input type="radio" name="venue_id" value="{venue.id}" {"checked" if len(venue_matches) == 1 else ""} {venue_required} /><span>{escape(venue.name)} <small>{escape(venue.address)}</small></span></label>' for venue in venue_matches) or '<p class="admin-muted">No matching venue found. Create or edit the venue before approving.</p>'
+    duplicates_html = "".join(f"<li><strong>#{deal.id} {escape(deal.title)}</strong><span>{escape(deal.venue.name if deal.venue else 'Venue')} · {escape(deal.status.value)}</span></li>" for deal in duplicate_deals) or "<li>No close duplicates found.</li>"
+    parsed_pretty = json.dumps(parsed, indent=2, default=json_default)
+    edit_html = ""
+    if edit_mode:
+        edit_html = f"""
+        {render_manual_proposal_form(submission, parsed, all_venues, venue_matches)}
+        <section class="admin-panel">
+          <h2>Edit Parsed JSON</h2>
+          <form class="admin-form" method="post" action="/admin/review/{submission.id}/edit">
+            <textarea name="parsed_json" rows="20" required>{escape(parsed_pretty)}</textarea>
+            <button class="admin-primary-button" type="submit">Save parsed proposal</button>
+          </form>
+        </section>
+        """
+    source_url = f'<a href="{escape(submission.source_url)}" target="_blank" rel="noopener noreferrer">Open source</a>' if submission.source_url else "No source URL"
+    return admin_shell(
+        "Review Deal",
+        f"""
+        <section class="admin-panel admin-review-grid">
+          <div>
+            <div class="admin-section-title"><h2>Proposed Change</h2>{admin_badge(submission.status, "warning" if submission.status == "needs_human_review" else "success")}</div>
+            <dl class="admin-proposal-list">
+              <div><dt>Action</dt><dd>{escape(str(parsed.get("action") or ""))}</dd></div>
+              <div><dt>Venue</dt><dd>{escape(str(parsed.get("venue_name") or "Missing"))}</dd></div>
+              <div><dt>Title</dt><dd>{escape(str(parsed.get("deal_title") or "Missing"))}</dd></div>
+              <div><dt>Description</dt><dd>{escape(str(parsed.get("description") or "Missing"))}</dd></div>
+              <div><dt>Days</dt><dd>{escape(", ".join(parsed.get("days") or []) or "Missing")}</dd></div>
+              <div><dt>Time</dt><dd>{escape(f"{parsed.get('start_time') or 'Missing'} to {parsed.get('end_time') or 'Missing'}")}</dd></div>
+              <div><dt>Confidence</dt><dd>{escape(str(parsed.get("confidence", 0)))}</dd></div>
+              <div><dt>Source</dt><dd>{source_url}</dd></div>
+            </dl>
+          </div>
+          <aside class="admin-side-panel">
+            <h2>Warnings</h2><ul class="admin-warning-list">{warning_html}</ul>
+            <h2>Venue Match</h2>
+            <form method="post" action="/admin/review/{submission.id}/approve" class="admin-form">
+              {approval_blocker_html}
+              <div class="admin-radio-stack">{venue_options}</div>
+              <div class="admin-action-row"><button class="admin-primary-button" type="submit" {approve_disabled}>Approve</button><a class="admin-secondary-button" href="/admin/review?submission_id={submission.id}&edit=1">Edit</a><button class="admin-danger-button" type="submit" formaction="/admin/review/{submission.id}/reject">Reject</button></div>
+            </form>
+          </aside>
+        </section>
+        <section class="admin-panel"><h2>Possible Duplicates</h2><ul class="admin-compact-list">{duplicates_html}</ul></section>
+        <section class="admin-panel"><h2>Raw Source Text</h2><pre class="admin-source-box">{escape(submission.raw_text)}</pre></section>
+        {edit_html}
+        """,
+    )
+
+
+def admin_deal_time_label(deal: models.Deal) -> str:
+    if deal.type == models.DealType.weekly:
+        return f"{deal.weekday_pattern or 'No days'} · {deal.start_time or '?'}-{deal.end_time or '?'}"
+    return f"{deal.start_at.isoformat() if deal.start_at else '?'} to {deal.end_at.isoformat() if deal.end_at else '?'}"
+
+
+def render_admin_deals_html(deals: list[models.Deal], q: Optional[str], status: Optional[models.Status]) -> str:
+    rows = []
+    for deal in deals:
+        source = f'<a href="{escape(deal.source_url)}" target="_blank" rel="noopener noreferrer">View source</a>' if deal.source_url else ('<span class="admin-muted">Source text saved</span>' if deal.source_text else '<span class="admin-muted">No source</span>')
+        frozen = bool(deal.freeze_minutes and deal.freeze_minutes >= FREEZE_SENTINEL_MINUTES)
+        rows.append(f'<tr><td><strong>{escape(deal.title)}</strong><small>{escape(deal.short_description)}</small></td><td>{escape(deal.venue.name if deal.venue else "Venue")}</td><td>{escape(admin_deal_time_label(deal))}</td><td>{admin_badge(deal.status.value, "neutral")}{admin_badge("frozen", "warning") if frozen else ""}</td><td>{source}</td><td class="admin-table-actions"><a class="admin-secondary-button" href="/admin/deals/{deal.id}/edit">Edit</a><form method="post" action="/admin/deals/{deal.id}/freeze"><button class="admin-secondary-button" type="submit">Freeze</button></form><form method="post" action="/admin/deals/{deal.id}/archive"><button class="admin-danger-button" type="submit">Archive</button></form></td></tr>')
+    rows_html = "".join(rows) or '<tr><td colspan="6" class="admin-empty">No deals matched.</td></tr>'
+    status_value = status.value if status else ""
+    status_options = ''.join(f'<option value="{item.value}" {"selected" if status_value == item.value else ""}>{item.value}</option>' for item in models.Status)
+    return admin_shell("Admin Deals", f'<section class="admin-panel"><form class="admin-toolbar" method="get" action="/admin/deals"><input name="q" value="{escape(q or "")}" placeholder="Search deals or venues" /><select name="status"><option value="" {"selected" if not status_value else ""}>Any status</option>{status_options}</select><button class="admin-primary-button" type="submit">Search</button></form><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Deal</th><th>Venue</th><th>Schedule</th><th>Status</th><th>Source</th><th>Actions</th></tr></thead><tbody>{rows_html}</tbody></table></div></section>')
+
+
+def render_admin_deal_edit_html(deal: models.Deal, error: Optional[str] = None) -> str:
+    error_html = f'<div class="admin-alert admin-alert-danger">{escape(error)}</div>' if error else ""
+    status_options = "".join(f'<option value="{status.value}" {"selected" if deal.status == status else ""}>{status.value}</option>' for status in models.Status)
+    return admin_shell(f"Edit Deal #{deal.id}", f'{error_html}<section class="admin-panel"><form class="admin-form" method="post" action="/admin/deals/{deal.id}/edit"><div class="admin-form-grid"><label><span>Title</span><input name="title" value="{escape(deal.title)}" required /></label><label><span>Status</span><select name="status">{status_options}</select></label></div><label><span>Description</span><textarea name="short_description" rows="4" required>{escape(deal.short_description)}</textarea></label><div class="admin-form-grid"><label><span>Weekday pattern</span><input name="weekday_pattern" value="{escape(deal.weekday_pattern or "")}" /></label><label><span>Start time</span><input name="start_time" value="{escape(deal.start_time or "")}" placeholder="HH:MM" /></label><label><span>End time</span><input name="end_time" value="{escape(deal.end_time or "")}" placeholder="HH:MM" /></label></div><label><span>Source URL</span><input name="source_url" value="{escape(deal.source_url or "")}" /></label><label><span>Source text</span><textarea name="source_text" rows="6">{escape(deal.source_text or "")}</textarea></label><div class="admin-action-row"><button class="admin-primary-button" type="submit">Save deal</button><a class="admin-secondary-button" href="/admin/deals">Cancel</a></div></form></section>')
+
+
+def admin_deals_query(
+    db: Session,
+    status: Optional[models.Status] = None,
+    deal_type: Optional[models.DealType] = None,
+    venue_id: Optional[int] = None,
+    neighborhood: Optional[str] = None,
+    q: Optional[str] = None,
+) -> list[models.Deal]:
+    expire_stale_last_minute_deals(db)
+    query = db.query(models.Deal).options(joinedload(models.Deal.venue)).join(models.Venue)
+    if status is not None:
+        query = query.filter(models.Deal.status == status)
+    if deal_type is not None:
+        query = query.filter(models.Deal.type == deal_type)
+    if venue_id is not None:
+        query = query.filter(models.Deal.venue_id == venue_id)
+    if neighborhood:
+        query = query.filter(func.lower(models.Venue.neighborhood) == neighborhood.strip().lower())
+    if q:
+        term = f"%{q.strip()}%"
+        query = query.filter(or_(models.Deal.title.ilike(term), models.Deal.short_description.ilike(term), models.Venue.name.ilike(term)))
+    return query.order_by(models.Deal.updated_at.desc(), models.Deal.created_at.desc()).all()
+
+
+def build_manual_intake_payload(
+    db: Session,
+    submission: models.DealIntakeSubmission,
+    *,
+    action: str,
+    venue_id: Optional[int],
+    venue_query: Optional[str],
+    status: str,
+    deal_type: str,
+    deal_title: str,
+    description: str,
+    days: list[str],
+    start_time: str,
+    end_time: str,
+    start_at: str,
+    end_at: str,
+) -> dict:
+    parsed = sanitize_intake_payload(
+        {
+            "action": action,
+            "deal_title": deal_title,
+            "description": description,
+            "days": days,
+            "start_time": start_time,
+            "end_time": end_time,
+            "start_at": start_at,
+            "end_at": end_at,
+            "deal_type": deal_type,
+            "status": status,
+            "confidence": 1.0,
+            "warnings": [],
+        },
+        submission.raw_text,
+    )
+    if venue_id:
+        venue = get_venue_or_404(db, venue_id)
+        parsed["venue_name"] = venue.name
+        parsed["venue_address"] = venue.address
+        parsed["_system"] = {"selected_venue_id": venue.id, "manual_edit": True, "llm_can_write_database": False}
+    else:
+        parsed["venue_name"] = clean_optional(venue_query)
+        parsed["_system"] = {"manual_edit": True, "llm_can_write_database": False}
+    return parsed
+
+
+def approval_blockers(parsed: dict, venue_matches: list[models.Venue]) -> list[str]:
+    action = parsed.get("action")
+    blockers: list[str] = []
+    if action in {"add_deal", "update_deal", "archive_deal", "venue_closed"} and not venue_matches:
+        blockers.append("Pick a valid venue before approving.")
+    if action in {"add_deal", "update_deal"}:
+        if not clean_optional(parsed.get("deal_title")):
+            blockers.append("Add a deal title before approving.")
+        if not clean_optional(parsed.get("description")):
+            blockers.append("Add a description before approving.")
+        if parsed.get("deal_type") == "weekly" and not parsed.get("days"):
+            blockers.append("Pick at least one day before approving.")
+    return blockers
+
+
 @app.get("/", response_class=HTMLResponse)
 def homepage(db: Session = Depends(get_db)):
     return HTMLResponse(
@@ -2976,6 +4072,308 @@ def day_detail_page(day_slug: str, db: Session = Depends(get_db)):
 @app.get("/for-venues", response_class=HTMLResponse)
 def for_venues_page():
     return HTMLResponse(render_for_venues_html())
+
+
+@app.get("/admin/login", response_class=HTMLResponse)
+def admin_login_page(next_path: str = "/admin/intake"):
+    return HTMLResponse(render_admin_login_html(next_path=next_path))
+
+
+@app.post("/admin/login", response_class=HTMLResponse)
+def admin_login_submit(
+    password: str = Form(...),
+    next_path: str = Form("/admin/intake"),
+):
+    safe_next = next_path if next_path.startswith("/admin/") and not next_path.startswith("/admin/login") else "/admin/intake"
+    posted_password = password.strip()
+    if not admin_key_is_valid(posted_password):
+        return HTMLResponse(render_admin_login_html("Incorrect password.", safe_next), status_code=401)
+
+    response = RedirectResponse(safe_next, status_code=303)
+    response.set_cookie(
+        "admin_session",
+        admin_session_cookie_value(),
+        httponly=True,
+        secure=os.getenv("VERCEL") == "1",
+        samesite="lax",
+        max_age=60 * 60 * 12,
+        path="/admin",
+    )
+    return response
+
+
+@app.get("/admin/auth-debug")
+def admin_auth_debug(request: Request):
+    admin_key = current_admin_key()
+    header_key = request.headers.get("x-admin-key", "").strip()
+    cookie_value = request.cookies.get("admin_session", "").strip()
+    return {
+        "admin_key_configured": bool(admin_key),
+        "llm_provider": configured_llm_provider(),
+        "header_seen": bool(header_key),
+        "header_matches": bool(admin_key and header_key and hmac.compare_digest(header_key, admin_key)),
+        "cookie_seen": bool(cookie_value),
+        "cookie_valid": admin_session_is_valid(cookie_value),
+    }
+
+
+@app.get("/admin/schema-debug", dependencies=[Depends(require_admin)])
+def admin_schema_debug():
+    return schema_report(engine)
+
+
+@app.get("/admin/intake", response_class=HTMLResponse, dependencies=[Depends(require_admin_password)])
+def admin_intake_page():
+    return HTMLResponse(render_admin_intake_html())
+
+
+@app.post("/admin/intake", dependencies=[Depends(require_admin_password)])
+def admin_intake_submit(
+    raw_text: str = Form(...),
+    source_url: Optional[str] = Form(None),
+    source_platform: Optional[str] = Form(None),
+    notes: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+):
+    cleaned_text = raw_text.strip()
+    if not cleaned_text:
+        return HTMLResponse(render_admin_intake_html("Paste source text before analyzing."), status_code=400)
+    submission = models.DealIntakeSubmission(
+        raw_text=cleaned_text,
+        source_url=clean_optional(source_url),
+        source_platform=clean_optional(source_platform),
+        notes=clean_optional(notes),
+        status="submitted",
+    )
+    db.add(submission)
+    db.flush()
+    analyze_submission(db, submission)
+    db.commit()
+    edit_flag = "&edit=1" if submission.error_message else ""
+    return RedirectResponse(f"/admin/review?submission_id={submission.id}{edit_flag}", status_code=303)
+
+
+@app.get("/admin/review", response_class=HTMLResponse, dependencies=[Depends(require_admin_password)])
+def admin_review_page(
+    submission_id: Optional[int] = None,
+    edit: Optional[int] = None,
+    db: Session = Depends(get_db),
+):
+    query = db.query(models.DealIntakeSubmission)
+    if submission_id is not None:
+        submission = query.filter(models.DealIntakeSubmission.id == submission_id).first()
+    else:
+        submission = (
+            query.filter(models.DealIntakeSubmission.status.in_(["analyzed", "needs_human_review", "submitted"]))
+            .order_by(models.DealIntakeSubmission.created_at.desc())
+            .first()
+        )
+    if submission is None:
+        return HTMLResponse(render_admin_review_html(None, [], [], [], False))
+    parsed = parsed_submission_json(submission)
+    venue_matches = find_intake_venue_matches(db, parsed)
+    duplicate_deals = find_duplicate_deal_candidates(db, parsed, venue_matches)
+    all_venues = db.query(models.Venue).order_by(models.Venue.name.asc()).all()
+    return HTMLResponse(render_admin_review_html(submission, venue_matches, duplicate_deals, all_venues, bool(edit or submission.error_message)))
+
+
+@app.post("/admin/review/{submission_id}/edit", dependencies=[Depends(require_admin_password)])
+def admin_review_save_json(
+    submission_id: int,
+    parsed_json: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    submission = db.get(models.DealIntakeSubmission, submission_id)
+    if submission is None:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    try:
+        payload = json.loads(parsed_json)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=f"Invalid JSON: {exc}") from exc
+    parsed = sanitize_intake_payload(payload, submission.raw_text)
+    if isinstance(payload.get("_system"), dict):
+        parsed["_system"] = {**payload["_system"], "llm_can_write_database": False}
+    venue_matches = find_intake_venue_matches(db, parsed)
+    duplicates = find_duplicate_deal_candidates(db, parsed, venue_matches)
+    parsed["warnings"] = intake_warnings(parsed, venue_matches, duplicates)
+    submission.parsed_json = json.dumps(parsed, indent=2, default=json_default)
+    submission.confidence = parsed["confidence"]
+    submission.status = "needs_human_review" if parsed["confidence"] < LOW_CONFIDENCE_THRESHOLD or parsed["warnings"] else "analyzed"
+    submission.error_message = None
+    db.commit()
+    return RedirectResponse(f"/admin/review?submission_id={submission.id}", status_code=303)
+
+
+@app.post("/admin/review/{submission_id}/manual", dependencies=[Depends(require_admin_password)])
+def admin_review_save_manual(
+    submission_id: int,
+    action: str = Form(...),
+    venue_id: str = Form(""),
+    venue_query: str = Form(""),
+    status: str = Form("draft"),
+    deal_type: str = Form("weekly"),
+    deal_title: str = Form(""),
+    description: str = Form(""),
+    days: List[str] = Form(default=[]),
+    start_time: str = Form(""),
+    end_time: str = Form(""),
+    start_at: str = Form(""),
+    end_at: str = Form(""),
+    source_url: str = Form(""),
+    create_venue_name: str = Form(""),
+    create_venue_address: str = Form(""),
+    create_venue_neighborhood: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    submission = db.get(models.DealIntakeSubmission, submission_id)
+    if submission is None:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    selected_venue_id = int(venue_id) if venue_id else None
+    if selected_venue_id is None:
+        venue_from_query = find_venue_by_name_input(db, venue_query)
+        selected_venue_id = venue_from_query.id if venue_from_query else None
+    if selected_venue_id is None:
+        created_venue = create_intake_venue(
+            db,
+            name=create_venue_name,
+            address=create_venue_address,
+            neighborhood=create_venue_neighborhood,
+            source_text=submission.raw_text,
+        )
+        selected_venue_id = created_venue.id if created_venue else None
+    submission.source_url = clean_optional(source_url)
+    parsed = build_manual_intake_payload(
+        db,
+        submission,
+        action=action,
+        venue_id=selected_venue_id,
+        venue_query=venue_query,
+        status=status,
+        deal_type=deal_type,
+        deal_title=deal_title,
+        description=description,
+        days=days,
+        start_time=start_time,
+        end_time=end_time,
+        start_at=start_at,
+        end_at=end_at,
+    )
+    venue_matches = [get_venue_or_404(db, selected_venue_id)] if selected_venue_id else find_intake_venue_matches(db, parsed)
+    duplicates = find_duplicate_deal_candidates(db, parsed, venue_matches)
+    parsed["warnings"] = intake_warnings(parsed, venue_matches, duplicates)
+    submission.parsed_json = json.dumps(parsed, indent=2, default=json_default)
+    submission.confidence = parsed["confidence"]
+    submission.status = "needs_human_review" if parsed["warnings"] else "analyzed"
+    submission.error_message = None
+    db.commit()
+    return RedirectResponse(f"/admin/review?submission_id={submission.id}", status_code=303)
+
+
+@app.post("/admin/review/{submission_id}/approve", dependencies=[Depends(require_admin_password)])
+def admin_review_approve(
+    submission_id: int,
+    venue_id: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    submission = db.get(models.DealIntakeSubmission, submission_id)
+    if submission is None:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    try:
+        parsed = parsed_submission_json(submission)
+        explicit_venue_id = int(venue_id) if venue_id else None
+        venue_matches = [get_venue_or_404(db, explicit_venue_id)] if explicit_venue_id else find_intake_venue_matches(db, parsed)
+        blockers = approval_blockers(parsed, venue_matches)
+        if blockers:
+            raise HTTPException(status_code=400, detail=" ".join(blockers))
+        apply_intake_submission(db, submission, explicit_venue_id)
+    except HTTPException as exc:
+        submission.error_message = str(exc.detail)
+        db.commit()
+        return RedirectResponse(f"/admin/review?submission_id={submission.id}&edit=1", status_code=303)
+    return RedirectResponse("/admin/deals", status_code=303)
+
+
+@app.post("/admin/review/{submission_id}/reject", dependencies=[Depends(require_admin_password)])
+def admin_review_reject(submission_id: int, db: Session = Depends(get_db)):
+    submission = db.get(models.DealIntakeSubmission, submission_id)
+    if submission is None:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    submission.status = "rejected"
+    submission.reviewed_at = datetime.utcnow()
+    log_deal_change(db, "intake_reject", None, None, None, submission.raw_text)
+    db.commit()
+    return RedirectResponse("/admin/review", status_code=303)
+
+
+@app.get("/admin/deals", response_class=HTMLResponse, dependencies=[Depends(require_admin_password)])
+def admin_deals_page(
+    status: Optional[models.Status] = None,
+    q: Optional[str] = None,
+    db: Session = Depends(get_db),
+):
+    deals = admin_deals_query(db, status=status, q=q)
+    return HTMLResponse(render_admin_deals_html(deals, q, status))
+
+
+@app.get("/admin/deals/{deal_id}/edit", response_class=HTMLResponse, dependencies=[Depends(require_admin_password)])
+def admin_deal_edit_page(deal_id: int, db: Session = Depends(get_db)):
+    return HTMLResponse(render_admin_deal_edit_html(get_deal_with_venue_or_404(db, deal_id)))
+
+
+@app.post("/admin/deals/{deal_id}/edit", dependencies=[Depends(require_admin_password)])
+def admin_deal_edit_submit(
+    deal_id: int,
+    title: str = Form(...),
+    short_description: str = Form(...),
+    status: models.Status = Form(...),
+    weekday_pattern: Optional[str] = Form(None),
+    start_time: Optional[str] = Form(None),
+    end_time: Optional[str] = Form(None),
+    source_url: Optional[str] = Form(None),
+    source_text: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+):
+    deal = get_deal_or_404(db, deal_id)
+    before = deal_snapshot(deal)
+    payload = schemas.DealUpdate(
+        title=title,
+        short_description=short_description,
+        status=status,
+        weekday_pattern=clean_optional(weekday_pattern),
+        start_time=clean_optional(start_time),
+        end_time=clean_optional(end_time),
+        source_url=clean_optional(source_url),
+        source_text=clean_optional(source_text),
+    )
+    try:
+        apply_deal_update(db, deal, payload)
+    except HTTPException as exc:
+        return HTMLResponse(render_admin_deal_edit_html(deal, str(exc.detail)), status_code=400)
+    log_deal_change(db, "admin_edit_deal", deal, deal.venue_id, before, deal.source_text)
+    db.commit()
+    return RedirectResponse("/admin/deals", status_code=303)
+
+
+@app.post("/admin/deals/{deal_id}/archive", dependencies=[Depends(require_admin_password)])
+def admin_deals_page_archive(deal_id: int, db: Session = Depends(get_db)):
+    deal = get_deal_or_404(db, deal_id)
+    before = deal_snapshot(deal)
+    deal.status = models.Status.archived
+    deal.updated_at = datetime.utcnow()
+    log_deal_change(db, "admin_archive_deal", deal, deal.venue_id, before, deal.source_text)
+    db.commit()
+    return RedirectResponse("/admin/deals", status_code=303)
+
+
+@app.post("/admin/deals/{deal_id}/freeze", dependencies=[Depends(require_admin_password)])
+def admin_deals_page_freeze(deal_id: int, db: Session = Depends(get_db)):
+    deal = get_deal_or_404(db, deal_id)
+    before = deal_snapshot(deal)
+    deal.freeze_minutes = FREEZE_SENTINEL_MINUTES
+    deal.updated_at = datetime.utcnow()
+    log_deal_change(db, "admin_freeze_deal", deal, deal.venue_id, before, deal.source_text)
+    db.commit()
+    return RedirectResponse("/admin/deals", status_code=303)
 
 
 @app.post("/owners", response_model=schemas.OwnerOut)
@@ -3050,7 +4448,7 @@ def admin_update_venue(venue_id: int, payload: schemas.VenueUpdate, db: Session 
     return venue
 
 
-@app.get("/admin/venues", response_model=List[schemas.AdminVenueOut], dependencies=[Depends(require_admin)])
+@app.get("/admin/venues", dependencies=[Depends(require_admin)])
 def admin_list_venues(
     owner_id: Optional[int] = None,
     neighborhood: Optional[str] = None,
@@ -3058,52 +4456,68 @@ def admin_list_venues(
     has_owner: Optional[bool] = None,
     db: Session = Depends(get_db),
 ):
-    expire_stale_last_minute_deals(db)
+    try:
+        expire_stale_last_minute_deals(db)
 
-    query = db.query(models.Venue).options(joinedload(models.Venue.owner))
-    if owner_id is not None:
-        query = query.filter(models.Venue.owner_id == owner_id)
-    if neighborhood:
-        query = query.filter(func.lower(models.Venue.neighborhood) == neighborhood.strip().lower())
-    if has_owner is True:
-        query = query.filter(models.Venue.owner_id.is_not(None))
-    if has_owner is False:
-        query = query.filter(models.Venue.owner_id.is_(None))
-    if q:
-        term = f"%{q.strip()}%"
-        query = query.filter(
-            or_(
-                models.Venue.name.ilike(term),
-                models.Venue.slug.ilike(term),
-                models.Venue.address.ilike(term),
-                models.Venue.neighborhood.ilike(term),
+        query = db.query(models.Venue)
+        if owner_id is not None:
+            query = query.filter(models.Venue.owner_id == owner_id)
+        if neighborhood:
+            query = query.filter(func.lower(models.Venue.neighborhood) == neighborhood.strip().lower())
+        if has_owner is True:
+            query = query.filter(models.Venue.owner_id.is_not(None))
+        if has_owner is False:
+            query = query.filter(models.Venue.owner_id.is_(None))
+        if q:
+            term = f"%{q.strip()}%"
+            query = query.filter(
+                or_(
+                    models.Venue.name.ilike(term),
+                    models.Venue.slug.ilike(term),
+                    models.Venue.address.ilike(term),
+                    models.Venue.neighborhood.ilike(term),
+                )
             )
+
+        venues = query.order_by(models.Venue.name.asc()).limit(100).all()
+        venue_ids = [venue.id for venue in venues]
+        counts = {venue_id: {"deal_count": 0, "live_deal_count": 0} for venue_id in venue_ids}
+
+        if venue_ids:
+            deal_rows = (
+                db.query(models.Deal.venue_id, models.Deal.status)
+                .filter(models.Deal.venue_id.in_(venue_ids))
+                .all()
+            )
+            for venue_id, status in deal_rows:
+                counts[venue_id]["deal_count"] += 1
+                if status == models.Status.live:
+                    counts[venue_id]["live_deal_count"] += 1
+
+        owner_names: dict[int, str] = {}
+        owner_ids = [venue.owner_id for venue in venues if venue.owner_id is not None]
+        if owner_ids:
+            try:
+                owner_rows = db.query(models.BusinessOwner.id, models.BusinessOwner.name).filter(models.BusinessOwner.id.in_(owner_ids)).all()
+                owner_names = {owner_id: name for owner_id, name in owner_rows}
+            except SQLAlchemyError:
+                db.rollback()
+                logger.warning("Admin venue lookup skipped owner names because business_owners is unavailable.", exc_info=True)
+
+        return JSONResponse(
+            [
+                venue_to_admin_lookup_json(
+                    venue,
+                    counts=counts.get(venue.id),
+                    owner_name=owner_names.get(venue.owner_id) if venue.owner_id is not None else None,
+                )
+                for venue in venues
+            ]
         )
-
-    venues = query.order_by(models.Venue.name.asc()).all()
-    venue_ids = [venue.id for venue in venues]
-    counts = {venue_id: {"deal_count": 0, "live_deal_count": 0} for venue_id in venue_ids}
-
-    if venue_ids:
-        deal_rows = (
-            db.query(models.Deal.venue_id, models.Deal.status)
-            .filter(models.Deal.venue_id.in_(venue_ids))
-            .all()
-        )
-        for venue_id, status in deal_rows:
-            counts[venue_id]["deal_count"] += 1
-            if status == models.Status.live:
-                counts[venue_id]["live_deal_count"] += 1
-
-    return [
-        {
-            **schemas.VenueOut.model_validate(venue).model_dump(),
-            "owner_name": venue.owner.name if venue.owner else None,
-            "deal_count": counts[venue.id]["deal_count"],
-            "live_deal_count": counts[venue.id]["live_deal_count"],
-        }
-        for venue in venues
-    ]
+    except Exception:
+        db.rollback()
+        logger.exception("Admin venue lookup failed.")
+        return JSONResponse([])
 
 
 @app.post("/deals/weekly", response_model=schemas.DealOut)
@@ -3268,7 +4682,7 @@ def record_metric(deal_id: int, kind: str, db: Session = Depends(get_db)):
     return {"ok": True}
 
 
-@app.get("/admin/deals", response_model=List[schemas.AdminDealOut], dependencies=[Depends(require_admin)])
+@app.get("/admin/deals.json", response_model=List[schemas.AdminDealOut], dependencies=[Depends(require_admin)])
 def admin_list_deals(
     status: Optional[models.Status] = None,
     deal_type: Optional[models.DealType] = Query(None, alias="type"),
@@ -3301,7 +4715,7 @@ def admin_list_deals(
     return query.order_by(models.Deal.updated_at.desc(), models.Deal.created_at.desc()).all()
 
 
-@app.patch("/admin/deals/{deal_id}", response_model=schemas.AdminDealOut, dependencies=[Depends(require_admin)])
+@app.patch("/admin/deals/{deal_id}.json", response_model=schemas.AdminDealOut, dependencies=[Depends(require_admin)])
 def admin_update_deal(deal_id: int, payload: schemas.DealUpdate, db: Session = Depends(get_db)):
     deal = get_deal_or_404(db, deal_id)
     apply_deal_update(db, deal, payload)
@@ -3309,7 +4723,7 @@ def admin_update_deal(deal_id: int, payload: schemas.DealUpdate, db: Session = D
     return get_deal_with_venue_or_404(db, deal_id)
 
 
-@app.post("/admin/deals/{deal_id}/archive", response_model=schemas.AdminDealOut, dependencies=[Depends(require_admin)])
+@app.post("/admin/deals/{deal_id}/archive.json", response_model=schemas.AdminDealOut, dependencies=[Depends(require_admin)])
 def admin_archive_deal(deal_id: int, db: Session = Depends(get_db)):
     deal = get_deal_or_404(db, deal_id)
     deal.status = models.Status.archived
@@ -3318,7 +4732,7 @@ def admin_archive_deal(deal_id: int, db: Session = Depends(get_db)):
     return get_deal_with_venue_or_404(db, deal_id)
 
 
-@app.post("/admin/deals/{deal_id}/expire", response_model=schemas.AdminDealOut, dependencies=[Depends(require_admin)])
+@app.post("/admin/deals/{deal_id}/expire.json", response_model=schemas.AdminDealOut, dependencies=[Depends(require_admin)])
 def admin_expire_deal(deal_id: int, db: Session = Depends(get_db)):
     deal = get_deal_or_404(db, deal_id)
     deal.status = models.Status.expired

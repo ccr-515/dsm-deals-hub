@@ -24,7 +24,7 @@ from app.weekly_master_content import load_weekly_master_deals, neighborhood_gro
 
 DOCS_ROOT = PROJECT_ROOT / "docs"
 EXPECTED_STYLESHEET = "/static/styles.css"
-EXPECTED_FAVICON = "/static/favicon.svg"
+EXPECTED_FAVICON = "/static/favicon.png"
 DAY_SLUGS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 VISIBLE_UTILITY_LABEL_RE = re.compile(r">(?:\s*)(Directions|Call)(?:\s*)</a>")
 PLAIN_UTILITY_CLASS_RE = re.compile(r'class="deal-utility-action(?![^"]*deal-utility-action-icononly)[^"]*"')

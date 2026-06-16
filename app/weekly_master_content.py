@@ -5,6 +5,7 @@ from datetime import datetime
 from functools import lru_cache
 import csv
 import json
+import os
 from pathlib import Path
 import re
 import unicodedata
@@ -12,8 +13,32 @@ import unicodedata
 from .venue_directory import match_venue_metadata, venue_directory_mtime_ns
 
 
-WEEKLY_MASTER_JSON_PATH = Path("/Users/camilorodriguez/Downloads/dsm_deals_hub_master_weekly_list.json")
-WEEKLY_MASTER_CSV_PATH = Path("/Users/camilorodriguez/Downloads/dsm_deals_hub_master_weekly_list.csv")
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+BUNDLED_WEEKLY_MASTER_JSON_PATH = PROJECT_ROOT / "data" / "dsm_deals_hub_master_weekly_list.json"
+BUNDLED_WEEKLY_MASTER_CSV_PATH = PROJECT_ROOT / "data" / "dsm_deals_hub_master_weekly_list.csv"
+LOCAL_WEEKLY_MASTER_JSON_PATH = Path("/Users/camilorodriguez/Downloads/dsm_deals_hub_master_weekly_list.json")
+LOCAL_WEEKLY_MASTER_CSV_PATH = Path("/Users/camilorodriguez/Downloads/dsm_deals_hub_master_weekly_list.csv")
+
+
+def resolve_weekly_master_path(env_name: str, bundled_path: Path, local_fallback_path: Path) -> Path:
+    configured = os.getenv(env_name, "").strip()
+    if configured:
+        return Path(configured).expanduser()
+    if bundled_path.exists():
+        return bundled_path
+    return local_fallback_path
+
+
+WEEKLY_MASTER_JSON_PATH = resolve_weekly_master_path(
+    "WEEKLY_MASTER_JSON_PATH",
+    BUNDLED_WEEKLY_MASTER_JSON_PATH,
+    LOCAL_WEEKLY_MASTER_JSON_PATH,
+)
+WEEKLY_MASTER_CSV_PATH = resolve_weekly_master_path(
+    "WEEKLY_MASTER_CSV_PATH",
+    BUNDLED_WEEKLY_MASTER_CSV_PATH,
+    LOCAL_WEEKLY_MASTER_CSV_PATH,
+)
 
 EXPECTED_FIELDS = ("day", "venue", "neighborhood", "time", "title", "desc", "category")
 DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]

@@ -1,0 +1,1424 @@
+[
+  {
+    "day": "Monday",
+    "venue": "Sully’s Irish Pub",
+    "neighborhood": "West Des Moines",
+    "time": "All day Monday",
+    "title": "$12 apps plus drink specials",
+    "desc": "$12 apps including wings and chicken shots, plus $3 domestics or wells and $4 seltzers.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Angry Goldfish",
+    "neighborhood": "South Side / Des Moines",
+    "time": "All day Monday",
+    "title": "Half off bottles of wine",
+    "desc": "Half price bottles of wine all day Monday.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Monday",
+    "venue": "The Stuffed Olive",
+    "neighborhood": "Court District / Des Moines",
+    "time": "4 PM to 12 AM",
+    "title": "BOGO martinis",
+    "desc": "Buy one martini and get one free all Monday night.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Centro",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "5 PM to close",
+    "title": "Half price pizza and Peroni",
+    "desc": "Half price pizza and Peroni on Monday evening.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Barn Town Brewing",
+    "neighborhood": "West Des Moines",
+    "time": "All day Monday",
+    "title": "Burger, fries, and pint for $13.99",
+    "desc": "Burger, fries, and a pint for $13.99 on Monday.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Fresko",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "After 5 PM",
+    "title": "$5 Fresko mules",
+    "desc": "Fresko mule for $5 on Monday.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Ceviche Bar",
+    "neighborhood": "East Village / Des Moines",
+    "time": "11 AM to 10 PM",
+    "title": "$8 Cubanos",
+    "desc": "Cuban sandwiches for $8 on Monday.",
+    "category": "Food special"
+  },
+  {
+    "day": "Monday",
+    "venue": "The Dam Pub",
+    "neighborhood": "Beaverdale / Des Moines",
+    "time": "All day Monday",
+    "title": "Half price pizza and $1 off draft beer",
+    "desc": "Half price pizza plus $1 off pints and mugs of draft beer on Monday.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Up Down Arcade Bar",
+    "neighborhood": "East Village / Des Moines",
+    "time": "5 PM to 2 AM",
+    "title": "$1 off draft beer",
+    "desc": "Monday night draft beer special with a late window.",
+    "category": "Late night drink special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Kelly’s Little Nipper",
+    "neighborhood": "East Side / Des Moines",
+    "time": "All day Monday",
+    "title": "$8 grinders and $3.50 margaritas",
+    "desc": "$8 grinders with a side, plus $3.50 margaritas on Monday.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Monday",
+    "venue": "The Station on Ingersoll",
+    "neighborhood": "Ingersoll / Des Moines",
+    "time": "All day Monday",
+    "title": "$12 Graziano grinder",
+    "desc": "Graziano sausage grinder for $12 on Monday.",
+    "category": "Food special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Lucky Horse",
+    "neighborhood": "Drake / Des Moines",
+    "time": "All day Monday",
+    "title": "$10 burgers and $5 SingleSpeed mugs",
+    "desc": "All burgers for $10 and SingleSpeed mugs of beer for $5 on Monday.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Monday",
+    "venue": "District 36",
+    "neighborhood": "Ankeny",
+    "time": "Monday dinner",
+    "title": "$60 dinner for two",
+    "desc": "Two entrees, soup or salad, a bottle of wine, and a shared dessert for $60.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Chuck’s",
+    "neighborhood": "Des Moines",
+    "time": "Monday special",
+    "title": "Three appetizers for $25",
+    "desc": "Pick three appetizers for $25 on Monday.",
+    "category": "Food special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Bubba",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "Monday night",
+    "title": "$20 sirloin dinner",
+    "desc": "Monday night sirloin dinner special for $20.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Chicago Speakeasy",
+    "neighborhood": "Des Moines",
+    "time": "Monday special",
+    "title": "Prime rib Monday",
+    "desc": "Monday prime rib special.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Christopher’s",
+    "neighborhood": "Beaverdale / Des Moines",
+    "time": "Monday special",
+    "title": "Prime rib Monday",
+    "desc": "Monday prime rib special.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Trostel’s Greenbriar",
+    "neighborhood": "Johnston",
+    "time": "Monday special",
+    "title": "Burger, side, and beer for $14",
+    "desc": "Monday burger deal with a side and beer for $14.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Beaver Tap",
+    "neighborhood": "Des Moines",
+    "time": "Monday specials",
+    "title": "Omelets, hot beef, and Mexican bowls",
+    "desc": "$8 omelets and $10 hot beef sandwiches or Mexican bowls on Monday.",
+    "category": "Food special"
+  },
+  {
+    "day": "Monday",
+    "venue": "G Mig’s",
+    "neighborhood": "Valley Junction / West Des Moines",
+    "time": "Monday special",
+    "title": "$11 smashburger with side",
+    "desc": "Smashburger with a side for $11 on Monday.",
+    "category": "Food special"
+  },
+  {
+    "day": "Monday",
+    "venue": "The Continental",
+    "neighborhood": "East Village / Des Moines",
+    "time": "Monday special",
+    "title": "Double smash burger and fries for $12",
+    "desc": "Double smash burger with shoestring fries for $12.",
+    "category": "Food special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Eastside Eddie’s",
+    "neighborhood": "East Side / Des Moines",
+    "time": "Monday special",
+    "title": "Burger and drink for $10",
+    "desc": "Burger with a domestic beer, soft drink, or well drink for $10.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Pelican Post",
+    "neighborhood": "West Des Moines",
+    "time": "All day Monday",
+    "title": "Hot beef sandwich for $10.95",
+    "desc": "Monday hot beef sandwich special for $10.95 all day.",
+    "category": "Food special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Tito’s Lounge",
+    "neighborhood": "Urbandale",
+    "time": "Monday special",
+    "title": "All you can eat wings",
+    "desc": "All you can eat wings on Monday.",
+    "category": "Food special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Johnny’s Hall of Fame",
+    "neighborhood": "Court Avenue / Des Moines",
+    "time": "Monday special",
+    "title": "$12 burger baskets",
+    "desc": "Burger basket for $12 on Monday.",
+    "category": "Food special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Urban Cellars",
+    "neighborhood": "West Des Moines",
+    "time": "Monday dinner",
+    "title": "$60 wine dinner for two",
+    "desc": "Two entrees, soup or salad, dessert, and a bottle of wine for $60.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Club 2000",
+    "neighborhood": "South Side / Des Moines",
+    "time": "Monday special",
+    "title": "Burger basket with fries for $9",
+    "desc": "Burger basket with fries for $9 on Monday.",
+    "category": "Food special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Paula’s",
+    "neighborhood": "Valley Junction / West Des Moines",
+    "time": "Monday special",
+    "title": "Tomato soup and grilled cheese for $12.50",
+    "desc": "Homemade tomato soup with grilled cheese sandwich for $12.50.",
+    "category": "Food special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Destination Grille",
+    "neighborhood": "Grimes",
+    "time": "Monday steak night",
+    "title": "Sirloin and truffle fries for $18",
+    "desc": "Monday steak night with sirloin and truffle fries for $18.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Monday",
+    "venue": "30Hop",
+    "neighborhood": "Prairie Trail / Ankeny",
+    "time": "Monday only",
+    "title": "$5.99 classic burger",
+    "desc": "Monday burger special on top of the regular happy hour program.",
+    "category": "Food special"
+  },
+  {
+    "day": "Monday",
+    "venue": "Striking Sparrow",
+    "neighborhood": "Des Moines",
+    "time": "After 6 PM",
+    "title": "BOGO drinks",
+    "desc": "Monday night BOGO drinks from 6 PM to close.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Caffrey’s Sports Pub",
+    "neighborhood": "Waukee",
+    "time": "3 PM to 6 PM",
+    "title": "$3 domestics and wells",
+    "desc": "Straightforward weekday happy hour with $3 domestic beers and well drinks.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Hessen Haus",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "3 PM to 6 PM",
+    "title": "Half off select apps plus draft beer specials",
+    "desc": "Half off select appetizers, $5 half liter drafts, $10 liter drafts, and $20 boots.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "The Stuffed Olive",
+    "neighborhood": "Court District / Des Moines",
+    "time": "4 PM to 12 AM",
+    "title": "BOGO shared plates",
+    "desc": "Buy one shared plate and get one free, including calamari, smoked elote dip, sliders, and skewers.",
+    "category": "Food special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Shirley’s Bar & Grill",
+    "neighborhood": "West Des Moines",
+    "time": "3 PM to 6 PM",
+    "title": "Draft, seltzer, well, and wine happy hour",
+    "desc": "$1 off draft beers, $6 seltzers, $4 wells, and $5 house wine.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Cancun Grill & Cantina",
+    "neighborhood": "Urbandale",
+    "time": "2 PM to 5 PM",
+    "title": "Beer, tequila, and margarita happy hour",
+    "desc": "$3.50 draft beer, $4 house tequila shots, and $5 lime margaritas.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Uptown Bar & Grill",
+    "neighborhood": "Grimes",
+    "time": "Tuesday only",
+    "title": "$2.50 domestics and wells",
+    "desc": "Tuesday drink special with discounted domestic beers and well drinks.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Sully’s Irish Pub",
+    "neighborhood": "West Des Moines",
+    "time": "All day Tuesday",
+    "title": "$12 burger baskets plus drink specials",
+    "desc": "Burger basket for $12, plus $3 tall boys and $4 bombs.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Mad Meatball",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "11 AM to 10 PM",
+    "title": "Taco Tuesday specials",
+    "desc": "$15 large taco pizzas, $10 taco salads, and 3 tacos for $12.",
+    "category": "Food special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "MALO",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "All day Tuesday",
+    "title": "Taco Tuesday",
+    "desc": "Tuesday taco specials on chicken tinga and ground beef tacos.",
+    "category": "Food special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "The Station on Ingersoll",
+    "neighborhood": "Ingersoll / Des Moines",
+    "time": "11 AM to 10 PM",
+    "title": "$10 tenderloins",
+    "desc": "Tenderloin and fries for $10, with happy hour drink add ons mentioned in source.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Fresko",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "5 PM to close",
+    "title": "Taco Tuesday and margarita specials",
+    "desc": "Any tacos for $10, $7 specialty margaritas or cocktails, $2 off tequila or mezcal, and nachos for $12.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "The Dam Pub",
+    "neighborhood": "Beaverdale / Des Moines",
+    "time": "11 AM to midnight",
+    "title": "Half off nachos and $4 Tito’s",
+    "desc": "Half off nachos all day plus $4 Tito’s on Tuesdays.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "The Walnut",
+    "neighborhood": "Western Gateway / Des Moines",
+    "time": "All day Tuesday",
+    "title": "$2.50 draft beer",
+    "desc": "All draft beer is $2.50 all day on Tuesday.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Django",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "4 PM to 9 PM",
+    "title": "All night happy hour",
+    "desc": "Tuesday happy hour with oysters, shrimp, appetizers, beer, and wine specials.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Up Down",
+    "neighborhood": "East Village / Des Moines",
+    "time": "All day Tuesday",
+    "title": "$1 off Iowa beer on tap",
+    "desc": "Tuesday special with $1 off all Iowa beers on tap.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Angry Goldfish Pub & Eatery",
+    "neighborhood": "South Side / Des Moines",
+    "time": "11 AM to midnight",
+    "title": "$10 burger and pint",
+    "desc": "Burger and a pint for $10 on Tuesday.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Clyde’s Fine Diner",
+    "neighborhood": "East Village / Des Moines",
+    "time": "5 PM to 9 PM",
+    "title": "Burger, shot, and beer for $15",
+    "desc": "House burger, Evan Williams bourbon shot, and a PBR for $15.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "The Lift",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "5 PM to 2 AM",
+    "title": "$7 cocktails",
+    "desc": "All Tuesday cocktails are $7 with a long late night window.",
+    "category": "Late night drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Kelly’s Little Nipper",
+    "neighborhood": "East Side / Des Moines",
+    "time": "10 AM to midnight",
+    "title": "Tenderloin Tuesday plus $3 Blue Moons",
+    "desc": "Tenderloin sandwich with side and drink for $11.50, plus $3 Blue Moons.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "B&B Grocery, Meat and Deli",
+    "neighborhood": "South Side / Des Moines",
+    "time": "Tuesday special",
+    "title": "Killer’s grinder combo",
+    "desc": "Killer’s grinder with fries and soda for $11.95.",
+    "category": "Food special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Striking Sparrow",
+    "neighborhood": "South Side / Des Moines",
+    "time": "11 AM to 3 PM",
+    "title": "$12 double smash combo",
+    "desc": "Double smash with fries and soda for $12.",
+    "category": "Lunch special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Maggie’s Rumble Room",
+    "neighborhood": "Des Moines",
+    "time": "5 PM to 9 PM",
+    "title": "Half price pizzas",
+    "desc": "All pizzas are half price on Tuesday night.",
+    "category": "Food special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Grand Junction",
+    "neighborhood": "West Des Moines",
+    "time": "Tuesday steak night",
+    "title": "Steak night for $13.99",
+    "desc": "Steak, salad, and potato for $13.99.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Guesthouse Tavern and Oyster",
+    "neighborhood": "West Des Moines",
+    "time": "Tuesday special",
+    "title": "Fried chicken dinner plus half price whiskey pours",
+    "desc": "Fried chicken dinner special priced from $17 to $23, plus half priced whiskey pours.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Mullet’s Norwalk",
+    "neighborhood": "Norwalk",
+    "time": "After 4 PM",
+    "title": "Free kids meal with adult meal",
+    "desc": "One free kids meal with each adult meal on Tuesday evening.",
+    "category": "Family dining special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Mickey’s Irish Pub",
+    "neighborhood": "Waukee",
+    "time": "All day Tuesday",
+    "title": "$7 burger with side",
+    "desc": "Half pound burger with a side for $7.",
+    "category": "Food special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Eastside Eddie’s",
+    "neighborhood": "East Side / Des Moines",
+    "time": "Tuesday special",
+    "title": "$10 cheeseburger combo",
+    "desc": "Cheeseburger with fries, tots, or salad and a drink for $10.",
+    "category": "Food special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Beaver Tap",
+    "neighborhood": "Des Moines",
+    "time": "Tuesday specials",
+    "title": "$7 breakfasts and $8 burgers",
+    "desc": "Tuesday breakfast special for $7 and burgers for $8.",
+    "category": "Food special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Pelican Post",
+    "neighborhood": "West Des Moines",
+    "time": "Tuesday special",
+    "title": "$10 smashburger combo",
+    "desc": "Smashburger with cheese, fries, and a draft beer for $10.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Istanbul Cafe and Bakery",
+    "neighborhood": "Urbandale",
+    "time": "Tuesday special",
+    "title": "Half price baklava",
+    "desc": "Baklava is half price on Tuesdays.",
+    "category": "Dessert special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Maxie’s Supper Club",
+    "neighborhood": "West Des Moines",
+    "time": "Tuesday special",
+    "title": "Beef and noodles day",
+    "desc": "Tuesday beef and noodles special.",
+    "category": "Food special"
+  },
+  {
+    "day": "Tuesday",
+    "venue": "Gameday",
+    "neighborhood": "Merle Hay / Des Moines",
+    "time": "9 PM to close",
+    "title": "Tuesday late beer bucket special",
+    "desc": "Extra Tuesday late happy hour with $10 domestic beer buckets.",
+    "category": "Late night drink special"
+  },
+  {
+    "day": "Wednesday",
+    "venue": "Up Down",
+    "neighborhood": "East Village / Des Moines",
+    "time": "All day Wednesday",
+    "title": "$3 domestic tallboys",
+    "desc": "$3 domestic tallboys all day Wednesday.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Wednesday",
+    "venue": "Guesthouse Tavern & Oyster",
+    "neighborhood": "West Des Moines",
+    "time": "All day Wednesday",
+    "title": "Walleye Wednesday",
+    "desc": "Fried walleye for $19.99 with fries and a $4 Barn Town Gold draft.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Wednesday",
+    "venue": "Chelsie’s Courtyard Diner",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "All day Wednesday",
+    "title": "Wing and beer special",
+    "desc": "Two 27 ounce beers and 18 smoked then fried wings for $25.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Wednesday",
+    "venue": "Kelly’s Little Nipper",
+    "neighborhood": "East Side / Des Moines",
+    "time": "All day Wednesday",
+    "title": "Burger Day",
+    "desc": "Free double patty on any burger, or a $6 cheeseburger or $5 hamburger.",
+    "category": "Food special"
+  },
+  {
+    "day": "Wednesday",
+    "venue": "Mad Meatball",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "11 AM to 11 PM",
+    "title": "$20 all you can eat wings",
+    "desc": "All you can eat wings for $20 on Wednesday.",
+    "category": "Food special"
+  },
+  {
+    "day": "Wednesday",
+    "venue": "Ceviche Bar",
+    "neighborhood": "East Village / Des Moines",
+    "time": "11 AM to 9 PM",
+    "title": "BOGO mojitos and mules",
+    "desc": "Buy one get one free mojitos and mules on Wednesday.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Wednesday",
+    "venue": "Fresko",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "11 AM to 9 PM",
+    "title": "Wine Wednesday",
+    "desc": "Select wine specials including rosé for $10 and red wines for $12.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Wednesday",
+    "venue": "Clyde’s Fine Diner",
+    "neighborhood": "East Village / Des Moines",
+    "time": "5 PM to 9 PM",
+    "title": "Oyster night and half off wine",
+    "desc": "Oysters plus half off any bottle of wine under $100.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Wednesday",
+    "venue": "The Lift",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "5 PM to 7 PM",
+    "title": "$6 martinis",
+    "desc": "$6 martinis during an early evening Wednesday window.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Wednesday",
+    "venue": "The Dam Pub",
+    "neighborhood": "Beaverdale / Des Moines",
+    "time": "11 AM to 12 AM",
+    "title": "Half price wine and wings",
+    "desc": "Chicken wings and half off bottles of wine all day Wednesday.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Wednesday",
+    "venue": "The Station on Ingersoll",
+    "neighborhood": "Ingersoll / Des Moines",
+    "time": "11 AM to 10 PM",
+    "title": "$12 chopped cheese",
+    "desc": "$12 chopped cheese sandwich special on Wednesday.",
+    "category": "Food special"
+  },
+  {
+    "day": "Wednesday",
+    "venue": "Sully’s Irish Pub",
+    "neighborhood": "West Des Moines",
+    "time": "All day Wednesday",
+    "title": "$14 wings plus drink specials",
+    "desc": "Wings for $14, plus $3 tall boys and $4 seltzers.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Wednesday",
+    "venue": "The Stuffed Olive",
+    "neighborhood": "Court District / Des Moines",
+    "time": "4 PM to 12 AM",
+    "title": "BOGO glasses of wine",
+    "desc": "Buy one glass of wine and get one free on Wednesday night.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Wednesday",
+    "venue": "MALO",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "All day Wednesday",
+    "title": "Burrito Wednesday",
+    "desc": "Wednesday burrito special on carne molida and chicken tinga burritos.",
+    "category": "Food special"
+  },
+  {
+    "day": "Wednesday",
+    "venue": "Westown Tap Bar & Restaurant",
+    "neighborhood": "West Des Moines",
+    "time": "11 AM to 7 PM",
+    "title": "White Claws, drafts, and appetizer happy hour",
+    "desc": "$3 White Claws, $4 domestic drafts, $5 local drafts, and half off appetizers until 4 PM.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Bubba",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "4 PM to close",
+    "title": "$6 sips and $10 sliders",
+    "desc": "$10 sliders plus $6 drinks including Old Fashioneds, Bubba juleps, bourbon, Bubba Hazy IPA, and select wine.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Ceviche Bar",
+    "neighborhood": "East Village / Des Moines",
+    "time": "All day Thursday",
+    "title": "Lobster Roll Thursday",
+    "desc": "Thursday lobster roll special all day.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Up Down",
+    "neighborhood": "East Village / Des Moines",
+    "time": "All day Thursday",
+    "title": "10 cent tokens and $2 off signature cocktails",
+    "desc": "Thursday arcade special with 10 cent tokens and $2 off signature cocktails.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Kelly’s Little Nipper",
+    "neighborhood": "East Side / Des Moines",
+    "time": "4 PM to 11 PM",
+    "title": "$9.50 Philly basket and $3.50 Long Islands",
+    "desc": "Philly basket with side and drink for $9.50, plus $3.50 Long Islands.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Chelsie’s Courtyard Diner",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "4 PM to 9 PM",
+    "title": "$1 burger night",
+    "desc": "$1 burgers during a Thursday night window.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Captain Roy’s",
+    "neighborhood": "Saylorville / Des Moines",
+    "time": "6 PM to 8 PM",
+    "title": "Smashburger special",
+    "desc": "Thursday smashburger special during karaoke night.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Clyde’s Fine Diner",
+    "neighborhood": "East Village / Des Moines",
+    "time": "5 PM to 9 PM",
+    "title": "Fiesta Thursday",
+    "desc": "Three course rotating menu with agua fresca for $38.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Fresko",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "All day Thursday",
+    "title": "$10 sushi rolls and highballs",
+    "desc": "All sushi rolls for $10 plus $10 Suntory Highballs on Thursday.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "MALO",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "All day Thursday",
+    "title": "Fajita Thursday",
+    "desc": "Thursday special featuring grilled chicken and filet mignon fajitas.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Sully’s Irish Pub",
+    "neighborhood": "West Des Moines",
+    "time": "All day plus after 5 PM",
+    "title": "2 for 1 drinks and $14 steak night",
+    "desc": "Two for one domestic draws, bottles, wells, and cans all day, plus a steak dinner after 5 PM.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "The Stuffed Olive",
+    "neighborhood": "Court District / Des Moines",
+    "time": "4 PM to 12 AM",
+    "title": "Buy 2 martinis, get 1 free",
+    "desc": "Thursday martini special with a long night window.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "B&B Grocery, Meat and Deli",
+    "neighborhood": "South Side / Des Moines",
+    "time": "Thursday special",
+    "title": "Killer’s double hot Polish combo",
+    "desc": "Killer’s double hot Polish with fries and a soda for $12.95.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Graziano Brothers",
+    "neighborhood": "South Side / Des Moines",
+    "time": "Thursday special",
+    "title": "Triple decker Reuben day",
+    "desc": "Thursday triple decker Reuben special.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Striking Sparrow",
+    "neighborhood": "South Side / Des Moines",
+    "time": "Thursday special",
+    "title": "$12 breaded pork tenderloin combo",
+    "desc": "Breaded pork tenderloin with fries and soda for $12.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Walker’s Place",
+    "neighborhood": "Des Moines",
+    "time": "Thursday special",
+    "title": "Taco pizza Thursday",
+    "desc": "Taco pizzas are the Thursday special.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "AJ’s Steakhouse",
+    "neighborhood": "Prairie Meadows / Altoona",
+    "time": "4 PM to 6 PM",
+    "title": "Early bird dinner menu",
+    "desc": "Early bird menu with burgers and frites for $15, pasta and chicken dinners for $20 to $22, seafood and steak dinners for $27 to $30.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "AJ’s Steakhouse",
+    "neighborhood": "Prairie Meadows / Altoona",
+    "time": "All night Thursday",
+    "title": "$30 prime rib dinner",
+    "desc": "Prime rib dinner for $30 all night Thursday.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Istanbul Grill Cafe & Bakery",
+    "neighborhood": "Urbandale",
+    "time": "Thursday special",
+    "title": "Döner wrap and plate specials",
+    "desc": "Döner wrap with fries for $11.99 and $5 off the döner plate.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Club 2000",
+    "neighborhood": "South Side / Des Moines",
+    "time": "Thursday special",
+    "title": "Hot beef sandwich day",
+    "desc": "Hot beef sandwiches are the Thursday special.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Maxie’s Supper Club",
+    "neighborhood": "West Des Moines",
+    "time": "Lunch and dinner",
+    "title": "Fried chicken dinner for $20.95",
+    "desc": "Half fried chicken with potato, spaghetti, and salad for $20.95.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Mullet’s Norwalk",
+    "neighborhood": "Norwalk",
+    "time": "After 4 PM",
+    "title": "Two pizzas for $20",
+    "desc": "Two two topping pizzas for $20 on Thursday evening.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Buzzard Billy’s",
+    "neighborhood": "Downtown / Des Moines",
+    "time": "Thursday special",
+    "title": "$2 off appetizers",
+    "desc": "$2 off appetizers on Thursday.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Beaver Tap",
+    "neighborhood": "Des Moines",
+    "time": "Thursday specials",
+    "title": "Breakfast, tenderloin, and taco specials",
+    "desc": "$10 country fried breakfasts and $9 tenderloins or shrimp and fish tacos on Thursday.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "The Station on Ingersoll",
+    "neighborhood": "Ingersoll / Des Moines",
+    "time": "Thursday special",
+    "title": "$12 ribeye sandwich",
+    "desc": "Thursday ribeye sandwich special for $12.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Gilroy’s",
+    "neighborhood": "West Des Moines",
+    "time": "After 5 PM",
+    "title": "Ribeye and sirloin night",
+    "desc": "Thursday night ribeye and sirloin specials after 5 PM.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "ShortE’s BBQ",
+    "neighborhood": "Johnston",
+    "time": "Thursday special",
+    "title": "$1 smoked wings",
+    "desc": "Smoked wings for $1 each on Thursday.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Jethro’s",
+    "neighborhood": "Des Moines area",
+    "time": "Thursday special",
+    "title": "Boneless wings for $8",
+    "desc": "One pound of boneless wings for $8 on Thursday.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Bevy’s Tavern",
+    "neighborhood": "West Des Moines",
+    "time": "Thursday special",
+    "title": "Beef stew and cornbread for $13",
+    "desc": "Beef stew and cornbread special for $13.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "Destination Grille",
+    "neighborhood": "Grimes",
+    "time": "Thursday special",
+    "title": "Comfort Thursday chicken fried De Burgo",
+    "desc": "Chicken fried De Burgo for $16 on Thursday.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "The Dam Pub",
+    "neighborhood": "Beaverdale / Des Moines",
+    "time": "Thursday special",
+    "title": "Throwback Thursday goulash",
+    "desc": "Goulash with garlic toast on Thursday.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "The Continental",
+    "neighborhood": "East Village / Des Moines",
+    "time": "Thursday special",
+    "title": "$7 loaded fries",
+    "desc": "Loaded fries for $7 on Thursday.",
+    "category": "Food special"
+  },
+  {
+    "day": "Thursday",
+    "venue": "G Mig’s",
+    "neighborhood": "Valley Junction / West Des Moines",
+    "time": "Thursday special",
+    "title": "Taco night",
+    "desc": "Thursday taco night special.",
+    "category": "Food special"
+  },
+  {
+    "day": "Friday",
+    "venue": "Paula’s",
+    "neighborhood": "Valley Junction / West Des Moines",
+    "time": "Friday special",
+    "title": "Meat loaf dinner for $14",
+    "desc": "Friday meat loaf dinner special for $14.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Friday",
+    "venue": "Hessen Haus",
+    "neighborhood": "Court District / Des Moines",
+    "time": "Friday special, seasonal",
+    "title": "All you can eat fish and shrimp",
+    "desc": "All you can eat fish and shrimp for $18 on Fridays during Lent.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Friday",
+    "venue": "Striking Sparrow",
+    "neighborhood": "South Side / Des Moines",
+    "time": "11 AM to 3 PM",
+    "title": "$12 Italian beef combo",
+    "desc": "Italian beef with fries and soda for $12 during Friday lunch.",
+    "category": "Lunch special"
+  },
+  {
+    "day": "Friday",
+    "venue": "Wilson Orchard & Farm",
+    "neighborhood": "Cumming",
+    "time": "Friday special",
+    "title": "Ramen day",
+    "desc": "Friday ramen special.",
+    "category": "Food special"
+  },
+  {
+    "day": "Friday",
+    "venue": "ShortE’s BBQ",
+    "neighborhood": "Johnston",
+    "time": "Family dining special",
+    "title": "Kids eat free",
+    "desc": "Kids eat free on Friday and Saturday.",
+    "category": "Family dining special"
+  },
+  {
+    "day": "Friday",
+    "venue": "Guesthouse Tavern and Oyster",
+    "neighborhood": "West Des Moines",
+    "time": "Friday special",
+    "title": "Surf and turf special",
+    "desc": "Friday surf and turf special.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Friday",
+    "venue": "Beaver Tap",
+    "neighborhood": "Des Moines",
+    "time": "Friday specials",
+    "title": "Philly cheesesteak or hot honey chicken, plus breakfast special",
+    "desc": "$9 Philly cheesesteaks or hot honey chicken, plus $8 biscuit and gravy breakfasts on Friday.",
+    "category": "Food special"
+  },
+  {
+    "day": "Friday",
+    "venue": "Smoking Goat Pub",
+    "neighborhood": "Des Moines",
+    "time": "Friday dinner",
+    "title": "Walleye or steak dinner specials",
+    "desc": "Friday dinner specials include walleye or steak.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Friday",
+    "venue": "Jethro’s",
+    "neighborhood": "Des Moines area",
+    "time": "Friday special",
+    "title": "Open faced turkey sandwich for $12",
+    "desc": "Open faced turkey sandwich with mashed potatoes and gravy for $12.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Friday",
+    "venue": "G Mig’s",
+    "neighborhood": "Valley Junction / West Des Moines",
+    "time": "Friday dinner",
+    "title": "Prime rib or walleye dinner",
+    "desc": "Prime rib dinner with baked potato and asparagus for $32, or walleye piccata for $28.50.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Friday",
+    "venue": "Heavenly Asian",
+    "neighborhood": "Valley Junction / West Des Moines",
+    "time": "All day Friday",
+    "title": "Orange chicken combo for $14",
+    "desc": "Orange chicken with soup, crab Rangoon, egg roll, and rice for $14.",
+    "category": "Food special"
+  },
+  {
+    "day": "Friday",
+    "venue": "Destination Grille",
+    "neighborhood": "Grimes",
+    "time": "Weekend dinner special",
+    "title": "Prime rib dinner for $40",
+    "desc": "Prime rib dinner special for $40 on Friday and Saturday.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Friday",
+    "venue": "Caffrey’s Sports Pub",
+    "neighborhood": "Waukee",
+    "time": "3 PM to 6 PM",
+    "title": "$3 domestics and wells",
+    "desc": "Straightforward weekday happy hour with $3 domestic beers and well drinks.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Friday",
+    "venue": "Uptown Bar & Grill",
+    "neighborhood": "Grimes",
+    "time": "Friday only",
+    "title": "$1 off IPAs",
+    "desc": "Friday drink special with $1 off IPAs.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Friday",
+    "venue": "The Tavern Grill",
+    "neighborhood": "West Des Moines",
+    "time": "3 PM to 6 PM and 9 PM to close",
+    "title": "Friday happy hour plus late night window",
+    "desc": "Friday includes both an after work happy hour and a later night window.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Friday",
+    "venue": "The Beerhouse",
+    "neighborhood": "Urbandale",
+    "time": "3 PM to 7 PM",
+    "title": "Friday happy hour",
+    "desc": "Longer Friday happy hour window that runs into early evening.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Saturday",
+    "venue": "The Stuffed Olive",
+    "neighborhood": "Court District / Des Moines",
+    "time": "9 PM to close",
+    "title": "Buy 2 martinis, get 1 free",
+    "desc": "Late night Saturday martini special.",
+    "category": "Late night drink special"
+  },
+  {
+    "day": "Saturday",
+    "venue": "Destination Grille",
+    "neighborhood": "Grimes",
+    "time": "3 PM to 5 PM",
+    "title": "Domestic cans, snacks, and Tito’s specials",
+    "desc": "$3 domestic cans, plus $5 cheese bread, chicken strips, house made chips, and Tito’s wells or mules.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Saturday",
+    "venue": "Eatery A",
+    "neighborhood": "Ingersoll / Des Moines",
+    "time": "2 PM to 6 PM",
+    "title": "Half price pizza, beer, and wine",
+    "desc": "Daily happy hour with half price pizza, beer, and wine.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Saturday",
+    "venue": "Cosi Cucina",
+    "neighborhood": "Clive",
+    "time": "11 AM to 4 PM",
+    "title": "Saturday happy hour",
+    "desc": "Long daytime Saturday window that works like a lunch to afternoon special.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Saturday",
+    "venue": "The Urban Grill",
+    "neighborhood": "Urbandale",
+    "time": "3 PM to 6 PM",
+    "title": "Saturday happy hour",
+    "desc": "Standard Saturday afternoon happy hour.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Saturday",
+    "venue": "30Hop",
+    "neighborhood": "Prairie Trail / Ankeny",
+    "time": "10 AM to 11:30 AM",
+    "title": "$1.99 brunch mimosas",
+    "desc": "Brunch happy hour with $1.99 mimosas on weekends.",
+    "category": "Brunch drink special"
+  },
+  {
+    "day": "Saturday",
+    "venue": "Tito’s Lounge",
+    "neighborhood": "Urbandale",
+    "time": "Brunch until 2 PM",
+    "title": "Bottomless brunch drinks",
+    "desc": "Saturday brunch special with bottomless drinks until 2 PM for $14.99.",
+    "category": "Brunch drink special"
+  },
+  {
+    "day": "Saturday",
+    "venue": "Amruth",
+    "neighborhood": "Clive",
+    "time": "12 PM to 4 PM",
+    "title": "Weekend buffet",
+    "desc": "Saturday and Sunday buffet with around 20 dishes.",
+    "category": "Buffet"
+  },
+  {
+    "day": "Saturday",
+    "venue": "Guesthouse Tavern and Oyster",
+    "neighborhood": "West Des Moines",
+    "time": "Saturday dinner",
+    "title": "Prime rib dinner for $33",
+    "desc": "Saturday prime rib dinner special for $33.",
+    "category": "Dinner special"
+  },
+  {
+    "day": "Saturday",
+    "venue": "Gilroy’s",
+    "neighborhood": "West Des Moines",
+    "time": "Weekend brunch buffet",
+    "title": "Brunch buffet for $24.99",
+    "desc": "Saturday and Sunday brunch buffet for $24.99 for adults, with kids 6 and under free.",
+    "category": "Brunch buffet"
+  },
+  {
+    "day": "Saturday",
+    "venue": "G Mig’s",
+    "neighborhood": "Valley Junction / West Des Moines",
+    "time": "Saturday special",
+    "title": "Beef and noodles for $18.50",
+    "desc": "Saturday beef and noodles special for $18.50.",
+    "category": "Food special"
+  },
+  {
+    "day": "Saturday",
+    "venue": "Court Avenue Brewing Company",
+    "neighborhood": "Court Avenue / Des Moines",
+    "time": "Weekend breakfast buffet",
+    "title": "Breakfast buffet for $23.99",
+    "desc": "Saturday and Sunday breakfast buffet for $23.99.",
+    "category": "Breakfast buffet"
+  },
+  {
+    "day": "Sunday",
+    "venue": "Destination Grille",
+    "neighborhood": "Grimes",
+    "time": "All day Sunday",
+    "title": "All day Sunday happy hour",
+    "desc": "Sunday happy hour runs all day.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Sunday",
+    "venue": "Eatery A",
+    "neighborhood": "Ingersoll / Des Moines",
+    "time": "2 PM to 6 PM",
+    "title": "Half price pizza, wine, and draft beer",
+    "desc": "Daily happy hour with half priced pizza, wine, and draft beer.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Sunday",
+    "venue": "Cosi Cucina",
+    "neighborhood": "Clive",
+    "time": "11 AM to 4 PM plus Sunday night",
+    "title": "Sunday happy hour",
+    "desc": "Long Sunday daytime window with an added Sunday night component.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Sunday",
+    "venue": "Uptown Bar & Grill",
+    "neighborhood": "Grimes",
+    "time": "All day Sunday",
+    "title": "$10 domestic pitchers",
+    "desc": "Sunday special includes $10 domestic pitchers.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Sunday",
+    "venue": "Blue Sushi Sake Grill",
+    "neighborhood": "Court District / Des Moines",
+    "time": "All day Sunday",
+    "title": "All day sushi happy hour",
+    "desc": "All day Sunday happy hour with sushi, drinks, and share plates.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Sunday",
+    "venue": "30Hop",
+    "neighborhood": "Prairie Trail / Ankeny",
+    "time": "3 PM to 6 PM",
+    "title": "30 percent off apps, beer, wine, and cocktails",
+    "desc": "Broad happy hour with 30 percent off appetizers, beer, wine, and cocktails.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Sunday",
+    "venue": "30Hop",
+    "neighborhood": "Prairie Trail / Ankeny",
+    "time": "10 AM to 11:30 AM",
+    "title": "$1.99 brunch mimosas",
+    "desc": "Brunch happy hour with $1.99 mimosas on weekends.",
+    "category": "Brunch drink special"
+  },
+  {
+    "day": "Sunday",
+    "venue": "Bar Nico",
+    "neighborhood": "East Village / Des Moines",
+    "time": "3 PM to 5 PM",
+    "title": "Snacks, tapas, tacos, beer, wine, and margarita specials",
+    "desc": "$5 snacks, $6 tapas, $7 tacos, half priced draft beer, $6 wine, $5 house margaritas, and $6 seasonal margaritas.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Sunday",
+    "venue": "Louie’s Wine Dive",
+    "neighborhood": "Des Moines",
+    "time": "3 PM to 6 PM",
+    "title": "Wine, cocktails, and food happy hour",
+    "desc": "25 percent off bottles, $7 cocktails, select wines, and discounted food.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Sunday",
+    "venue": "The Bartender’s Handshake",
+    "neighborhood": "Ingersoll / Des Moines",
+    "time": "2 PM to 6 PM",
+    "title": "Aperitivo cocktails, wine, poppers, and PBR combo",
+    "desc": "$5 Aperol Spritz, $5 Garibaldis, $5 house wines, $5 pepper poppers, and $5 PBR plus amaro.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Sunday",
+    "venue": "Revival House",
+    "neighborhood": "Court District / Des Moines",
+    "time": "4 PM to 6:30 PM",
+    "title": "Cocktails and rangoons happy hour",
+    "desc": "$2 off cocktails and discounted mango crab rangoons.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Sunday",
+    "venue": "Prime & Providence",
+    "neighborhood": "West Des Moines",
+    "time": "3 PM to 6 PM",
+    "title": "Wines, cocktails, oysters, and small plates",
+    "desc": "$9 select wines and cocktails, $1 off oysters, and upscale small plates.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Sunday",
+    "venue": "Alba",
+    "neighborhood": "East Village / Des Moines",
+    "time": "4 PM to 6 PM",
+    "title": "Beers, wine, cocktails, and bar bites",
+    "desc": "BOGO beers, half price wine by the glass, $6 cocktails, and $6 to $8 bar bites.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Sunday",
+    "venue": "Harbinger",
+    "neighborhood": "Ingersoll / Des Moines",
+    "time": "4 PM to 6 PM",
+    "title": "Small plates, beer, wine, and cocktails",
+    "desc": "$8 small plates and select beer, wine, and cocktails from $5 to $8.",
+    "category": "Food and drink special"
+  },
+  {
+    "day": "Sunday",
+    "venue": "Tito’s Lounge",
+    "neighborhood": "Urbandale",
+    "time": "All day Sunday",
+    "title": "$3 draft Sunday special",
+    "desc": "Sunday draft special with $3 drafts all day.",
+    "category": "Drink special"
+  },
+  {
+    "day": "Sunday",
+    "venue": "Amruth",
+    "neighborhood": "Clive",
+    "time": "12 PM to 4 PM",
+    "title": "Weekend buffet",
+    "desc": "Saturday and Sunday buffet with around 20 dishes.",
+    "category": "Buffet"
+  },
+  {
+    "day": "Sunday",
+    "venue": "Gilroy’s",
+    "neighborhood": "West Des Moines",
+    "time": "Weekend brunch buffet",
+    "title": "Brunch buffet for $24.99",
+    "desc": "Saturday and Sunday brunch buffet for $24.99 for adults, with kids 6 and under free.",
+    "category": "Brunch buffet"
+  },
+  {
+    "day": "Sunday",
+    "venue": "Court Avenue Brewing Company",
+    "neighborhood": "Court Avenue / Des Moines",
+    "time": "Weekend breakfast buffet",
+    "title": "Breakfast buffet for $23.99",
+    "desc": "Saturday and Sunday breakfast buffet for $23.99.",
+    "category": "Breakfast buffet"
+  },
+  {
+    "day": "Sunday",
+    "venue": "Smoking Goat Pub",
+    "neighborhood": "Des Moines",
+    "time": "Sunday special",
+    "title": "10 wings for $10",
+    "desc": "Sunday wings special with 10 wings for $10.",
+    "category": "Food special"
+  },
+  {
+    "day": "Sunday",
+    "venue": "Jethro’s",
+    "neighborhood": "Des Moines area",
+    "time": "Sunday special",
+    "title": "Burger basket with fries for $9.95",
+    "desc": "Sunday burger basket with fries for $9.95.",
+    "category": "Food special"
+  }
+]

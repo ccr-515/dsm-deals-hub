@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import Literal, Optional
+import json
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -32,8 +33,23 @@ class VenueBase(BaseModel):
     lng: Optional[float] = None
     phone: Optional[str] = None
     website: Optional[str] = None
-    hours_json: Optional[str] = None
+    hours_json: Optional[Any] = None
     description: Optional[str] = None
+
+    @field_validator("hours_json")
+    @classmethod
+    def normalize_hours_json(cls, value: Any) -> Any:
+        if value is None:
+            return None
+        if isinstance(value, str):
+            cleaned = value.strip()
+            if not cleaned:
+                return None
+            try:
+                return json.loads(cleaned)
+            except ValueError:
+                return cleaned
+        return value
 
 
 class VenueCreate(VenueBase):
@@ -55,7 +71,7 @@ class VenueUpdate(BaseModel):
     lng: Optional[float] = None
     phone: Optional[str] = None
     website: Optional[str] = None
-    hours_json: Optional[str] = None
+    hours_json: Optional[Any] = None
     description: Optional[str] = None
 
     @field_validator("slug")
@@ -64,6 +80,11 @@ class VenueUpdate(BaseModel):
         if value is None:
             return None
         return normalize_slug(value)
+
+    @field_validator("hours_json")
+    @classmethod
+    def normalize_hours_json(cls, value: Any) -> Any:
+        return VenueBase.normalize_hours_json(value)
 
 
 class VenueOut(VenueBase):
