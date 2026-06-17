@@ -3106,6 +3106,13 @@ def clean_optional(value: object) -> Optional[str]:
     return cleaned or None
 
 
+def google_maps_search_url(*parts: object) -> str:
+    query = " ".join(compact_text(part) for part in parts if compact_text(part))
+    if not query:
+        query = "Des Moines restaurant"
+    return f"https://www.google.com/maps/search/?api=1&query={quote_plus(query)}"
+
+
 def normalize_intake_time(value: object) -> Optional[str]:
     cleaned = compact_text(value)
     if not cleaned:
@@ -3238,6 +3245,15 @@ def find_venue_by_name_input(db: Session, venue_query: object) -> Optional[model
     if scored and (scored[0][0] >= 0.78 or scored[0][1] >= 2):
         return scored[0][2]
     return None
+
+
+def find_exact_venue_by_name(db: Session, venue_name: object) -> Optional[models.Venue]:
+    query_text = normalize_match_text(venue_name)
+    if not query_text:
+        return None
+    venues = db.query(models.Venue).order_by(models.Venue.name.asc()).all()
+    matches = [venue for venue in venues if normalize_match_text(venue.name) == query_text]
+    return matches[0] if len(matches) == 1 else None
 
 
 def sanitize_intake_payload(payload: dict, raw_text: str) -> dict:
@@ -3769,13 +3785,31 @@ def create_intake_venue(
     address: object,
     neighborhood: object,
     source_text: Optional[str],
+    phone: object = None,
+    website: object = None,
+    description: object = None,
 ) -> Optional[models.Venue]:
     venue_name = clean_optional(name)
     venue_address = clean_optional(address)
     if not venue_name or not venue_address:
         return None
-    existing = find_venue_by_name_input(db, venue_name)
+    existing = find_exact_venue_by_name(db, venue_name)
     if existing:
+        changed = False
+        for field, value in {
+            "address": venue_address,
+            "neighborhood": clean_optional(neighborhood),
+            "phone": clean_optional(phone),
+            "website": clean_optional(website),
+            "description": clean_optional(description),
+        }.items():
+            if value and not getattr(existing, field):
+                setattr(existing, field, value)
+                changed = True
+        if changed:
+            existing.updated_at = datetime.utcnow()
+            db.flush()
+            log_deal_change(db, "admin_update_existing_venue_from_intake", None, existing.id, None, source_text)
         return existing
     slug = ensure_unique_venue_slug(db, venue_name)
     venue = models.Venue(
@@ -3783,6 +3817,9 @@ def create_intake_venue(
         slug=slug,
         address=venue_address,
         neighborhood=clean_optional(neighborhood),
+        phone=clean_optional(phone),
+        website=clean_optional(website),
+        description=clean_optional(description),
     )
     db.add(venue)
     db.flush()
@@ -3822,6 +3859,13 @@ def render_manual_proposal_form(
     venue_datalist = "".join(f'<option value="{escape(venue.name)}">{escape(venue.address)}</option>' for venue in all_venues)
     create_name_value = parsed.get("venue_name") or ""
     create_address_value = parsed.get("venue_address") or ""
+    selected_venue = next((venue for venue in all_venues if selected_venue_id == venue.id), None)
+    selected_venue_html = (
+        f'<p class="admin-selected-note">Attached venue: <strong>{escape(selected_venue.name)}</strong> <span>{escape(selected_venue.address)}</span></p>'
+        if selected_venue
+        else '<p class="admin-muted">No venue is attached yet. Pick an existing venue or create one below.</p>'
+    )
+    maps_url = google_maps_search_url(create_name_value or venue_query_value, create_address_value, "Des Moines IA")
     missing_venue_html = (
         '<div class="admin-alert admin-alert-danger"><strong>No matching venue found.</strong> Pick an existing venue or create a venue before approving.</div>'
         if not has_venue_match
@@ -3839,6 +3883,7 @@ def render_manual_proposal_form(
           <label><span>Status</span><select name="status">{status_options}</select></label>
           <label><span>Deal type</span><select name="deal_type">{deal_type_options}</select></label>
         </div>
+        {selected_venue_html}
         <datalist id="admin-venue-options">{venue_datalist}</datalist>
         <label><span>Deal title</span><input name="deal_title" value="{escape(str(parsed.get("deal_title") or ""))}" /></label>
         <label><span>Description</span><textarea name="description" rows="4">{escape(str(parsed.get("description") or ""))}</textarea></label>
@@ -3850,16 +3895,43 @@ def render_manual_proposal_form(
           <label><span>End date/time</span><input name="end_at" value="{escape(str(parsed.get("end_at") or ""))}" placeholder="2026-06-15T19:00:00" /></label>
         </div>
         <label><span>Source URL</span><input name="source_url" type="url" value="{escape(submission.source_url or "")}" placeholder="https://..." /></label>
-        <section class="admin-subpanel">
-          <h3>Create venue</h3>
-          <div class="admin-form-grid">
-            <label><span>Venue name</span><input name="create_venue_name" value="{escape(str(create_name_value))}" placeholder="Lua Brewing" /></label>
-            <label><span>Venue address</span><input name="create_venue_address" value="{escape(str(create_address_value))}" placeholder="Street address" /></label>
-            <label><span>Neighborhood</span><input name="create_venue_neighborhood" placeholder="Downtown" /></label>
+        <section class="admin-subpanel admin-create-venue-panel">
+          <div class="admin-section-title">
+            <div>
+              <h3>Create new venue</h3>
+              <p class="admin-muted">Use this when the dropdown does not have the right place. Saving here creates the venue and attaches it to this proposal.</p>
+            </div>
+            <a class="admin-secondary-button" id="admin-google-maps-venue-lookup" href="{escape(maps_url)}" target="_blank" rel="noopener noreferrer">Look up on Google Maps</a>
           </div>
+          <div class="admin-form-grid">
+            <label><span>Venue name</span><input id="admin-create-venue-name" name="create_venue_name" value="{escape(str(create_name_value))}" placeholder="Lua Brewing" /></label>
+            <label><span>Venue address</span><input id="admin-create-venue-address" name="create_venue_address" value="{escape(str(create_address_value))}" placeholder="Street address" /></label>
+            <label><span>Neighborhood</span><input name="create_venue_neighborhood" placeholder="Downtown" /></label>
+            <label><span>Phone</span><input name="create_venue_phone" placeholder="(515) 555-1234" /></label>
+            <label><span>Website</span><input name="create_venue_website" type="url" placeholder="https://venue.com" /></label>
+          </div>
+          <label><span>Venue notes</span><textarea name="create_venue_description" rows="3" placeholder="Optional details copied from Google Maps or the venue website"></textarea></label>
         </section>
-        <button class="admin-primary-button" type="submit">Save manual proposal</button>
+        <div class="admin-action-row">
+          <button class="admin-primary-button" type="submit" name="manual_action" value="save">Save manual proposal</button>
+          <button class="admin-secondary-button" type="submit" name="manual_action" value="create_venue">Create venue and attach</button>
+        </div>
       </form>
+      <script>
+        (() => {{
+          const link = document.getElementById("admin-google-maps-venue-lookup");
+          const nameInput = document.getElementById("admin-create-venue-name");
+          const addressInput = document.getElementById("admin-create-venue-address");
+          if (!link || !nameInput || !addressInput) return;
+          const updateMapsLink = () => {{
+            const query = [nameInput.value, addressInput.value, "Des Moines IA"].map((part) => part.trim()).filter(Boolean).join(" ") || "Des Moines restaurant";
+            link.href = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(query);
+          }};
+          nameInput.addEventListener("input", updateMapsLink);
+          addressInput.addEventListener("input", updateMapsLink);
+          updateMapsLink();
+        }})();
+      </script>
     </section>
     """
 
@@ -3877,6 +3949,7 @@ def render_admin_review_html(submission: Optional[models.DealIntakeSubmission], 
     venue_options = "".join(f'<label class="admin-radio-row"><input type="radio" name="venue_id" value="{venue.id}" {"checked" if len(venue_matches) == 1 else ""} {venue_required} /><span>{escape(venue.name)} <small>{escape(venue.address)}</small></span></label>' for venue in venue_matches) or '<p class="admin-muted">No matching venue found. Create or edit the venue before approving.</p>'
     duplicates_html = "".join(f"<li><strong>#{deal.id} {escape(deal.title)}</strong><span>{escape(deal.venue.name if deal.venue else 'Venue')} · {escape(deal.status.value)}</span></li>" for deal in duplicate_deals) or "<li>No close duplicates found.</li>"
     parsed_pretty = json.dumps(parsed, indent=2, default=json_default)
+    error_html = f'<div class="admin-alert admin-alert-danger">{escape(submission.error_message)}</div>' if submission.error_message else ""
     edit_html = ""
     if edit_mode:
         edit_html = f"""
@@ -3893,6 +3966,7 @@ def render_admin_review_html(submission: Optional[models.DealIntakeSubmission], 
     return admin_shell(
         "Review Deal",
         f"""
+        {error_html}
         <section class="admin-panel admin-review-grid">
           <div>
             <div class="admin-section-title"><h2>Proposed Change</h2>{admin_badge(submission.status, "warning" if submission.status == "needs_human_review" else "success")}</div>
@@ -4220,25 +4294,38 @@ def admin_review_save_manual(
     start_at: str = Form(""),
     end_at: str = Form(""),
     source_url: str = Form(""),
+    manual_action: str = Form("save"),
     create_venue_name: str = Form(""),
     create_venue_address: str = Form(""),
     create_venue_neighborhood: str = Form(""),
+    create_venue_phone: str = Form(""),
+    create_venue_website: str = Form(""),
+    create_venue_description: str = Form(""),
     db: Session = Depends(get_db),
 ):
     submission = db.get(models.DealIntakeSubmission, submission_id)
     if submission is None:
         raise HTTPException(status_code=404, detail="Submission not found")
     selected_venue_id = int(venue_id) if venue_id else None
-    if selected_venue_id is None:
+    if selected_venue_id is None and manual_action != "create_venue":
         venue_from_query = find_venue_by_name_input(db, venue_query)
         selected_venue_id = venue_from_query.id if venue_from_query else None
-    if selected_venue_id is None:
+    should_create_venue = selected_venue_id is None and (manual_action == "create_venue" or clean_optional(create_venue_name) or clean_optional(create_venue_address))
+    if should_create_venue:
+        create_name = clean_optional(create_venue_name) or clean_optional(venue_query)
+        if not create_name or not clean_optional(create_venue_address):
+            submission.error_message = "Add a venue name and address before creating a new venue."
+            db.commit()
+            return RedirectResponse(f"/admin/review?submission_id={submission.id}&edit=1", status_code=303)
         created_venue = create_intake_venue(
             db,
-            name=create_venue_name,
+            name=create_name,
             address=create_venue_address,
             neighborhood=create_venue_neighborhood,
             source_text=submission.raw_text,
+            phone=create_venue_phone,
+            website=create_venue_website,
+            description=create_venue_description,
         )
         selected_venue_id = created_venue.id if created_venue else None
     submission.source_url = clean_optional(source_url)

@@ -502,3 +502,46 @@ Blocked status: false
 Blocker reason if any: None for preview. Production is gated by env and migration preflight.
 
 Build/test verification: Python compile passed, `python scripts/qa_public_site.py` passed, Vercel preview build passed, local browser admin login smoke check passed, preview admin/public/intake/archive checks passed. `npm run build` not applicable because no `package.json` exists.
+# 2026-06-16 - Admin Venue Create From Intake
+
+Project name: DSM Deals Hub
+
+Phase: Admin deal intake refinement
+
+Task name: Add obvious create-and-attach venue path in admin review
+
+Date: 2026-06-16
+
+Branch: `codex/dsm-deals-final-preprod`
+
+Preview URL: `https://dsm-deals-q7cpc7r00-ccr-515s-projects.vercel.app`
+
+Deployment ID: `dpl_2nj6WLM5UW8aGVHc1m5i2oE5gExq`
+
+Changed files: `app/main.py`, `app/static/styles.css`, `docs/status/latest-handoff.md`, `docs/status/handoff-log.md`, `local-data/project-status.json`
+
+What works: Admin review edit mode now has an obvious `Create new venue` panel with name, address, neighborhood, phone, website, and notes. `Create venue and attach` creates a real venue and stores the selected venue id in the proposal. Exact existing venue names are reused and can receive missing optional fields. The Google Maps helper opens a Maps search and updates as the admin types. Existing approval blocking remains in place. Public routes still pass.
+
+What remains placeholder: Google Maps is a helper link, not an automated importer. Automatic Maps extraction was not added because it requires a separate compliant provider/API decision.
+
+What is broken or risky: Browser smoke check was not fully verified because the in-app browser password-entry path failed due unavailable virtual clipboard and the file fallback was blocked by browser policy. The admin must still copy verified Maps info into the form manually.
+
+Current project status: Preview-only refinement is deployed and verified. Production was not deployed.
+
+Next recommended build: Use preview admin review to add a missing venue manually; decide later whether an approved venue enrichment provider/API is worth adding.
+
+Suggested dashboard update: DSM Deals Hub admin intake now supports creating and attaching missing venues during review. Preview verified, production held.
+
+Confidence score: 92
+
+Portfolio readiness: 5
+
+Money potential: 4
+
+Maintenance burden: 5
+
+Blocked status: false
+
+Blocker reason if any: None for the app. Automatic Google Maps import remains a deliberate future decision.
+
+Build/test verification: Python compile passed, local FastAPI admin create-and-attach test passed, `python scripts/qa_public_site.py` passed, Vercel preview build passed, preview public routes returned `200`, preview admin routes returned `401` without auth and `200` with auth, preview edit page rendered the new venue creation controls, and Vercel error logs showed no new errors. `npm run build` not applicable because no `package.json` exists. Browser smoke check not fully verified because browser plugin login/file inspection were blocked.
