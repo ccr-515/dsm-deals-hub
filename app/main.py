@@ -532,15 +532,20 @@ def expire_stale_last_minute_deals(db: Session) -> int:
     return len(stale_deals)
 
 
+def public_venue_is_excluded(venue: Optional[models.Venue]) -> bool:
+    return bool(venue and compact_text(venue.name).lower() in PUBLIC_EXCLUDED_VENUE_NAMES)
+
+
 def load_public_deals(db: Session) -> List[models.Deal]:
     expire_stale_last_minute_deals(db)
-    return (
+    deals = (
         db.query(models.Deal)
         .options(joinedload(models.Deal.venue))
         .filter(models.Deal.status == models.Status.live)
         .order_by(models.Deal.created_at.desc())
         .all()
     )
+    return [deal for deal in deals if not public_venue_is_excluded(deal.venue)]
 
 
 def sort_public_deals(deals: List[models.Deal], window_start: datetime) -> List[models.Deal]:
@@ -1882,6 +1887,7 @@ def _load_supabase_today_deals(reference: datetime) -> Optional[List[models.Deal
                 "id,owner_id,name,slug,address,neighborhood,lat,lng,phone,website,hours_json,description,created_at,updated_at",
                 [("order", "id.asc")],
             )
+            if compact_text(row.get("name")).lower() not in PUBLIC_EXCLUDED_VENUE_NAMES
         }
         deals = []
         for row in _load_supabase_rows(
@@ -3057,6 +3063,9 @@ INTAKE_ACTIONS = {
 }
 LOW_CONFIDENCE_THRESHOLD = 0.65
 FREEZE_SENTINEL_MINUTES = 525600
+ADMIN_DEAL_STATUS_FILTERS = ("active", "live", "draft", "queued", "archived", "expired", "rejected", "all")
+ACTIVE_ADMIN_DEAL_STATUSES = (models.Status.live, models.Status.queued, models.Status.draft)
+PUBLIC_EXCLUDED_VENUE_NAMES = {"django"}
 DAY_ALIASES = {
     "monday": "Mon",
     "mondays": "Mon",
@@ -3691,7 +3700,7 @@ def admin_shell(title: str, main_content: str) -> str:
       <header class="admin-header">
         <div><p class="admin-kicker">DSM Deals Hub</p><h1>{escape(title)}</h1></div>
         <nav class="admin-nav" aria-label="Admin navigation">
-          <a href="/admin/intake">Intake</a><a href="/admin/review">Review</a><a href="/admin/deals">Deals</a><a href="/">Public site</a>
+          <a href="/admin/intake">Intake</a><a href="/admin/review">Review</a><a href="/admin/deals">Deals</a><a href="/admin/logout">Log out</a><a href="/">Public site</a>
         </nav>
       </header>
       {main_content}
@@ -4004,16 +4013,55 @@ def admin_deal_time_label(deal: models.Deal) -> str:
     return f"{deal.start_at.isoformat() if deal.start_at else '?'} to {deal.end_at.isoformat() if deal.end_at else '?'}"
 
 
-def render_admin_deals_html(deals: list[models.Deal], q: Optional[str], status: Optional[models.Status]) -> str:
+def normalize_admin_deal_status_filter(status: Optional[str]) -> str:
+    status_filter = compact_text(status or "active").lower()
+    return status_filter if status_filter in ADMIN_DEAL_STATUS_FILTERS else "active"
+
+
+def admin_deals_return_path(q: Optional[str], status_filter: str) -> str:
+    params = {}
+    if clean_optional(q):
+        params["q"] = compact_text(q)
+    if status_filter != "active":
+        params["status"] = status_filter
+    query = urlencode(params)
+    return f"/admin/deals?{query}" if query else "/admin/deals"
+
+
+def render_admin_deals_html(deals: list[models.Deal], q: Optional[str], status: Optional[str]) -> str:
+    status_filter = normalize_admin_deal_status_filter(status)
+    return_to = admin_deals_return_path(q, status_filter)
     rows = []
     for deal in deals:
         source = f'<a href="{escape(deal.source_url)}" target="_blank" rel="noopener noreferrer">View source</a>' if deal.source_url else ('<span class="admin-muted">Source text saved</span>' if deal.source_text else '<span class="admin-muted">No source</span>')
         frozen = bool(deal.freeze_minutes and deal.freeze_minutes >= FREEZE_SENTINEL_MINUTES)
-        rows.append(f'<tr><td><strong>{escape(deal.title)}</strong><small>{escape(deal.short_description)}</small></td><td>{escape(deal.venue.name if deal.venue else "Venue")}</td><td>{escape(admin_deal_time_label(deal))}</td><td>{admin_badge(deal.status.value, "neutral")}{admin_badge("frozen", "warning") if frozen else ""}</td><td>{source}</td><td class="admin-table-actions"><a class="admin-secondary-button" href="/admin/deals/{deal.id}/edit">Edit</a><form method="post" action="/admin/deals/{deal.id}/freeze"><button class="admin-secondary-button" type="submit">Freeze</button></form><form method="post" action="/admin/deals/{deal.id}/archive"><button class="admin-danger-button" type="submit">Archive</button></form></td></tr>')
-    rows_html = "".join(rows) or '<tr><td colspan="6" class="admin-empty">No deals matched.</td></tr>'
-    status_value = status.value if status else ""
-    status_options = ''.join(f'<option value="{item.value}" {"selected" if status_value == item.value else ""}>{item.value}</option>' for item in models.Status)
-    return admin_shell("Admin Deals", f'<section class="admin-panel"><form class="admin-toolbar" method="get" action="/admin/deals"><input name="q" value="{escape(q or "")}" placeholder="Search deals or venues" /><select name="status"><option value="" {"selected" if not status_value else ""}>Any status</option>{status_options}</select><button class="admin-primary-button" type="submit">Search</button></form><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Deal</th><th>Venue</th><th>Schedule</th><th>Status</th><th>Source</th><th>Actions</th></tr></thead><tbody>{rows_html}</tbody></table></div></section>')
+        remove_action = (
+            f'<form method="post" action="/admin/deals/{deal.id}/archive"><input type="hidden" name="return_to" value="{escape(return_to)}" /><button class="admin-danger-button" type="submit">Remove from live</button></form>'
+            if deal.status != models.Status.archived
+            else '<span class="admin-muted">Removed</span>'
+        )
+        freeze_action = (
+            f'<form method="post" action="/admin/deals/{deal.id}/freeze"><input type="hidden" name="return_to" value="{escape(return_to)}" /><button class="admin-secondary-button" type="submit">Freeze</button></form>'
+            if deal.status not in {models.Status.archived, models.Status.rejected}
+            else ""
+        )
+        rows.append(f'<tr><td><strong>{escape(deal.title)}</strong><small>{escape(deal.short_description)}</small></td><td>{escape(deal.venue.name if deal.venue else "Venue")}</td><td>{escape(admin_deal_time_label(deal))}</td><td>{admin_badge(deal.status.value, "neutral")}{admin_badge("frozen", "warning") if frozen else ""}</td><td>{source}</td><td class="admin-table-actions"><a class="admin-secondary-button" href="/admin/deals/{deal.id}/edit">Edit</a>{freeze_action}{remove_action}</td></tr>')
+    empty_label = "No active deals matched." if status_filter == "active" else "No deals matched."
+    rows_html = "".join(rows) or f'<tr><td colspan="6" class="admin-empty">{empty_label}</td></tr>'
+    status_options = "".join(
+        f'<option value="{value}" {"selected" if status_filter == value else ""}>{label}</option>'
+        for value, label in [
+            ("active", "Active only"),
+            ("live", "Live"),
+            ("draft", "Draft"),
+            ("queued", "Queued"),
+            ("archived", "Removed / archived"),
+            ("expired", "Expired"),
+            ("rejected", "Rejected"),
+            ("all", "All statuses"),
+        ]
+    )
+    return admin_shell("Admin Deals", f'<section class="admin-panel"><form class="admin-toolbar admin-search-form" role="search" method="get" action="/admin/deals"><input name="q" type="search" value="{escape(q or "")}" placeholder="Search deals or venues" /><select name="status">{status_options}</select><button class="admin-primary-button" type="submit">Search</button><a class="admin-secondary-button" href="/admin/deals?status=archived">View removed</a></form><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Deal</th><th>Venue</th><th>Schedule</th><th>Status</th><th>Source</th><th>Actions</th></tr></thead><tbody>{rows_html}</tbody></table></div></section>')
 
 
 def render_admin_deal_edit_html(deal: models.Deal, error: Optional[str] = None) -> str:
@@ -4024,16 +4072,19 @@ def render_admin_deal_edit_html(deal: models.Deal, error: Optional[str] = None) 
 
 def admin_deals_query(
     db: Session,
-    status: Optional[models.Status] = None,
+    status: Optional[str] = None,
     deal_type: Optional[models.DealType] = None,
     venue_id: Optional[int] = None,
     neighborhood: Optional[str] = None,
     q: Optional[str] = None,
 ) -> list[models.Deal]:
     expire_stale_last_minute_deals(db)
+    status_filter = normalize_admin_deal_status_filter(status)
     query = db.query(models.Deal).options(joinedload(models.Deal.venue)).join(models.Venue)
-    if status is not None:
-        query = query.filter(models.Deal.status == status)
+    if status_filter == "active":
+        query = query.filter(models.Deal.status.in_(ACTIVE_ADMIN_DEAL_STATUSES))
+    elif status_filter != "all":
+        query = query.filter(models.Deal.status == models.Status(status_filter))
     if deal_type is not None:
         query = query.filter(models.Deal.type == deal_type)
     if venue_id is not None:
@@ -4042,7 +4093,7 @@ def admin_deals_query(
         query = query.filter(func.lower(models.Venue.neighborhood) == neighborhood.strip().lower())
     if q:
         term = f"%{q.strip()}%"
-        query = query.filter(or_(models.Deal.title.ilike(term), models.Deal.short_description.ilike(term), models.Venue.name.ilike(term)))
+        query = query.filter(or_(models.Deal.title.ilike(term), models.Deal.short_description.ilike(term), models.Deal.source_text.ilike(term), models.Venue.name.ilike(term), models.Venue.address.ilike(term)))
     return query.order_by(models.Deal.updated_at.desc(), models.Deal.created_at.desc()).all()
 
 
@@ -4173,6 +4224,13 @@ def admin_login_submit(
         max_age=60 * 60 * 12,
         path="/admin",
     )
+    return response
+
+
+@app.get("/admin/logout")
+def admin_logout():
+    response = RedirectResponse("/admin/login", status_code=303)
+    response.delete_cookie("admin_session", path="/admin")
     return response
 
 
@@ -4394,7 +4452,7 @@ def admin_review_reject(submission_id: int, db: Session = Depends(get_db)):
 
 @app.get("/admin/deals", response_class=HTMLResponse, dependencies=[Depends(require_admin_password)])
 def admin_deals_page(
-    status: Optional[models.Status] = None,
+    status: Optional[str] = None,
     q: Optional[str] = None,
     db: Session = Depends(get_db),
 ):
@@ -4441,26 +4499,31 @@ def admin_deal_edit_submit(
     return RedirectResponse("/admin/deals", status_code=303)
 
 
+def safe_admin_redirect_path(path: Optional[str]) -> str:
+    cleaned = compact_text(path)
+    return cleaned if cleaned.startswith("/admin/deals") else "/admin/deals"
+
+
 @app.post("/admin/deals/{deal_id}/archive", dependencies=[Depends(require_admin_password)])
-def admin_deals_page_archive(deal_id: int, db: Session = Depends(get_db)):
+def admin_deals_page_archive(deal_id: int, return_to: str = Form("/admin/deals"), db: Session = Depends(get_db)):
     deal = get_deal_or_404(db, deal_id)
     before = deal_snapshot(deal)
     deal.status = models.Status.archived
     deal.updated_at = datetime.utcnow()
     log_deal_change(db, "admin_archive_deal", deal, deal.venue_id, before, deal.source_text)
     db.commit()
-    return RedirectResponse("/admin/deals", status_code=303)
+    return RedirectResponse(safe_admin_redirect_path(return_to), status_code=303)
 
 
 @app.post("/admin/deals/{deal_id}/freeze", dependencies=[Depends(require_admin_password)])
-def admin_deals_page_freeze(deal_id: int, db: Session = Depends(get_db)):
+def admin_deals_page_freeze(deal_id: int, return_to: str = Form("/admin/deals"), db: Session = Depends(get_db)):
     deal = get_deal_or_404(db, deal_id)
     before = deal_snapshot(deal)
     deal.freeze_minutes = FREEZE_SENTINEL_MINUTES
     deal.updated_at = datetime.utcnow()
     log_deal_change(db, "admin_freeze_deal", deal, deal.venue_id, before, deal.source_text)
     db.commit()
-    return RedirectResponse("/admin/deals", status_code=303)
+    return RedirectResponse(safe_admin_redirect_path(return_to), status_code=303)
 
 
 @app.post("/owners", response_model=schemas.OwnerOut)

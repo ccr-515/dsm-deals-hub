@@ -590,3 +590,48 @@ Blocked status: false
 Blocker reason if any: None.
 
 Build/test verification: Python compile passed, local admin create-and-attach smoke passed, `python scripts/qa_public_site.py` passed, Production env shape checked, Vercel production build passed, production public routes returned `200`, production admin routes returned `401` without auth and `200` with auth, production `/admin/auth-debug` returned safe matching diagnostics, production review edit rendered new venue controls, production `/admin/venues?q=Lua` returned Lua Brewing, and Vercel production error logs showed no new errors. `npm run build` not applicable because no `package.json` exists. Browser smoke check not verified through the in-app browser.
+# 2026-06-17 - Admin Remove/Search Hotfix
+
+Project name: DSM Deals Hub
+
+Phase: Production hotfix
+
+Task name: Fix admin deal search/remove behavior and remove Django from public output
+
+Date: 2026-06-17
+
+Branch: `codex/dsm-deals-final-preprod`
+
+Live URL: `https://www.dsmdealshub.online`
+
+Production deployment URL: `https://dsm-deals-htboqy66u-ccr-515s-projects.vercel.app`
+
+Production deployment ID: `dpl_HVmbzYcdjpFcacPy1abYLCPi3K7N`
+
+Changed files: `app/main.py`, `data/dsm_deals_hub_master_weekly_list.csv`, `data/dsm_deals_hub_master_weekly_list.json`, `docs/status/latest-handoff.md`, `docs/status/handoff-log.md`, `local-data/project-status.json`
+
+What works: Public live routes no longer render Django. Django is removed from the bundled fallback CSV/JSON and suppressed from public DB-backed output. Admin deals search is now a clear GET search form, defaulting to active deals only. Removed/archived rows are hidden from the default list but available through removed/all filters. The action now says `Remove from live`, preserves return paths, and never hard-deletes. `/admin/logout` clears stale admin cookies.
+
+What remains placeholder: Admin auth is still single shared-key MVP auth. Hard delete remains intentionally unavailable. Google Maps venue enrichment is still manual.
+
+What is broken or risky: Static exported docs still contain old generated Django HTML, but production Vercel routes all traffic to the dynamic FastAPI app and live routes were verified clean.
+
+Current project status: Production hotfix is live and verified.
+
+Next recommended build: Add a small admin maintenance screen for venue/deal operations, clearer filter controls, and password rotation notes.
+
+Suggested dashboard update: DSM Deals Hub live admin hotfix deployed. Public Django issue is resolved; admin deals search/remove behavior is clearer and verified.
+
+Confidence score: 94
+
+Portfolio readiness: 5
+
+Money potential: 4
+
+Maintenance burden: 5
+
+Blocked status: false
+
+Blocker reason if any: None.
+
+Build/test verification: Python compile passed, weekly master JSON validation passed, local admin search/archive smoke passed, local public routes returned 200 and did not contain Django, `python scripts/qa_public_site.py` passed, Vercel production build passed, production public routes returned 200 and did not contain Django, production auth-debug returned safe matching diagnostics, production admin Django search showed archived-only state, and Vercel production error logs showed no new errors. `npm run build` not applicable because no `package.json` exists. Browser smoke check not verified through the in-app browser.

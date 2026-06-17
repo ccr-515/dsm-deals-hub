@@ -1,77 +1,77 @@
-# 2026-06-16 - Production Launch
+# 2026-06-17 - Admin Remove/Search Hotfix
 
 ## Human Summary
 
 Project name: DSM Deals Hub
 
-Phase: Production launch
+Phase: Production hotfix
 
-Task name: Clean up, verify, and deploy final public/admin build to live site
+Task name: Fix admin deal search/remove behavior and remove Django from public output
 
-Date: 2026-06-16
+Date: 2026-06-17
 
 Branch: `codex/dsm-deals-final-preprod`
 
 Live URL: `https://www.dsmdealshub.online`
 
-Production deployment URL: `https://dsm-deals-2ncm53vrh-ccr-515s-projects.vercel.app`
+Production deployment URL: `https://dsm-deals-htboqy66u-ccr-515s-projects.vercel.app`
 
-Production deployment ID: `dpl_D2RCDLdYoTyCRL9EWknJWy1UJzro`
+Production deployment ID: `dpl_HVmbzYcdjpFcacPy1abYLCPi3K7N`
 
-Current project status: DSM Deals Hub is live in production with the polished public site and admin intake venue-create flow. Production admin auth, public routes, venue lookup, and runtime logs were verified after deployment.
+Current project status: Production hotfix is live. Django no longer appears on public live routes, admin deals search defaults to active deals, removed deals are visible under the removed/archived filter, and admin logout is available to clear stale sessions.
 
 ## Changed Files
 
+- `app/main.py`
+- `data/dsm_deals_hub_master_weekly_list.csv`
+- `data/dsm_deals_hub_master_weekly_list.json`
 - `docs/status/latest-handoff.md`
 - `docs/status/handoff-log.md`
 - `local-data/project-status.json`
 
 ## What Works
 
-- Live site is aliased at `https://www.dsmdealshub.online`.
-- Public production routes return 200: `/`, `/today`, `/days`, `/neighborhoods`, `/for-venues`.
-- Production admin routes are protected: `/admin/intake`, `/admin/review`, and `/admin/deals` return 401 without auth.
-- Production admin routes accept the configured admin header and return 200 with auth.
-- `/admin/auth-debug` confirms `ADMIN_KEY` is configured, `LLM_PROVIDER=rules`, header is seen, and header matches without exposing the key.
-- Production `/admin/review?edit=1` renders the missing-venue creation controls.
-- Production `/admin/venues?q=Lua` returns 200 and finds Lua Brewing.
-- Vercel production runtime error logs showed no new errors after smoke testing.
-- Public QA passed locally before production deploy.
-- Local admin create-and-attach venue smoke passed before production deploy.
-- No paid LLM APIs were added.
-- No Ollama dependency was added to production.
-- Deal deletion remains archive/soft-delete behavior.
+- Public live routes no longer render Django.
+- Django was removed from the bundled weekly master CSV and JSON fallback data.
+- Public DB-backed deal loading suppresses retired venue name `Django` even if a live DB row exists.
+- Admin deals search input is an explicit search field inside a GET form pointed at `/admin/deals`.
+- Admin deals defaults to `Active only`, hiding archived/rejected/expired rows so archive feels like removal.
+- Removed deals remain available through `Removed / archived` or `All statuses`; no hard delete was added.
+- Admin action label is clearer: `Remove from live`.
+- Archive/freeze actions preserve the current admin search/filter return path.
+- `/admin/logout` clears the admin session cookie and returns to login.
+- Production `/admin/auth-debug` confirms configured key, `LLM_PROVIDER=rules`, header seen, and header matches without exposing the key.
+- Production error logs showed no new errors after verification.
 
 ## What Remains Placeholder
 
-- Google Maps remains a helper lookup link, not automated venue data ingestion.
-- Rich venue enrichment such as hours, lat/lng, and automatic Maps metadata still requires a future provider/API decision.
-- Admin auth remains single shared-key MVP auth.
+- Admin auth is still single shared-key MVP auth.
+- Hard delete is intentionally not implemented.
+- Google Maps remains a manual helper; no automated venue enrichment was added.
 
 ## Broken Or Risky
 
-- The first production deployment had a mismatched `ADMIN_KEY`; production env was corrected and redeployed. The final production deployment verifies header auth successfully.
-- Production admin key should be treated as sensitive and rotated whenever access needs change.
-- Browser smoke check was not repeated through the in-app browser because prior browser plugin password entry was blocked by its virtual clipboard limitation; production route and admin checks were verified through direct HTTP/curl.
+- Existing static exported docs still contain old generated Django HTML, but Vercel production routes all traffic through `api/index.py`, so the live site is dynamic and verified clean.
+- Admin password value itself is an environment concern; code now includes logout so stale browser sessions can be cleared.
 
 ## Verification
 
 - Python compile passed:
-  `ADMIN_KEY=<admin-key> LLM_PROVIDER=rules python -m py_compile app/database.py app/main.py app/models.py app/schemas.py app/migrations.py app/weekly_master_content.py scripts/qa_public_site.py`
-- Local admin create-and-attach smoke passed.
+  `ADMIN_KEY=<admin-key> LLM_PROVIDER=rules python -m py_compile app/main.py app/weekly_master_content.py scripts/qa_public_site.py`
+- Weekly master JSON validation passed:
+  `python -m json.tool data/dsm_deals_hub_master_weekly_list.json`
+- Local admin search/archive smoke passed.
+- Local public routes returned 200 and did not contain Django for `/`, `/today`, `/days`, `/days/tuesday`, `/neighborhoods`, `/neighborhoods/downtown`, `/for-venues`.
 - Public QA passed:
   `python scripts/qa_public_site.py`
-- Production env shape checked:
-  `ADMIN_KEY`, `LLM_PROVIDER`, and `DATABASE_URL` are configured for Production.
 - Production deploy passed:
   `npx vercel@latest --prod --yes`
-- Production public routes returned `200`: `/`, `/today`, `/days`, `/neighborhoods`, `/for-venues`.
-- Production protected admin routes returned `401` without auth and `200` with auth: `/admin/intake`, `/admin/review`, `/admin/deals`.
-- Production `/admin/auth-debug` returned safe diagnostics and did not expose the key.
-- Production `/admin/review?edit=1` rendered `Create new venue`, `Create venue and attach`, `Look up on Google Maps`, and `admin-google-maps-venue-lookup`.
-- Production `/admin/venues?q=Lua` returned `200` with Lua Brewing.
-- Production Vercel error logs checked:
-  `npx vercel@latest logs https://www.dsmdealshub.online --since 20m --level error`
+- Production public routes returned 200 and did not contain Django for `/`, `/today`, `/days`, `/days/tuesday`, `/neighborhoods`, `/neighborhoods/downtown`, `/for-venues`.
+- Production `/admin/auth-debug` returned safe matching diagnostics and did not expose the key.
+- Production `/admin/deals?q=django` returned 200, kept search UI intact, and defaulted away from removed rows.
+- Production `/admin/deals?q=django&status=all` and `status=archived` show Django as archived/removed only.
+- Production Vercel error logs checked clean:
+  `npx vercel@latest logs https://www.dsmdealshub.online --since 15m --level error`
 
 `npm run build` not applicable: this FastAPI/static export project has no `package.json`.
 
@@ -79,25 +79,25 @@ Browser smoke check not verified through the in-app browser.
 
 ## Next Recommended Build
 
-Use the live admin console for real intake work, then prioritize admin ergonomics: logout, venue management page, and optional compliant venue enrichment provider.
+Add a small dedicated admin venue/deal maintenance screen with clearer filters, logout placement, and a password rotation note for operators.
 
 ## Suggested Dashboard Update
 
-DSM Deals Hub is live. Public polish and admin intake are deployed to production, rules parser remains active, and venue create/attach is available during admin review.
+DSM Deals Hub live admin hotfix deployed. Public Django issue is resolved; admin deals search/remove behavior is clearer and verified in production.
 
 ## Machine Readable
 
 ```json
 {
   "project_name": "DSM Deals Hub",
-  "phase": "Production launch",
-  "task_name": "Clean up, verify, and deploy final public/admin build to live site",
-  "date": "2026-06-16",
+  "phase": "Production hotfix",
+  "task_name": "Fix admin deal search/remove behavior and remove Django from public output",
+  "date": "2026-06-17",
   "branch": "codex/dsm-deals-final-preprod",
   "live_url": "https://www.dsmdealshub.online",
-  "production_deployment_url": "https://dsm-deals-2ncm53vrh-ccr-515s-projects.vercel.app",
-  "production_deployment_id": "dpl_D2RCDLdYoTyCRL9EWknJWy1UJzro",
-  "current_project_status": "Live in production and verified.",
+  "production_deployment_url": "https://dsm-deals-htboqy66u-ccr-515s-projects.vercel.app",
+  "production_deployment_id": "dpl_HVmbzYcdjpFcacPy1abYLCPi3K7N",
+  "current_project_status": "Live hotfix deployed and verified.",
   "confidence_score": 94,
   "portfolio_readiness": 5,
   "money_potential": 4,

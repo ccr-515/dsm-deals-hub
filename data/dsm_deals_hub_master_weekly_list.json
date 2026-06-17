@@ -397,15 +397,6 @@
   },
   {
     "day": "Tuesday",
-    "venue": "Django",
-    "neighborhood": "Downtown / Des Moines",
-    "time": "4 PM to 9 PM",
-    "title": "All night happy hour",
-    "desc": "Tuesday happy hour with oysters, shrimp, appetizers, beer, and wine specials.",
-    "category": "Food and drink special"
-  },
-  {
-    "day": "Tuesday",
     "venue": "Up Down",
     "neighborhood": "East Village / Des Moines",
     "time": "All day Tuesday",
