@@ -545,3 +545,48 @@ Blocked status: false
 Blocker reason if any: None for the app. Automatic Google Maps import remains a deliberate future decision.
 
 Build/test verification: Python compile passed, local FastAPI admin create-and-attach test passed, `python scripts/qa_public_site.py` passed, Vercel preview build passed, preview public routes returned `200`, preview admin routes returned `401` without auth and `200` with auth, preview edit page rendered the new venue creation controls, and Vercel error logs showed no new errors. `npm run build` not applicable because no `package.json` exists. Browser smoke check not fully verified because browser plugin login/file inspection were blocked.
+# 2026-06-16 - Production Launch
+
+Project name: DSM Deals Hub
+
+Phase: Production launch
+
+Task name: Clean up, verify, and deploy final public/admin build to live site
+
+Date: 2026-06-16
+
+Branch: `codex/dsm-deals-final-preprod`
+
+Live URL: `https://www.dsmdealshub.online`
+
+Production deployment URL: `https://dsm-deals-2ncm53vrh-ccr-515s-projects.vercel.app`
+
+Production deployment ID: `dpl_D2RCDLdYoTyCRL9EWknJWy1UJzro`
+
+Changed files: `docs/status/latest-handoff.md`, `docs/status/handoff-log.md`, `local-data/project-status.json`
+
+What works: Production is live and aliased to `www.dsmdealshub.online`. Public routes return 200. Admin routes reject unauthenticated requests and accept the configured admin header. `/admin/auth-debug` confirms `LLM_PROVIDER=rules` and matching header without exposing the key. `/admin/review?edit=1` renders the create-and-attach venue controls. `/admin/venues?q=Lua` returns Lua Brewing. Production error logs showed no new errors after smoke testing.
+
+What remains placeholder: Google Maps remains a lookup helper link, not automated enrichment. Admin auth remains single shared-key MVP auth.
+
+What is broken or risky: The first production deployment used a mismatched `ADMIN_KEY`; the Production env was corrected and the app was redeployed. Browser smoke check was not verified through the in-app browser because of the plugin password-entry limitation, but direct production HTTP checks passed.
+
+Current project status: DSM Deals Hub is live in production and verified.
+
+Next recommended build: Use the live admin console for real intake work, then add logout, a venue management page, and optional compliant venue enrichment.
+
+Suggested dashboard update: DSM Deals Hub is live. Public polish and admin intake are deployed to production with rules parser and venue create/attach available.
+
+Confidence score: 94
+
+Portfolio readiness: 5
+
+Money potential: 4
+
+Maintenance burden: 5
+
+Blocked status: false
+
+Blocker reason if any: None.
+
+Build/test verification: Python compile passed, local admin create-and-attach smoke passed, `python scripts/qa_public_site.py` passed, Production env shape checked, Vercel production build passed, production public routes returned `200`, production admin routes returned `401` without auth and `200` with auth, production `/admin/auth-debug` returned safe matching diagnostics, production review edit rendered new venue controls, production `/admin/venues?q=Lua` returned Lua Brewing, and Vercel production error logs showed no new errors. `npm run build` not applicable because no `package.json` exists. Browser smoke check not verified through the in-app browser.
