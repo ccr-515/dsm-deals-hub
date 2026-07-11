@@ -62,6 +62,14 @@ def _ensure_sqlite_deal_private_columns(engine) -> None:
         statements.append("ALTER TABLE deals ADD COLUMN source_posted_at DATETIME")
     if "notes_private" not in columns:
         statements.append("ALTER TABLE deals ADD COLUMN notes_private TEXT")
+    if "verification_status" not in columns:
+        statements.append("ALTER TABLE deals ADD COLUMN verification_status VARCHAR DEFAULT 'verified'")
+    if "last_verified_at" not in columns:
+        statements.append("ALTER TABLE deals ADD COLUMN last_verified_at DATETIME")
+    if "valid_until" not in columns:
+        statements.append("ALTER TABLE deals ADD COLUMN valid_until DATETIME")
+    if "verification_notes" not in columns:
+        statements.append("ALTER TABLE deals ADD COLUMN verification_notes TEXT")
 
     if not statements:
         return
@@ -69,6 +77,14 @@ def _ensure_sqlite_deal_private_columns(engine) -> None:
     with engine.begin() as conn:
         for statement in statements:
             conn.exec_driver_sql(statement)
+        conn.exec_driver_sql(
+            "UPDATE deals SET verification_status = 'verified' "
+            "WHERE verification_status IS NULL OR trim(verification_status) = ''"
+        )
+        conn.exec_driver_sql(
+            "UPDATE deals SET last_verified_at = CURRENT_TIMESTAMP "
+            "WHERE status = 'live' AND last_verified_at IS NULL"
+        )
 
 
 def _sqlite_venue_owner_is_required(engine) -> bool:
@@ -181,9 +197,25 @@ def _ensure_postgres_deals_columns(conn) -> None:
     _postgres_add_column(conn, "deals", "source_text", "TEXT")
     _postgres_add_column(conn, "deals", "source_posted_at", "TIMESTAMP WITHOUT TIME ZONE")
     _postgres_add_column(conn, "deals", "notes_private", "TEXT")
+    _postgres_add_column(conn, "deals", "verification_status", "VARCHAR DEFAULT 'verified'")
+    _postgres_add_column(conn, "deals", "last_verified_at", "TIMESTAMP WITHOUT TIME ZONE")
+    _postgres_add_column(conn, "deals", "valid_until", "TIMESTAMP WITHOUT TIME ZONE")
+    _postgres_add_column(conn, "deals", "verification_notes", "TEXT")
     _postgres_add_column(conn, "deals", "freeze_minutes", "INTEGER DEFAULT 30")
     _postgres_add_column(conn, "deals", "created_at", "TIMESTAMP WITHOUT TIME ZONE DEFAULT now()")
     _postgres_add_column(conn, "deals", "updated_at", "TIMESTAMP WITHOUT TIME ZONE DEFAULT now()")
+    conn.execute(
+        text(
+            "UPDATE deals SET verification_status = 'verified' "
+            "WHERE verification_status IS NULL OR btrim(verification_status) = ''"
+        )
+    )
+    conn.execute(
+        text(
+            "UPDATE deals SET last_verified_at = now() "
+            "WHERE status = 'live' AND last_verified_at IS NULL"
+        )
+    )
 
 
 def _ensure_postgres_intake_tables(conn) -> None:
@@ -270,6 +302,8 @@ def _ensure_postgres_indexes(conn) -> None:
     conn.execute(text("CREATE INDEX IF NOT EXISTS ix_deals_id ON deals (id)"))
     conn.execute(text("CREATE INDEX IF NOT EXISTS ix_deal_intake_submissions_id ON deal_intake_submissions (id)"))
     conn.execute(text("CREATE INDEX IF NOT EXISTS ix_deal_change_log_id ON deal_change_log (id)"))
+    conn.execute(text("CREATE INDEX IF NOT EXISTS ix_deals_verification_status ON deals (verification_status)"))
+    conn.execute(text("CREATE INDEX IF NOT EXISTS ix_deals_last_verified_at ON deals (last_verified_at)"))
 
 
 def _ensure_postgres_foreign_keys(conn) -> None:

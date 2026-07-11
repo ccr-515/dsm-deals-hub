@@ -2,7 +2,7 @@
 set -euo pipefail
 
 BASE_URL="http://127.0.0.1:8001"
-ADMIN_KEY="changeme-admin-key"
+ADMIN_KEY="${ADMIN_KEY:?Set ADMIN_KEY before running scripts/test_api.sh}"
 STAMP=$(date +%s)
 
 OWNER_NAME="Cam $STAMP"
@@ -18,6 +18,7 @@ echo ""
 
 echo "2. Create owner"
 OWNER_RESPONSE=$(curl -s -X POST "$BASE_URL/owners" \
+  -H "X-Admin-Key: $ADMIN_KEY" \
   -H "Content-Type: application/json" \
   -d "{\"name\":\"$OWNER_NAME\",\"email\":\"$OWNER_EMAIL\"}")
 echo "$OWNER_RESPONSE"
@@ -28,6 +29,7 @@ OWNER_ID=$(python3.12 -c 'import sys, json; print(json.load(sys.stdin)["id"])' <
 
 echo "3. Create venue"
 VENUE_RESPONSE=$(curl -s -X POST "$BASE_URL/venues" \
+  -H "X-Admin-Key: $ADMIN_KEY" \
   -H "Content-Type: application/json" \
   -d "{
     \"owner_id\": $OWNER_ID,
@@ -58,6 +60,7 @@ PY
 )
 
 DEAL_RESPONSE=$(curl -s -X POST "$BASE_URL/deals/last-minute" \
+  -H "X-Admin-Key: $ADMIN_KEY" \
   -H "Content-Type: application/json" \
   -d "{
     \"venue_id\": $VENUE_ID,

@@ -78,6 +78,11 @@ class Deal(Base):
     source_posted_at = Column(DateTime, nullable=True)
     notes_private = Column(Text, nullable=True)
 
+    verification_status = Column(String, default="verified", nullable=False)
+    last_verified_at = Column(DateTime, default=datetime.utcnow, nullable=True)
+    valid_until = Column(DateTime, nullable=True)
+    verification_notes = Column(Text, nullable=True)
+
     freeze_minutes = Column(Integer, default=30)
 
     created_at = Column(DateTime, default=datetime.utcnow)

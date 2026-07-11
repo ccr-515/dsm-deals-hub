@@ -21,6 +21,3 @@ SORT_WEIGHTS = {
 }
 
 FEATURED_ENABLED = False  # reserved for later
-
-# Simple admin key for moderation routes in MVP (change in prod)
-ADMIN_KEY = "changeme-admin-key"

@@ -1,112 +1,121 @@
-# 2026-06-17 - Admin Remove/Search Hotfix
+# 2026-07-11 - Operations Truth Release Candidate
 
 ## Human Summary
 
 Project name: DSM Deals Hub
 
-Phase: Production hotfix
+Phase: Production hardening
 
-Task name: Fix admin deal search/remove behavior and remove Django from public output
+Task name: Secure publishing, unify public data, and add deal freshness
 
-Date: 2026-06-17
+Date: 2026-07-11
 
 Branch: `codex/dsm-deals-final-preprod`
 
 Live URL: `https://www.dsmdealshub.online`
 
-Production deployment URL: `https://dsm-deals-htboqy66u-ccr-515s-projects.vercel.app`
+Verified preview: `https://dsm-deals-1vtm9r3td-ccr-515s-projects.vercel.app`
 
-Production deployment ID: `dpl_HVmbzYcdjpFcacPy1abYLCPi3K7N`
-
-Current project status: Production hotfix is live. Django no longer appears on public live routes, admin deals search defaults to active deals, removed deals are visible under the removed/archived filter, and admin logout is available to clear stale sessions.
+Current project status: The Operations Truth release candidate is verified in preview. Legacy writes require admin auth, all public deal views use the operational database, archive removes a deal from every public route family, and weekly deals now have a verification lifecycle.
 
 ## Changed Files
 
+- `MVP_STATUS.md`
+- `README.md`
+- `app/config.py`
 - `app/main.py`
-- `data/dsm_deals_hub_master_weekly_list.csv`
-- `data/dsm_deals_hub_master_weekly_list.json`
+- `app/migrations.py`
+- `app/models.py`
+- `app/schemas.py`
 - `docs/status/latest-handoff.md`
 - `docs/status/handoff-log.md`
 - `local-data/project-status.json`
+- `scripts/migrate.py`
+- `scripts/test_api.sh`
+- `tests/test_operations_truth.py`
+- Removed tracked `scripts/__pycache__/seed_curated_content.cpython-313.pyc`
 
 ## What Works
 
-- Public live routes no longer render Django.
-- Django was removed from the bundled weekly master CSV and JSON fallback data.
-- Public DB-backed deal loading suppresses retired venue name `Django` even if a live DB row exists.
-- Admin deals search input is an explicit search field inside a GET form pointed at `/admin/deals`.
-- Admin deals defaults to `Active only`, hiding archived/rejected/expired rows so archive feels like removal.
-- Removed deals remain available through `Removed / archived` or `All statuses`; no hard delete was added.
-- Admin action label is clearer: `Remove from live`.
-- Archive/freeze actions preserve the current admin search/filter return path.
-- `/admin/logout` clears the admin session cookie and returns to login.
-- Production `/admin/auth-debug` confirms configured key, `LLM_PROVIDER=rules`, header seen, and header matches without exposing the key.
-- Production error logs showed no new errors after verification.
+- Owner, venue, weekly-deal, and last-minute creation APIs now require the shared admin guard.
+- Production API docs and OpenAPI are disabled.
+- Supabase `deals` is the public source for Homepage, Today, Days, and Neighborhoods; the weekly master is empty-database fallback only.
+- Admin archive removes a deal from Homepage, Today, day detail, and neighborhood detail pages.
+- Admin search submits to `/admin/deals`, preserves filters, and returns matching deals.
+- Browser login cookie and `X-Admin-Key` authentication both work.
+- Weekly deals support `verified`, `needs_recheck`, and `expired` lifecycle states.
+- Admin Deals includes a Needs recheck filter and Verify action.
+- Postgres migrations are additive and explicit instead of running on normal serverless startup.
+- Supabase has the four new verification columns and the existing owner/intake/audit schema.
+- Rules parsing and human-only approval behavior remain intact.
+- Focused local tests now cover the core operations contract.
 
 ## What Remains Placeholder
 
-- Admin auth is still single shared-key MVP auth.
-- Hard delete is intentionally not implemented.
-- Google Maps remains a manual helper; no automated venue enrichment was added.
+- Business ownership exists in schema but is not used by the current venue records.
+- Venue coordinates and some contact metadata remain incomplete.
+- Google Maps lookup remains a manual helper; there is no automated enrichment service.
+- Last-minute inventory is supported but currently unused.
+- Admin authentication remains a single shared key rather than individual accounts.
 
-## Broken Or Risky
+## What Is Broken Or Risky
 
-- Existing static exported docs still contain old generated Django HTML, but Vercel production routes all traffic through `api/index.py`, so the live site is dynamic and verified clean.
-- Admin password value itself is an environment concern; code now includes logout so stale browser sessions can be cleared.
+- `app/main.py` and `app/static/styles.css` remain oversized and should be modularized after this behavior is stable.
+- Freshness transitions currently run when public/admin deal lists are loaded, which is acceptable for this traffic level but should become a scheduled maintenance job later.
+- Existing live weekly deals received a safe verification baseline during migration; the first real recheck cycle starts from that migration date.
+- GitHub CI activation remains pending because the current OAuth token lacks the `workflow` scope; the pushable release still includes the full test suite and documented commands.
+- Browser smoke check was not performed through a visual browser; preview HTTP, content, auth, schema, and runtime-log checks passed.
 
 ## Verification
 
-- Python compile passed:
-  `ADMIN_KEY=<admin-key> LLM_PROVIDER=rules python -m py_compile app/main.py app/weekly_master_content.py scripts/qa_public_site.py`
-- Weekly master JSON validation passed:
-  `python -m json.tool data/dsm_deals_hub_master_weekly_list.json`
-- Local admin search/archive smoke passed.
-- Local public routes returned 200 and did not contain Django for `/`, `/today`, `/days`, `/days/tuesday`, `/neighborhoods`, `/neighborhoods/downtown`, `/for-venues`.
-- Public QA passed:
-  `python scripts/qa_public_site.py`
-- Production deploy passed:
-  `npx vercel@latest --prod --yes`
-- Production public routes returned 200 and did not contain Django for `/`, `/today`, `/days`, `/days/tuesday`, `/neighborhoods`, `/neighborhoods/downtown`, `/for-venues`.
-- Production `/admin/auth-debug` returned safe matching diagnostics and did not expose the key.
-- Production `/admin/deals?q=django` returned 200, kept search UI intact, and defaulted away from removed rows.
-- Production `/admin/deals?q=django&status=all` and `status=archived` show Django as archived/removed only.
-- Production Vercel error logs checked clean:
-  `npx vercel@latest logs https://www.dsmdealshub.online --since 15m --level error`
+- Python compilation passed.
+- `python -m unittest discover -s tests -v` passed: 6 tests.
+- `python scripts/qa_public_site.py` passed: 6 primary routes, 7 day routes, 22 neighborhood routes, 40 exported pages, and 157 weekly master records audited.
+- `git diff --check` passed.
+- Additive migration script passed against local SQLite.
+- Supabase schema debug confirms `verification_status`, `last_verified_at`, `valid_until`, and `verification_notes`.
+- Preview public routes returned 200 for `/`, `/today`, `/days`, `/days/tuesday`, `/neighborhoods`, `/neighborhoods/des-moines`, `/neighborhoods/downtown`, and `/for-venues`.
+- Preview admin intake returned 401 without auth and 200 with auth.
+- Preview auth debug confirmed `LLM_PROVIDER=rules` and a matching admin header without exposing the key.
+- Preview legacy write endpoints returned 401 without auth.
+- A DB-only Tuesday deal appeared on both its day and neighborhood pages.
+- An archived master-only deal remained absent from public output.
+- Preview runtime error query returned no errors.
+- Production auth debug currently confirms the requested admin key matches and `LLM_PROVIDER=rules`.
 
-`npm run build` not applicable: this FastAPI/static export project has no `package.json`.
+`npm run build` not applicable: this FastAPI project has no `package.json`.
 
-Browser smoke check not verified through the in-app browser.
+Browser smoke check not verified.
 
 ## Next Recommended Build
 
-Add a small dedicated admin venue/deal maintenance screen with clearer filters, logout placement, and a password rotation note for operators.
+Promote this verified candidate, monitor the first verification/recheck cycle, and then extract admin, publishing, and freshness behavior from `app/main.py` into focused modules. Do not add Ollama or another redesign before observing real operations.
 
 ## Suggested Dashboard Update
 
-DSM Deals Hub live admin hotfix deployed. Public Django issue is resolved; admin deals search/remove behavior is clearer and verified in production.
+DSM Deals Hub Operations Truth release is preview-verified: secure writes, one public publishing source, reliable archive/search behavior, and deal freshness controls are ready for promotion.
 
 ## Machine Readable
 
 ```json
 {
   "project_name": "DSM Deals Hub",
-  "phase": "Production hotfix",
-  "task_name": "Fix admin deal search/remove behavior and remove Django from public output",
-  "date": "2026-06-17",
+  "phase": "Production hardening",
+  "task_name": "Secure publishing, unify public data, and add deal freshness",
+  "date": "2026-07-11",
   "branch": "codex/dsm-deals-final-preprod",
   "live_url": "https://www.dsmdealshub.online",
-  "production_deployment_url": "https://dsm-deals-htboqy66u-ccr-515s-projects.vercel.app",
-  "production_deployment_id": "dpl_HVmbzYcdjpFcacPy1abYLCPi3K7N",
-  "current_project_status": "Live hotfix deployed and verified.",
-  "confidence_score": 94,
+  "preview_url": "https://dsm-deals-1vtm9r3td-ccr-515s-projects.vercel.app",
+  "current_project_status": "Operations Truth release candidate verified in preview and ready for promotion.",
+  "confidence_score": 96,
   "portfolio_readiness": 5,
   "money_potential": 4,
-  "maintenance_burden": 5,
+  "maintenance_burden": 4,
   "blocked_status": false,
   "blocker_reason": null,
-  "production_deployed": true,
+  "production_deployed": false,
   "llm_provider": "rules",
-  "browser_smoke_check": "not verified through in-app browser; direct production HTTP checks passed",
-  "build_status": "Vercel production build passed; npm run build not applicable because no package.json exists."
+  "browser_smoke_check": "not verified",
+  "build_status": "Python compile, 6 operations tests, public QA, and preview checks passed; npm run build is not applicable."
 }
 ```

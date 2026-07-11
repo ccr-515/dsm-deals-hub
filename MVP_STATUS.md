@@ -1,25 +1,29 @@
-# DSM Deals Hub MVP Status
+# DSM Deals Hub Status
 
-## Current state
-Static HTML MVP is live and usable.
+## Current State
+
+The public site and admin intake workflow are live on Vercel with Supabase/Postgres as the operational database.
 
 ## Working
-Homepage
-Today page
-Days page
-Neighborhoods page
-Neighborhood detail pages
-Got a deal page
-Neighborhood icon system
-Venue phone and location links
-Google Form intake for business submissions
 
-## Current stack
-Static exported docs deployed to Vercel
+- Public Homepage, Today, Days, and Neighborhoods
+- DB-backed publishing across all public route families
+- Admin login, intake, review, edit, approve, verify, freeze, and archive
+- Rules-based structured proposal parsing
+- Venue search and create/attach during intake
+- Raw source retention and audit logging
+- Weekly deal recheck and stale archive lifecycle
+- Embedded venue submission form
+- Focused operations contract tests
 
-## Next phase
-Operations, testing, submission workflow, monetization planning, and backend transition planning
+## Current Stack
 
-## Notes
-UI should be treated as frozen unless something is clearly broken.
-Future work should prioritize workflow, submissions, testing, and revenue path before major redesigns.
+- FastAPI and SQLAlchemy
+- Supabase/Postgres production database
+- Vercel Python deployment
+- Server-rendered HTML and CSS
+- `LLM_PROVIDER=rules`
+
+## Current Priority
+
+Operate the freshness workflow, reconcile the live release branch with GitHub, and monitor the first recheck cycle. Avoid another visual redesign until real usage identifies a concrete problem.

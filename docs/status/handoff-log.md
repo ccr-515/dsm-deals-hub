@@ -635,3 +635,82 @@ Blocked status: false
 Blocker reason if any: None.
 
 Build/test verification: Python compile passed, weekly master JSON validation passed, local admin search/archive smoke passed, local public routes returned 200 and did not contain Django, `python scripts/qa_public_site.py` passed, Vercel production build passed, production public routes returned 200 and did not contain Django, production auth-debug returned safe matching diagnostics, production admin Django search showed archived-only state, and Vercel production error logs showed no new errors. `npm run build` not applicable because no `package.json` exists. Browser smoke check not verified through the in-app browser.
+# 2026-07-11 - Current Project Audit
+
+Project name: DSM Deals Hub
+
+Phase: Production audit and operations planning
+
+Task name: Audit current project and define the next build
+
+Date: 2026-07-11
+
+Changed files: `docs/status/latest-handoff.md`, `docs/status/handoff-log.md`, `local-data/project-status.json`
+
+What works: Production public routes and health return 200; admin intake is protected; rules parsing and human approval still work; all expected production schema tables exist; public QA and Python compilation pass; the live venue form is embedded; Vercel returned no production errors in the last 24 hours.
+
+What remains placeholder: Venue ownership is unused, venue enrichment is incomplete, all live deals are weekly, automated Maps enrichment and self-serve venue accounts remain future ideas, and project docs still describe the old architecture.
+
+What is broken or risky: Legacy owner/venue/deal creation endpoints are publicly writable; approved DB deals do not publish to Days/Neighborhoods; weekly deals have no freshness/expiry workflow; the DB and bundled master differ; API docs are public; migrations run at app import; the live branch is three commits ahead of GitHub; there is no CI or focused behavior suite; core files are oversized; one pyc file is tracked.
+
+Current project status: Live and usable, but the next phase must harden security, publishing consistency, and freshness.
+
+Next recommended build: Operations Truth release: protect legacy writes, use Supabase as the sole public deal source, add verification/recheck/expiry fields and queue, add contract tests/CI, reconcile GitHub, then modularize the app.
+
+Suggested dashboard update: DSM Deals Hub is live but entering operations hardening. Pause redesign and new feature expansion until secure single-source publishing and deal freshness are in place.
+
+Confidence score: 97
+
+Portfolio readiness: 4
+
+Money potential: 4
+
+Maintenance burden: 5
+
+Blocked status: false
+
+Blocker reason if any: None; the next work is clearly identified.
+
+Build/test verification: Python compile passed; `python scripts/qa_public_site.py` passed; isolated unauthenticated write, publishing consistency, and full admin intake probes ran; production route/schema/data/log checks ran. `npm run build` is not applicable because no `package.json` exists. Browser smoke check not verified.
+
+# 2026-07-11 - Operations Truth Release Candidate
+
+Project name: DSM Deals Hub
+
+Phase: Production hardening
+
+Task name: Secure publishing, unify public data, and add deal freshness
+
+Date: 2026-07-11
+
+Branch: `codex/dsm-deals-final-preprod`
+
+Verified preview: `https://dsm-deals-1vtm9r3td-ccr-515s-projects.vercel.app`
+
+Changed files: `MVP_STATUS.md`, `README.md`, `app/config.py`, `app/main.py`, `app/migrations.py`, `app/models.py`, `app/schemas.py`, `docs/status/latest-handoff.md`, `docs/status/handoff-log.md`, `local-data/project-status.json`, `scripts/migrate.py`, `scripts/test_api.sh`, `tests/test_operations_truth.py`; removed tracked Python bytecode.
+
+What works: Legacy writes require admin auth; production docs are disabled; Supabase deals drive all public route families; archive removes deals everywhere; admin search submits correctly; browser cookie and header auth work; rules intake remains human-approved; weekly freshness states and Verify controls are available; Postgres migrations are explicit and additive; focused tests cover the operations contract.
+
+What remains placeholder: Owner relationships are unused, venue enrichment is incomplete, Maps enrichment is manual, last-minute inventory is unused, and admin auth remains a shared key.
+
+What is broken or risky: Core files remain oversized; freshness transitions should eventually move to a scheduled job; migrated live deals begin a new recheck cycle from the migration baseline; GitHub CI activation needs a token with `workflow` scope.
+
+Current project status: Preview-verified Operations Truth release candidate, ready for production promotion.
+
+Next recommended build: Promote, monitor freshness operations, then modularize admin/publishing/freshness code.
+
+Suggested dashboard update: DSM Deals Hub security, single-source publishing, archive/search reliability, and freshness controls are preview-verified.
+
+Confidence score: 96
+
+Portfolio readiness: 5
+
+Money potential: 4
+
+Maintenance burden: 4
+
+Blocked status: false
+
+Blocker reason if any: None.
+
+Build/test verification: Python compile passed; 6 operations tests passed; public QA passed; preview routes/auth/schema/content/log checks passed. `npm run build` is not applicable because there is no `package.json`. Browser smoke check not verified.

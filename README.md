@@ -1,89 +1,82 @@
+# DSM Deals Hub
 
-# DSM Deals MVP (FastAPI + SQLite)
+DSM Deals Hub is a FastAPI application for discovering curated Des Moines restaurant deals and operating a human-reviewed deal intake workflow.
 
-This is a minimal, runnable MVP for your Deals + Last-Call platform.
+## Current Product
 
-## Features in this MVP
-- Business Owners, Venues, Deals (weekly & last-minute)
-- Manual moderation (admin key)
-- Freeze window baked into rules (for updates later)
-- Public feed sorted by: expiring soon → neighborhood priority → distance → freshness
-- Metrics: view/click/save/share endpoints
-- Archive via status (live → expired)
-- No maps; list-first
-- SQLite DB for easy local dev
+- Public Homepage, Today, Days, and Neighborhoods views
+- Supabase/Postgres-backed live deals and venues
+- Password/cookie or `X-Admin-Key` admin authentication
+- Rules-based deal-post parsing with structured proposals
+- Human review, edit, approve, verify, freeze, and archive workflows
+- Raw source retention and deal change audit log
+- Weekly deal recheck and stale archive lifecycle
+- Embedded Google Form for venue submissions
 
-## Quickstart
+No paid LLM API is used. Production uses `LLM_PROVIDER=rules`.
+
+## Local Setup
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
+export ADMIN_KEY="choose-a-local-admin-key"
+export LLM_PROVIDER="rules"
 uvicorn app.main:app --reload
 ```
 
-Open: http://127.0.0.1:8000/docs
+Without `DATABASE_URL`, local development uses `sqlite:///./dsm_deals.db`.
 
-## Admin key
-Change `ADMIN_KEY` in `app/config.py` before deploying.
+## Required Production Environment
 
-## Example flow (cURL)
+- `DATABASE_URL`: Supabase/Postgres connection string
+- `ADMIN_KEY`: shared admin password/header value
+- `LLM_PROVIDER=rules`
 
-Create owner:
+Optional freshness settings:
+
+- `DEAL_RECHECK_DAYS=30`
+- `DEAL_ARCHIVE_DAYS=45`
+- `CORS_ALLOWED_ORIGINS`: comma-separated allowed browser origins
+
+## Database Migrations
+
+Postgres migrations are explicit and additive. They do not run during normal serverless startup.
+
 ```bash
-curl -X POST http://127.0.0.1:8000/owners -H "Content-Type: application/json" -d '{"name":"Cam","email":"cam@example.com"}'
+DATABASE_URL="postgresql://..." python scripts/migrate.py
 ```
 
-Create venue:
+Local SQLite initializes and migrates automatically.
+
+## Verification
+
 ```bash
-curl -X POST http://127.0.0.1:8000/venues -H "Content-Type: application/json" -d '{
-  "owner_id": 1, "name":"SkyBar","slug":"skybar","address":"123 Main St",
-  "neighborhood":"East Village","lat":41.590,"lng":-93.605
-}'
+python -m py_compile app/database.py app/main.py app/models.py app/schemas.py app/migrations.py app/weekly_master_content.py scripts/migrate.py scripts/qa_public_site.py
+python -m unittest discover -s tests -v
+python scripts/qa_public_site.py
 ```
 
-Post weekly deal (queued for approval):
+## Admin Access
+
+Browser: `/admin/login`
+
+Header auth:
+
 ```bash
-curl -X POST http://127.0.0.1:8000/deals/weekly -H "Content-Type: application/json" -d '{
-  "venue_id":1, "title":"Half-Off Apps","short_description":"50% off apps",
-  "weekday_pattern":"Mon,Wed,Fri","start_time":"16:00","end_time":"19:00"
-}'
+curl -H "X-Admin-Key: $ADMIN_KEY" http://127.0.0.1:8000/admin/deals
 ```
 
-Approve (admin):
-```bash
-curl -X POST "http://127.0.0.1:8000/moderation/approve/1" -H "X-Admin-Key: changeme-admin-key" -H "Content-Type: application/json" -d '{"approve":true}'
-```
+Legacy owner, venue, and deal creation APIs require admin authentication. Public deal submissions use the embedded venue form and enter the human review workflow.
 
-Create last-minute (3h window max):
-```bash
-START=$(python - <<'PY'
-from datetime import datetime, timedelta
-print((datetime.utcnow()).isoformat())
-PY)
-END=$(python - <<'PY'
-from datetime import datetime, timedelta
-print((datetime.utcnow()+timedelta(hours=2)).isoformat())
-PY)
+## Deal Freshness
 
-curl -X POST http://127.0.0.1:8000/deals/last-minute -H "Content-Type: application/json" -d "{
-  \"venue_id\":1,\"title\":\"Tonight Special\",\"short_description\":\"$5 drafts\",
-  \"start_at\":\"$START\",\"end_at\":\"$END\",\"age_21_plus\":true
-}"
-```
+Weekly live deals begin as `verified`.
 
-Approve last-minute:
-```bash
-curl -X POST "http://127.0.0.1:8000/moderation/approve/2" -H "X-Admin-Key: changeme-admin-key" -H "Content-Type: application/json" -d '{"approve":true}'
-```
+- After `DEAL_RECHECK_DAYS`, they become `needs_recheck` and remain visible during the grace period.
+- After `DEAL_ARCHIVE_DAYS`, they are automatically archived unless verified again.
+- Admins can use the `Needs recheck` filter and `Verify` action in `/admin/deals`.
 
-Public feed:
-```
-GET /feed?neighborhood=East%20Village&lat=41.59&lng=-93.605
-```
-
-## Notes
-- Freeze logic will matter when you add update/edit endpoints; currently creation + approval paths respect durations and max windows.
-- Add Stripe + PDF generator later.
-- Scraper integration: add a worker that writes rows into `deals` with `source_type="scrape"` and run through moderation.
+Deals are never hard-deleted by the admin workflow.

@@ -183,6 +183,10 @@ class DealUpdate(BaseModel):
     source_posted_at: Optional[datetime] = None
     notes_private: Optional[str] = None
     status: Optional[Status] = None
+    verification_status: Optional[Literal["verified", "needs_recheck", "expired"]] = None
+    last_verified_at: Optional[datetime] = None
+    valid_until: Optional[datetime] = None
+    verification_notes: Optional[str] = None
 
     @field_validator("weekday_pattern")
     @classmethod
@@ -232,6 +236,10 @@ class AdminDealOut(PublicDealOut):
     source_text: Optional[str] = None
     source_posted_at: Optional[datetime] = None
     notes_private: Optional[str] = None
+    verification_status: str = "verified"
+    last_verified_at: Optional[datetime] = None
+    valid_until: Optional[datetime] = None
+    verification_notes: Optional[str] = None
 
 
 class ApproveRequest(BaseModel):

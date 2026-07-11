@@ -43,7 +43,7 @@ from . import weekly_master_content as weekly_content
 if engine.url.get_backend_name() == "sqlite":
     Base.metadata.create_all(bind=engine)
     run_migrations(engine)
-else:
+elif os.getenv("RUN_STARTUP_MIGRATIONS", "").strip() == "1":
     Base.metadata.create_all(bind=engine)
     run_migrations(engine)
 
@@ -341,15 +341,33 @@ def format_weekly_master_time_label(
 
     return raw_label
 
-app = FastAPI(title="DSM Deals MVP")
+IS_PRODUCTION = os.getenv("VERCEL_ENV", "").strip().lower() == "production"
+DEFAULT_CORS_ORIGINS = [
+    "https://www.dsmdealshub.online",
+    "https://dsmdealshub.online",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]
+CORS_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("CORS_ALLOWED_ORIGINS", ",".join(DEFAULT_CORS_ORIGINS)).split(",")
+    if origin.strip()
+]
+
+app = FastAPI(
+    title="DSM Deals Hub",
+    docs_url=None if IS_PRODUCTION else "/docs",
+    redoc_url=None if IS_PRODUCTION else "/redoc",
+    openapi_url=None if IS_PRODUCTION else "/openapi.json",
+)
 logger = logging.getLogger(__name__)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PATCH"],
+    allow_headers=["Content-Type", "X-Admin-Key"],
 )
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
@@ -538,6 +556,7 @@ def public_venue_is_excluded(venue: Optional[models.Venue]) -> bool:
 
 def load_public_deals(db: Session) -> List[models.Deal]:
     expire_stale_last_minute_deals(db)
+    refresh_weekly_deal_verification_states(db)
     deals = (
         db.query(models.Deal)
         .options(joinedload(models.Deal.venue))
@@ -651,6 +670,16 @@ def load_curated_site_deals(db: Session) -> List[models.Deal]:
     return weekly_content.load_weekly_master_deals()
 
 
+def load_public_browse_deals(db: Session, reference: Optional[datetime] = None) -> List[models.Deal]:
+    reference = reference or datetime.now(HOME_TIMEZONE).replace(tzinfo=None)
+    deals = load_public_deals(db)
+    if not deals:
+        return weekly_content.load_weekly_master_deals()
+    for deal in deals:
+        ensure_public_display_metadata(deal, reference)
+    return weekly_content.sort_site_deals(deals, reference)
+
+
 def weekday_pattern_parts(pattern: Optional[str]) -> List[str]:
     if not pattern:
         return []
@@ -660,7 +689,12 @@ def weekday_pattern_parts(pattern: Optional[str]) -> List[str]:
 
 
 def deal_matches_day_code(deal: models.Deal, day_code: str) -> bool:
-    return weekly_content.site_deal_matches_day_code(deal, day_code)
+    meta = homepage_metadata(deal)
+    if meta.get("site_source") == "weekly_master":
+        return weekly_content.site_deal_matches_day_code(deal, day_code)
+    normalized = weekly_content.normalize_day_code_value(day_code)
+    pattern_parts = weekday_pattern_parts(deal.weekday_pattern)
+    return deal.weekday_pattern == "All" or normalized in pattern_parts
 
 
 def has_public_display_metadata(deal: models.Deal) -> bool:
@@ -1706,8 +1740,14 @@ def next_reference_for_day(day_code: str, reference: datetime) -> datetime:
 
 
 def days_page_sections(db: Session) -> dict[str, List[models.Deal]]:
-    del db
-    return weekly_content.days_page_sections(datetime.now(HOME_TIMEZONE).replace(tzinfo=None))
+    reference = datetime.now(HOME_TIMEZONE).replace(tzinfo=None)
+    deals = load_public_browse_deals(db, reference)
+    return {
+        day_code: weekly_content.sort_day_deals(
+            [deal for deal in deals if deal_matches_day_code(deal, day_code)]
+        )
+        for day_code in DAY_ORDER
+    }
 
 
 def is_happy_hour_deal(deal: models.Deal) -> bool:
@@ -1926,27 +1966,9 @@ def _load_db_today_deals(db: Session, reference: datetime) -> List[models.Deal]:
 def today_page_data(db: Session) -> dict:
     reference = datetime.now(HOME_TIMEZONE).replace(tzinfo=None)
     day_code = weekly_content.normalize_day_code_value(reference.strftime("%a"))
-    db_deals = _load_db_today_deals(db, reference)
-    if db_deals:
-        all_today = weekly_content.sort_day_deals(db_deals)
-        happy_hour = [deal for deal in all_today if weekly_content.site_deal_is_happy_hour(deal)]
-        specials = [deal for deal in all_today if deal not in happy_hour]
-        return {
-            "day_code": day_code,
-            "day_label": weekly_content.DAY_CODE_TO_NAME[day_code],
-            "all": all_today,
-            "happy_hour": happy_hour,
-            "specials": specials,
-        }
-
-    supabase_deals = _load_supabase_today_deals(reference)
-    if supabase_deals is None:
-        return weekly_content.today_page_data(reference)
-
-    all_today = weekly_content.sort_day_deals(supabase_deals)
+    all_today = days_page_sections(db)[day_code]
     happy_hour = [deal for deal in all_today if weekly_content.site_deal_is_happy_hour(deal)]
     specials = [deal for deal in all_today if deal not in happy_hour]
-    day_code = weekly_content.normalize_day_code_value(reference.strftime("%a"))
     return {
         "day_code": day_code,
         "day_label": weekly_content.DAY_CODE_TO_NAME[day_code],
@@ -1957,11 +1979,46 @@ def today_page_data(db: Session) -> dict:
 
 
 def neighborhood_groups(db: Session) -> List[dict]:
-    groups = weekly_content.neighborhood_groups(datetime.now(HOME_TIMEZONE).replace(tzinfo=None))
-    for group in groups:
-        group["display_name"] = public_neighborhood_name(group["name"])
-        group["icon"] = neighborhood_placeholder_icon(group["display_name"])
-    return groups
+    reference = datetime.now(HOME_TIMEZONE).replace(tzinfo=None)
+    master_neighborhoods = {
+        compact_text(deal.venue.name).lower(): deal.venue.neighborhood
+        for deal in weekly_content.load_weekly_master_deals()
+    }
+    grouped: dict[str, dict] = {}
+    for deal in load_public_browse_deals(db, reference):
+        venue_name = compact_text(deal.venue.name).lower() if deal.venue else ""
+        raw_neighborhood = master_neighborhoods.get(venue_name) or (
+            deal.venue.neighborhood if deal.venue else None
+        ) or "Des Moines"
+        neighborhood = public_neighborhood_name(raw_neighborhood)
+        group = grouped.setdefault(
+            neighborhood,
+            {
+                "name": neighborhood,
+                "slug": normalize_slug(neighborhood),
+                "deals": [],
+                "venue_ids": set(),
+            },
+        )
+        group["deals"].append(deal)
+        group["venue_ids"].add(deal.venue_id)
+
+    groups = []
+    for group in grouped.values():
+        deals = weekly_content.sort_site_deals(group["deals"], reference)
+        display_name = public_neighborhood_name(group["name"])
+        groups.append(
+            {
+                "name": group["name"],
+                "display_name": display_name,
+                "slug": group["slug"],
+                "deals": deals,
+                "deal_count": len(deals),
+                "venue_count": len(group["venue_ids"]),
+                "icon": neighborhood_placeholder_icon(display_name),
+            }
+        )
+    return sorted(groups, key=lambda item: (-item["deal_count"], item["name"]))
 
 
 def get_neighborhood_group_or_404(db: Session, slug: str) -> dict:
@@ -3063,9 +3120,14 @@ INTAKE_ACTIONS = {
 }
 LOW_CONFIDENCE_THRESHOLD = 0.65
 FREEZE_SENTINEL_MINUTES = 525600
-ADMIN_DEAL_STATUS_FILTERS = ("active", "live", "draft", "queued", "archived", "expired", "rejected", "all")
+ADMIN_DEAL_STATUS_FILTERS = ("active", "needs_recheck", "live", "draft", "queued", "archived", "expired", "rejected", "all")
 ACTIVE_ADMIN_DEAL_STATUSES = (models.Status.live, models.Status.queued, models.Status.draft)
 PUBLIC_EXCLUDED_VENUE_NAMES = {"django"}
+VERIFICATION_RECHECK_DAYS = max(int(os.getenv("DEAL_RECHECK_DAYS", "30")), 1)
+VERIFICATION_ARCHIVE_DAYS = max(
+    int(os.getenv("DEAL_ARCHIVE_DAYS", "45")),
+    VERIFICATION_RECHECK_DAYS + 1,
+)
 DAY_ALIASES = {
     "monday": "Mon",
     "mondays": "Mon",
@@ -3560,6 +3622,10 @@ def deal_snapshot(deal: models.Deal) -> dict:
         "source_url": deal.source_url,
         "source_text": deal.source_text,
         "notes_private": deal.notes_private,
+        "verification_status": deal.verification_status,
+        "last_verified_at": deal.last_verified_at.isoformat() if deal.last_verified_at else None,
+        "valid_until": deal.valid_until.isoformat() if deal.valid_until else None,
+        "verification_notes": deal.verification_notes,
         "freeze_minutes": deal.freeze_minutes,
     }
 
@@ -3575,6 +3641,40 @@ def log_deal_change(db: Session, action: str, deal: Optional[models.Deal], venue
             source_text=source_text,
         )
     )
+
+
+def refresh_weekly_deal_verification_states(db: Session, now: Optional[datetime] = None) -> int:
+    now = now or datetime.utcnow()
+    recheck_cutoff = now - timedelta(days=VERIFICATION_RECHECK_DAYS)
+    archive_cutoff = now - timedelta(days=VERIFICATION_ARCHIVE_DAYS)
+    changed = 0
+    deals = (
+        db.query(models.Deal)
+        .filter(
+            models.Deal.type == models.DealType.weekly,
+            models.Deal.status == models.Status.live,
+        )
+        .all()
+    )
+    for deal in deals:
+        baseline = deal.last_verified_at or deal.updated_at or deal.created_at or now
+        explicitly_expired = bool(deal.valid_until and deal.valid_until < now)
+        stale_beyond_grace = baseline < archive_cutoff
+        if explicitly_expired or stale_beyond_grace:
+            before = deal_snapshot(deal)
+            deal.status = models.Status.archived
+            deal.verification_status = "expired"
+            deal.updated_at = now
+            log_deal_change(db, "auto_archive_stale_deal", deal, deal.venue_id, before, deal.source_text)
+            changed += 1
+        elif baseline < recheck_cutoff and deal.verification_status != "needs_recheck":
+            before = deal_snapshot(deal)
+            deal.verification_status = "needs_recheck"
+            log_deal_change(db, "mark_deal_needs_recheck", deal, deal.venue_id, before, deal.source_text)
+            changed += 1
+    if changed:
+        db.commit()
+    return changed
 
 
 def notes_for_intake(submission: models.DealIntakeSubmission) -> str:
@@ -3624,7 +3724,7 @@ def apply_intake_submission(db: Session, submission: models.DealIntakeSubmission
             start_at = datetime.fromisoformat(parsed["start_at"]) if parsed.get("start_at") else None
             end_at = datetime.fromisoformat(parsed["end_at"]) if parsed.get("end_at") else None
             validate_last_minute_range(start_at, end_at)
-            deal = models.Deal(venue_id=venue.id, title=parsed["deal_title"], short_description=parsed["description"], type=models.DealType.last_minute, start_at=start_at, end_at=end_at, source_type=source_type, source_url=submission.source_url, source_text=submission.raw_text, notes_private=notes_for_intake(submission), status=desired_status)
+            deal = models.Deal(venue_id=venue.id, title=parsed["deal_title"], short_description=parsed["description"], type=models.DealType.last_minute, start_at=start_at, end_at=end_at, source_type=source_type, source_url=submission.source_url, source_text=submission.raw_text, notes_private=notes_for_intake(submission), status=desired_status, verification_status="verified", last_verified_at=now)
         else:
             days = parsed.get("days") or []
             if not days or not parsed.get("start_time") or not parsed.get("end_time"):
@@ -3632,7 +3732,7 @@ def apply_intake_submission(db: Session, submission: models.DealIntakeSubmission
             validate_weekly_range(parsed["start_time"], parsed["end_time"])
             enforce_weekly_cap(db, venue.id)
             weekday_pattern = "All" if set(days) == set(DAY_ORDER) else ",".join(days)
-            deal = models.Deal(venue_id=venue.id, title=parsed["deal_title"], short_description=parsed["description"], type=models.DealType.weekly, weekday_pattern=weekday_pattern, start_time=parsed["start_time"], end_time=parsed["end_time"], source_type=source_type, source_url=submission.source_url, source_text=submission.raw_text, notes_private=notes_for_intake(submission), status=desired_status)
+            deal = models.Deal(venue_id=venue.id, title=parsed["deal_title"], short_description=parsed["description"], type=models.DealType.weekly, weekday_pattern=weekday_pattern, start_time=parsed["start_time"], end_time=parsed["end_time"], source_type=source_type, source_url=submission.source_url, source_text=submission.raw_text, notes_private=notes_for_intake(submission), status=desired_status, verification_status="verified", last_verified_at=now)
         db.add(deal)
         db.flush()
         log_deal_change(db, "intake_add_deal", deal, venue.id, None, submission.raw_text)
@@ -3661,6 +3761,8 @@ def apply_intake_submission(db: Session, submission: models.DealIntakeSubmission
                 deal.status = desired_status
             deal.source_url = submission.source_url or deal.source_url
             deal.source_text = submission.raw_text
+            deal.verification_status = "verified"
+            deal.last_verified_at = now
             validate_deal_shape(deal.type, {"weekday_pattern": deal.weekday_pattern, "start_time": deal.start_time, "end_time": deal.end_time, "start_at": deal.start_at, "end_at": deal.end_at})
         deal.updated_at = now
         log_deal_change(db, f"intake_{action}", deal, venue.id, before, submission.raw_text)
@@ -4035,6 +4137,9 @@ def render_admin_deals_html(deals: list[models.Deal], q: Optional[str], status: 
     for deal in deals:
         source = f'<a href="{escape(deal.source_url)}" target="_blank" rel="noopener noreferrer">View source</a>' if deal.source_url else ('<span class="admin-muted">Source text saved</span>' if deal.source_text else '<span class="admin-muted">No source</span>')
         frozen = bool(deal.freeze_minutes and deal.freeze_minutes >= FREEZE_SENTINEL_MINUTES)
+        verification_status = deal.verification_status or "verified"
+        verification_badge = admin_badge(verification_status.replace("_", " "), "warning" if verification_status == "needs_recheck" else "success")
+        verified_label = deal.last_verified_at.strftime("%Y-%m-%d") if deal.last_verified_at else "Never"
         remove_action = (
             f'<form method="post" action="/admin/deals/{deal.id}/archive"><input type="hidden" name="return_to" value="{escape(return_to)}" /><button class="admin-danger-button" type="submit">Remove from live</button></form>'
             if deal.status != models.Status.archived
@@ -4045,13 +4150,19 @@ def render_admin_deals_html(deals: list[models.Deal], q: Optional[str], status: 
             if deal.status not in {models.Status.archived, models.Status.rejected}
             else ""
         )
-        rows.append(f'<tr><td><strong>{escape(deal.title)}</strong><small>{escape(deal.short_description)}</small></td><td>{escape(deal.venue.name if deal.venue else "Venue")}</td><td>{escape(admin_deal_time_label(deal))}</td><td>{admin_badge(deal.status.value, "neutral")}{admin_badge("frozen", "warning") if frozen else ""}</td><td>{source}</td><td class="admin-table-actions"><a class="admin-secondary-button" href="/admin/deals/{deal.id}/edit">Edit</a>{freeze_action}{remove_action}</td></tr>')
+        verify_action = (
+            f'<form method="post" action="/admin/deals/{deal.id}/verify"><input type="hidden" name="return_to" value="{escape(return_to)}" /><button class="admin-secondary-button" type="submit">Verify</button></form>'
+            if deal.status in ACTIVE_ADMIN_DEAL_STATUSES
+            else ""
+        )
+        rows.append(f'<tr><td><strong>{escape(deal.title)}</strong><small>{escape(deal.short_description)}</small></td><td>{escape(deal.venue.name if deal.venue else "Venue")}</td><td>{escape(admin_deal_time_label(deal))}</td><td>{admin_badge(deal.status.value, "neutral")}{verification_badge}{admin_badge("frozen", "warning") if frozen else ""}<small>Verified: {escape(verified_label)}</small></td><td>{source}</td><td class="admin-table-actions"><a class="admin-secondary-button" href="/admin/deals/{deal.id}/edit">Edit</a>{verify_action}{freeze_action}{remove_action}</td></tr>')
     empty_label = "No active deals matched." if status_filter == "active" else "No deals matched."
     rows_html = "".join(rows) or f'<tr><td colspan="6" class="admin-empty">{empty_label}</td></tr>'
     status_options = "".join(
         f'<option value="{value}" {"selected" if status_filter == value else ""}>{label}</option>'
         for value, label in [
             ("active", "Active only"),
+            ("needs_recheck", "Needs recheck"),
             ("live", "Live"),
             ("draft", "Draft"),
             ("queued", "Queued"),
@@ -4079,9 +4190,15 @@ def admin_deals_query(
     q: Optional[str] = None,
 ) -> list[models.Deal]:
     expire_stale_last_minute_deals(db)
+    refresh_weekly_deal_verification_states(db)
     status_filter = normalize_admin_deal_status_filter(status)
     query = db.query(models.Deal).options(joinedload(models.Deal.venue)).join(models.Venue)
-    if status_filter == "active":
+    if status_filter == "needs_recheck":
+        query = query.filter(
+            models.Deal.status.in_(ACTIVE_ADMIN_DEAL_STATUSES),
+            models.Deal.verification_status == "needs_recheck",
+        )
+    elif status_filter == "active":
         query = query.filter(models.Deal.status.in_(ACTIVE_ADMIN_DEAL_STATUSES))
     elif status_filter != "all":
         query = query.filter(models.Deal.status == models.Status(status_filter))
@@ -4494,6 +4611,8 @@ def admin_deal_edit_submit(
         apply_deal_update(db, deal, payload)
     except HTTPException as exc:
         return HTMLResponse(render_admin_deal_edit_html(deal, str(exc.detail)), status_code=400)
+    deal.verification_status = "verified"
+    deal.last_verified_at = datetime.utcnow()
     log_deal_change(db, "admin_edit_deal", deal, deal.venue_id, before, deal.source_text)
     db.commit()
     return RedirectResponse("/admin/deals", status_code=303)
@@ -4526,7 +4645,19 @@ def admin_deals_page_freeze(deal_id: int, return_to: str = Form("/admin/deals"),
     return RedirectResponse(safe_admin_redirect_path(return_to), status_code=303)
 
 
-@app.post("/owners", response_model=schemas.OwnerOut)
+@app.post("/admin/deals/{deal_id}/verify", dependencies=[Depends(require_admin_password)])
+def admin_deals_page_verify(deal_id: int, return_to: str = Form("/admin/deals"), db: Session = Depends(get_db)):
+    deal = get_deal_or_404(db, deal_id)
+    before = deal_snapshot(deal)
+    deal.verification_status = "verified"
+    deal.last_verified_at = datetime.utcnow()
+    deal.updated_at = datetime.utcnow()
+    log_deal_change(db, "admin_verify_deal", deal, deal.venue_id, before, deal.source_text)
+    db.commit()
+    return RedirectResponse(safe_admin_redirect_path(return_to), status_code=303)
+
+
+@app.post("/owners", response_model=schemas.OwnerOut, dependencies=[Depends(require_admin)])
 def create_owner(owner: schemas.OwnerCreate, db: Session = Depends(get_db)):
     existing = db.query(models.BusinessOwner).filter_by(email=owner.email).first()
     if existing:
@@ -4538,7 +4669,7 @@ def create_owner(owner: schemas.OwnerCreate, db: Session = Depends(get_db)):
     return business_owner
 
 
-@app.post("/venues", response_model=schemas.VenueOut)
+@app.post("/venues", response_model=schemas.VenueOut, dependencies=[Depends(require_admin)])
 def create_venue(v: schemas.VenueCreate, db: Session = Depends(get_db)):
     ensure_owner_exists(db, v.owner_id)
     venue = models.Venue(
@@ -4670,7 +4801,7 @@ def admin_list_venues(
         return JSONResponse([])
 
 
-@app.post("/deals/weekly", response_model=schemas.DealOut)
+@app.post("/deals/weekly", response_model=schemas.DealOut, dependencies=[Depends(require_admin)])
 def create_weekly_deal(d: schemas.WeeklyDealCreate, db: Session = Depends(get_db)):
     get_venue_or_404(db, d.venue_id)
     enforce_weekly_cap(db, d.venue_id)
@@ -4692,6 +4823,8 @@ def create_weekly_deal(d: schemas.WeeklyDealCreate, db: Session = Depends(get_db
         source_text=d.source_text,
         source_posted_at=d.source_posted_at,
         notes_private=d.notes_private,
+        verification_status="verified",
+        last_verified_at=datetime.utcnow(),
         status=models.Status.queued,
     )
     db.add(deal)
@@ -4700,7 +4833,7 @@ def create_weekly_deal(d: schemas.WeeklyDealCreate, db: Session = Depends(get_db
     return deal
 
 
-@app.post("/deals/last-minute", response_model=schemas.DealOut)
+@app.post("/deals/last-minute", response_model=schemas.DealOut, dependencies=[Depends(require_admin)])
 def create_last_minute(d: schemas.LastMinuteDealCreate, db: Session = Depends(get_db)):
     get_venue_or_404(db, d.venue_id)
 
@@ -4720,6 +4853,8 @@ def create_last_minute(d: schemas.LastMinuteDealCreate, db: Session = Depends(ge
         source_text=d.source_text,
         source_posted_at=d.source_posted_at,
         notes_private=d.notes_private,
+        verification_status="verified",
+        last_verified_at=datetime.utcnow(),
         status=models.Status.queued,
     )
     db.add(deal)
@@ -4737,6 +4872,9 @@ def approve_deal(
 ):
     deal = get_deal_or_404(db, deal_id)
     deal.status = models.Status.live if body.approve else models.Status.rejected
+    if body.approve:
+        deal.verification_status = "verified"
+        deal.last_verified_at = datetime.utcnow()
     normalize_live_status_for_time(deal)
     deal.updated_at = datetime.utcnow()
     db.commit()
