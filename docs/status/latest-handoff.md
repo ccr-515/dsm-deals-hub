@@ -1,12 +1,12 @@
-# 2026-07-11 - Operations Truth Release Candidate
+# 2026-07-11 - Operations Truth Production Release
 
 ## Human Summary
 
 Project name: DSM Deals Hub
 
-Phase: Production hardening
+Phase: Production stabilization
 
-Task name: Secure publishing, unify public data, and add deal freshness
+Task name: Deploy secure publishing, unified public data, and deal freshness
 
 Date: 2026-07-11
 
@@ -16,7 +16,11 @@ Live URL: `https://www.dsmdealshub.online`
 
 Verified preview: `https://dsm-deals-1vtm9r3td-ccr-515s-projects.vercel.app`
 
-Current project status: The Operations Truth release candidate is verified in preview. Legacy writes require admin auth, all public deal views use the operational database, archive removes a deal from every public route family, and weekly deals now have a verification lifecycle.
+Production deployment: `https://dsm-deals-oy5nzra15-ccr-515s-projects.vercel.app`
+
+Production deployment ID: `dpl_HpxpKMpE55LF4jrqrmAmL7Xb1PVr`
+
+Current project status: The Operations Truth release is live and verified. Legacy writes require admin auth, all public deal views use the operational database, archive removes a deal from every public route family, and weekly deals now have a verification lifecycle.
 
 ## Changed Files
 
@@ -82,6 +86,12 @@ Current project status: The Operations Truth release candidate is verified in pr
 - An archived master-only deal remained absent from public output.
 - Preview runtime error query returned no errors.
 - Production auth debug currently confirms the requested admin key matches and `LLM_PROVIDER=rules`.
+- Production browser login returned 303, set an HttpOnly session cookie, and the cookie authorized `/admin/deals` with 200.
+- Production public routes returned 200; `/docs` and `/openapi.json` returned 404.
+- Production legacy write endpoints returned 401 without auth.
+- Production content checks confirmed the DB-only deal on day and neighborhood pages and the archived master-only deal absent.
+- Production deployment is READY and aliased to `https://www.dsmdealshub.online`.
+- Production runtime error query returned no errors after verification.
 
 `npm run build` not applicable: this FastAPI project has no `package.json`.
 
@@ -89,33 +99,35 @@ Browser smoke check not verified.
 
 ## Next Recommended Build
 
-Promote this verified candidate, monitor the first verification/recheck cycle, and then extract admin, publishing, and freshness behavior from `app/main.py` into focused modules. Do not add Ollama or another redesign before observing real operations.
+Monitor the first verification/recheck cycle, activate GitHub CI after granting the `workflow` OAuth scope, and then extract admin, publishing, and freshness behavior from `app/main.py` into focused modules. Do not add Ollama or another redesign before observing real operations.
 
 ## Suggested Dashboard Update
 
-DSM Deals Hub Operations Truth release is preview-verified: secure writes, one public publishing source, reliable archive/search behavior, and deal freshness controls are ready for promotion.
+DSM Deals Hub Operations Truth release is live: secure writes, one public publishing source, reliable archive/search behavior, and deal freshness controls are production-verified.
 
 ## Machine Readable
 
 ```json
 {
   "project_name": "DSM Deals Hub",
-  "phase": "Production hardening",
-  "task_name": "Secure publishing, unify public data, and add deal freshness",
+  "phase": "Production stabilization",
+  "task_name": "Deploy secure publishing, unified public data, and deal freshness",
   "date": "2026-07-11",
   "branch": "codex/dsm-deals-final-preprod",
   "live_url": "https://www.dsmdealshub.online",
   "preview_url": "https://dsm-deals-1vtm9r3td-ccr-515s-projects.vercel.app",
-  "current_project_status": "Operations Truth release candidate verified in preview and ready for promotion.",
-  "confidence_score": 96,
+  "production_deployment_url": "https://dsm-deals-oy5nzra15-ccr-515s-projects.vercel.app",
+  "production_deployment_id": "dpl_HpxpKMpE55LF4jrqrmAmL7Xb1PVr",
+  "current_project_status": "Operations Truth release is live and verified in production.",
+  "confidence_score": 98,
   "portfolio_readiness": 5,
   "money_potential": 4,
   "maintenance_burden": 4,
   "blocked_status": false,
   "blocker_reason": null,
-  "production_deployed": false,
+  "production_deployed": true,
   "llm_provider": "rules",
   "browser_smoke_check": "not verified",
-  "build_status": "Python compile, 6 operations tests, public QA, and preview checks passed; npm run build is not applicable."
+  "build_status": "Python compile, 6 operations tests, public QA, preview checks, Vercel build, and production checks passed; npm run build is not applicable."
 }
 ```

@@ -714,3 +714,51 @@ Blocked status: false
 Blocker reason if any: None.
 
 Build/test verification: Python compile passed; 6 operations tests passed; public QA passed; preview routes/auth/schema/content/log checks passed. `npm run build` is not applicable because there is no `package.json`. Browser smoke check not verified.
+
+# 2026-07-11 - Operations Truth Production Release
+
+Project name: DSM Deals Hub
+
+Phase: Production stabilization
+
+Task name: Deploy secure publishing, unified public data, and deal freshness
+
+Date: 2026-07-11
+
+Branch: `codex/dsm-deals-final-preprod`
+
+Commit: `5508feb`
+
+Live URL: `https://www.dsmdealshub.online`
+
+Production deployment URL: `https://dsm-deals-oy5nzra15-ccr-515s-projects.vercel.app`
+
+Production deployment ID: `dpl_HpxpKMpE55LF4jrqrmAmL7Xb1PVr`
+
+Changed files: `MVP_STATUS.md`, `README.md`, `app/config.py`, `app/main.py`, `app/migrations.py`, `app/models.py`, `app/schemas.py`, `docs/status/latest-handoff.md`, `docs/status/handoff-log.md`, `local-data/project-status.json`, `scripts/migrate.py`, `scripts/test_api.sh`, `tests/test_operations_truth.py`; removed tracked Python bytecode.
+
+What works: Secure admin-only writes, DB-backed public route families, reliable archive/search behavior, browser-cookie and header auth, rules-only intake, explicit additive migrations, verification/recheck/expiry states, admin Verify controls, and focused regression tests are live.
+
+What remains placeholder: Owner relationships, full venue enrichment, automated Maps enrichment, active last-minute inventory, individual admin accounts, and active GitHub CI.
+
+What is broken or risky: Core files remain oversized; freshness transitions should eventually become a scheduled job; GitHub CI activation needs a token with `workflow` scope.
+
+Current project status: Operations Truth release is live, GitHub-synchronized, and production-verified.
+
+Next recommended build: Monitor the first recheck cycle, activate CI, then modularize the stable behavior.
+
+Suggested dashboard update: DSM Deals Hub Operations Truth release is live with secure writes, one database publishing source, archive/search reliability, and deal freshness controls.
+
+Confidence score: 98
+
+Portfolio readiness: 5
+
+Money potential: 4
+
+Maintenance burden: 4
+
+Blocked status: false
+
+Blocker reason if any: None for production; CI activation needs OAuth workflow scope.
+
+Build/test verification: Python compile passed; 6 operations tests passed; public QA passed; preview checks passed; Vercel production build passed; live public routes returned 200; production docs returned 404; browser login cookie worked; admin header auth worked; legacy writes returned 401; schema/content checks passed; runtime error logs were clean. `npm run build` is not applicable because there is no `package.json`. Browser smoke check not verified.
