@@ -415,15 +415,6 @@
   },
   {
     "day": "Tuesday",
-    "venue": "Clyde’s Fine Diner",
-    "neighborhood": "East Village / Des Moines",
-    "time": "5 PM to 9 PM",
-    "title": "Burger, shot, and beer for $15",
-    "desc": "House burger, Evan Williams bourbon shot, and a PBR for $15.",
-    "category": "Food and drink special"
-  },
-  {
-    "day": "Tuesday",
     "venue": "The Lift",
     "neighborhood": "Downtown / Des Moines",
     "time": "5 PM to 2 AM",
@@ -622,15 +613,6 @@
   },
   {
     "day": "Wednesday",
-    "venue": "Clyde’s Fine Diner",
-    "neighborhood": "East Village / Des Moines",
-    "time": "5 PM to 9 PM",
-    "title": "Oyster night and half off wine",
-    "desc": "Oysters plus half off any bottle of wine under $100.",
-    "category": "Food and drink special"
-  },
-  {
-    "day": "Wednesday",
     "venue": "The Lift",
     "neighborhood": "Downtown / Des Moines",
     "time": "5 PM to 7 PM",
@@ -745,15 +727,6 @@
     "title": "Smashburger special",
     "desc": "Thursday smashburger special during karaoke night.",
     "category": "Food special"
-  },
-  {
-    "day": "Thursday",
-    "venue": "Clyde’s Fine Diner",
-    "neighborhood": "East Village / Des Moines",
-    "time": "5 PM to 9 PM",
-    "title": "Fiesta Thursday",
-    "desc": "Three course rotating menu with agua fresca for $38.",
-    "category": "Dinner special"
   },
   {
     "day": "Thursday",

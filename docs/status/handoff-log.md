@@ -762,3 +762,43 @@ Blocked status: false
 Blocker reason if any: None for production; CI activation needs OAuth workflow scope.
 
 Build/test verification: Python compile passed; 6 operations tests passed; public QA passed; preview checks passed; Vercel production build passed; live public routes returned 200; production docs returned 404; browser login cookie worked; admin header auth worked; legacy writes returned 401; schema/content checks passed; runtime error logs were clean. `npm run build` is not applicable because there is no `package.json`. Browser smoke check not verified.
+
+# 2026-07-15 - Closed Venue Removal
+
+Project name: DSM Deals Hub
+
+Phase: Content maintenance
+
+Task name: Remove closed venues from the deal pool
+
+Date: 2026-07-15
+
+Branch: `codex/dsm-deals-final-preprod`
+
+Changed files: `app/venue_directory.json`, `data/dsm_deals_hub_master_weekly_list.csv`, `data/dsm_deals_hub_master_weekly_list.json`, `docs/status/latest-handoff.md`, `docs/status/handoff-log.md`, `local-data/project-status.json`.
+
+What works: Clyde’s Fine Diner deal IDs 46, 68, and 82 were archived through the production admin API. Its fallback deal records and venue directory entry were removed without hard-deleting production history.
+
+What remains placeholder: No venue named Madeline Cafe or Madeleine Cafe exists in the current 84-venue production pool. A precise name, address, or deal title is needed to identify that requested removal.
+
+What is broken or risky: No production risk from the completed Clyde’s removal. The second requested venue remains unmatched rather than guessed.
+
+Current project status: Clyde’s removal is complete; Madeline Cafe is pending identification.
+
+Next recommended build: Deploy fallback cleanup and identify the Madeline Cafe record if it is stored under a different name.
+
+Suggested dashboard update: Closed-venue maintenance completed for Clyde’s Fine Diner; one unmatched venue reference needs clarification.
+
+Confidence score: 99
+
+Portfolio readiness: 5
+
+Money potential: 4
+
+Maintenance burden: 4
+
+Blocked status: false
+
+Blocker reason if any: The Madeline Cafe name is not in the current pool.
+
+Build/test verification: Fallback JSON validation passed, `python scripts/qa_public_site.py` passed with 154 weekly master deals, and `git diff --check` passed. `npm run build` is not applicable because there is no `package.json`. Browser smoke check not applicable for this data-only cleanup.
