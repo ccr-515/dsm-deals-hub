@@ -12,6 +12,10 @@ Date: 2026-07-15
 
 Branch: `codex/dsm-deals-final-preprod`
 
+Production deployment: `https://dsm-deals-am9sk0x44-ccr-515s-projects.vercel.app`
+
+Production deployment ID: `dpl_BiuwM3Kt4uwVgc6FYfUj7MPYefKf`
+
 Live URL: `https://www.dsmdealshub.online`
 
 Current project status: Clyde’s Fine Diner is removed from the live deal pool. Its three live deals were archived through the admin API, preserving their audit history, and its fallback records were removed. No venue matching Madeline Cafe was found in the current 84-venue production pool.
@@ -58,6 +62,9 @@ Current project status: Clyde’s Fine Diner is removed from the live deal pool.
 - Fallback JSON files parsed successfully.
 - `python scripts/qa_public_site.py` passed: 6 primary routes, 7 day routes, 22 neighborhood routes, 40 exported pages, and 154 weekly master records audited.
 - `git diff --check` passed.
+- Production deployment is READY and aliased to `https://www.dsmdealshub.online`.
+- Clyde’s is absent from the live homepage, Tuesday, Wednesday, Thursday, and East Village pages.
+- Production runtime error query returned no errors after the update.
 
 `npm run build` not applicable: this FastAPI project has no `package.json`.
 
@@ -86,7 +93,9 @@ Closed-venue maintenance completed for Clyde’s Fine Diner. One unmatched Madel
   "maintenance_burden": 4,
   "blocked_status": false,
   "blocker_reason": null,
-  "production_deployed": false,
+  "production_deployment_url": "https://dsm-deals-am9sk0x44-ccr-515s-projects.vercel.app",
+  "production_deployment_id": "dpl_BiuwM3Kt4uwVgc6FYfUj7MPYefKf",
+  "production_deployed": true,
   "llm_provider": "rules",
   "browser_smoke_check": "not applicable for data-only cleanup",
   "build_status": "Fallback JSON validation and public QA passed; npm run build is not applicable."

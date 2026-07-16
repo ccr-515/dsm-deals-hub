@@ -471,6 +471,10 @@ Date: 2026-06-16
 
 Branch: `codex/dsm-deals-final-preprod`
 
+Production deployment URL: `https://dsm-deals-am9sk0x44-ccr-515s-projects.vercel.app`
+
+Production deployment ID: `dpl_BiuwM3Kt4uwVgc6FYfUj7MPYefKf`
+
 Preview URL: `https://dsm-deals-dycaioe27-ccr-515s-projects.vercel.app`
 
 Deployment ID: `dpl_GwrjUzyasb4FDZuDbfmoB7YYTKjp`
@@ -801,4 +805,4 @@ Blocked status: false
 
 Blocker reason if any: The Madeline Cafe name is not in the current pool.
 
-Build/test verification: Fallback JSON validation passed, `python scripts/qa_public_site.py` passed with 154 weekly master deals, and `git diff --check` passed. `npm run build` is not applicable because there is no `package.json`. Browser smoke check not applicable for this data-only cleanup.
+Build/test verification: Fallback JSON validation passed, `python scripts/qa_public_site.py` passed with 154 weekly master deals, and `git diff --check` passed. Vercel production build passed; live archive records are archived; Clyde’s is absent from the homepage, Tuesday, Wednesday, Thursday, and East Village pages; production error logs were clean. `npm run build` is not applicable because there is no `package.json`. Browser smoke check not applicable for this data-only cleanup.
