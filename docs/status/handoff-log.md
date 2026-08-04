@@ -806,3 +806,84 @@ Blocked status: false
 Blocker reason if any: The Madeline Cafe name is not in the current pool.
 
 Build/test verification: Fallback JSON validation passed, `python scripts/qa_public_site.py` passed with 154 weekly master deals, and `git diff --check` passed. Vercel production build passed; live archive records are archived; Clyde’s is absent from the homepage, Tuesday, Wednesday, Thursday, and East Village pages; production error logs were clean. `npm run build` is not applicable because there is no `package.json`. Browser smoke check not applicable for this data-only cleanup.
+
+# 2026-07-30 - Venue Closure Audit
+
+Project name: DSM Deals Hub
+
+Phase: Content maintenance
+
+Task name: Audit the current venue pool for permanent closures
+
+Date: 2026-07-30
+
+Branch: `codex/dsm-deals-final-preprod`
+
+Changed files: `docs/status/latest-handoff.md`, `docs/status/handoff-log.md`, `local-data/project-status.json`.
+
+What works: Google Maps status payloads were checked for all 82 fallback-directory venues plus Abelardo’s and Mariscos El Capitan, which are live-only records. Public QA passed after the audit.
+
+What remains placeholder: Louie’s Wine Dive, The Beerhouse, and The Tavern Grill need a human confirmation before archival. The first two have conflicting current-source evidence.
+
+What is broken or risky: No live changes were made. Archiving from Maps alone would be too aggressive where an official venue website still advertises current hours.
+
+Current project status: One high-confidence closure candidate and two conflicting-evidence review candidates are queued.
+
+Next recommended build: Confirm candidates, then archive only confirmed live deals through the existing audit trail.
+
+Suggested dashboard update: Venue closure audit completed; action is waiting on human confirmation for three candidates.
+
+Confidence score: 93
+
+Portfolio readiness: 5
+
+Money potential: 4
+
+Maintenance burden: 4
+
+Blocked status: false
+
+Blocker reason if any: None; human confirmation is recommended before changing live records.
+
+Build/test verification: Google Maps closure audit completed for 84 records and `python scripts/qa_public_site.py` passed with 154 weekly master deals. `npm run build` is not applicable because there is no `package.json`. Browser smoke check not performed.
+# 2026-08-04 - Tuesday Deal Refresh and Admin Audit Coverage
+
+Project name: DSM Deals Hub
+
+Phase: Live content maintenance
+
+Task name: Add vetted Monday/Tuesday specials and preserve audit records for direct admin writes
+
+Date: 2026-08-04
+
+Branch: `codex/dsm-deals-final-preprod`
+
+Production deployment: `https://dsm-deals-7sar7mz0g-ccr-515s-projects.vercel.app` (`dpl_7YYv1wswLdtCNE3QgzUinZX4qHCz`)
+
+Changed files: `app/main.py`, `tests/test_operations_truth.py`, `docs/status/latest-handoff.md`, `docs/status/handoff-log.md`, `local-data/project-status.json`.
+
+What works: Added and approved 11 concrete Monday/Tuesday specials, created eight missing local venue records, and updated Pelican Post's existing Tuesday special in place. Direct admin venue/deal creation, moderation, JSON updates, archiving, and expiry now create `deal_change_log` entries.
+
+What remains placeholder: Location-unspecified chain promotions and out-of-market venues were not added. The existing closure-review queue still needs human confirmation.
+
+What is broken or risky: Older weekly records without time values need time normalization before an API update; `app/main.py` remains a large maintenance surface.
+
+Current project status: The Tuesday content refresh and audited write coverage are live.
+
+Next recommended build: Reverify these weekly specials during the standard freshness window and resolve the outstanding closure candidates.
+
+Suggested dashboard update: Tuesday content refresh live with 11 verified specials and auditable direct admin writes.
+
+Confidence score: 97
+
+Portfolio readiness: 5
+
+Money potential: 4
+
+Maintenance burden: 4
+
+Blocked status: false
+
+Blocker reason if any: None.
+
+Build/test verification: `python -m unittest discover -s tests -v` passed (6 tests); `python scripts/qa_public_site.py` passed; production public routes returned 200; production admin API verified all new records; Vercel deployment is READY; runtime logs showed no server exceptions. `npm run build` is not applicable because there is no `package.json`. Browser smoke check not verified.

@@ -4677,6 +4677,15 @@ def create_venue(v: schemas.VenueCreate, db: Session = Depends(get_db)):
         slug=ensure_unique_venue_slug(db, v.slug),
     )
     db.add(venue)
+    db.flush()
+    log_deal_change(
+        db,
+        "admin_create_venue",
+        None,
+        venue.id,
+        None,
+        f"Created venue: {venue.name}. {venue.address}",
+    )
     db.commit()
     db.refresh(venue)
     return venue
@@ -4828,6 +4837,8 @@ def create_weekly_deal(d: schemas.WeeklyDealCreate, db: Session = Depends(get_db
         status=models.Status.queued,
     )
     db.add(deal)
+    db.flush()
+    log_deal_change(db, "admin_create_weekly_deal", deal, deal.venue_id, None, deal.source_text)
     db.commit()
     db.refresh(deal)
     return deal
@@ -4858,6 +4869,8 @@ def create_last_minute(d: schemas.LastMinuteDealCreate, db: Session = Depends(ge
         status=models.Status.queued,
     )
     db.add(deal)
+    db.flush()
+    log_deal_change(db, "admin_create_last_minute_deal", deal, deal.venue_id, None, deal.source_text)
     db.commit()
     db.refresh(deal)
     return deal
@@ -4871,12 +4884,21 @@ def approve_deal(
     _admin=Depends(require_admin),
 ):
     deal = get_deal_or_404(db, deal_id)
+    before = deal_snapshot(deal)
     deal.status = models.Status.live if body.approve else models.Status.rejected
     if body.approve:
         deal.verification_status = "verified"
         deal.last_verified_at = datetime.utcnow()
     normalize_live_status_for_time(deal)
     deal.updated_at = datetime.utcnow()
+    log_deal_change(
+        db,
+        "admin_approve_deal" if body.approve else "admin_reject_deal",
+        deal,
+        deal.venue_id,
+        before,
+        deal.source_text,
+    )
     db.commit()
     return {"ok": True, "status": deal.status.value}
 
@@ -5006,7 +5028,9 @@ def admin_list_deals(
 @app.patch("/admin/deals/{deal_id}.json", response_model=schemas.AdminDealOut, dependencies=[Depends(require_admin)])
 def admin_update_deal(deal_id: int, payload: schemas.DealUpdate, db: Session = Depends(get_db)):
     deal = get_deal_or_404(db, deal_id)
+    before = deal_snapshot(deal)
     apply_deal_update(db, deal, payload)
+    log_deal_change(db, "admin_update_deal_api", deal, deal.venue_id, before, deal.source_text)
     db.commit()
     return get_deal_with_venue_or_404(db, deal_id)
 
@@ -5014,8 +5038,10 @@ def admin_update_deal(deal_id: int, payload: schemas.DealUpdate, db: Session = D
 @app.post("/admin/deals/{deal_id}/archive.json", response_model=schemas.AdminDealOut, dependencies=[Depends(require_admin)])
 def admin_archive_deal(deal_id: int, db: Session = Depends(get_db)):
     deal = get_deal_or_404(db, deal_id)
+    before = deal_snapshot(deal)
     deal.status = models.Status.archived
     deal.updated_at = datetime.utcnow()
+    log_deal_change(db, "admin_archive_deal_api", deal, deal.venue_id, before, deal.source_text)
     db.commit()
     return get_deal_with_venue_or_404(db, deal_id)
 
@@ -5023,8 +5049,10 @@ def admin_archive_deal(deal_id: int, db: Session = Depends(get_db)):
 @app.post("/admin/deals/{deal_id}/expire.json", response_model=schemas.AdminDealOut, dependencies=[Depends(require_admin)])
 def admin_expire_deal(deal_id: int, db: Session = Depends(get_db)):
     deal = get_deal_or_404(db, deal_id)
+    before = deal_snapshot(deal)
     deal.status = models.Status.expired
     deal.updated_at = datetime.utcnow()
+    log_deal_change(db, "admin_expire_deal_api", deal, deal.venue_id, before, deal.source_text)
     db.commit()
     return get_deal_with_venue_or_404(db, deal_id)
 

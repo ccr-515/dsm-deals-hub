@@ -1,103 +1,109 @@
-# 2026-07-15 - Closed Venue Removal
+# 2026-08-04 - Tuesday Deal Refresh and Admin Audit Coverage
 
 ## Human Summary
 
 Project name: DSM Deals Hub
 
-Phase: Content maintenance
+Phase: Live content maintenance
 
-Task name: Remove closed venues from the deal pool
+Task name: Add vetted Monday/Tuesday specials and preserve an audit trail for direct admin writes
 
-Date: 2026-07-15
+Date: 2026-08-04
 
 Branch: `codex/dsm-deals-final-preprod`
 
-Production deployment: `https://dsm-deals-am9sk0x44-ccr-515s-projects.vercel.app`
+Production deployment: `https://dsm-deals-7sar7mz0g-ccr-515s-projects.vercel.app`
 
-Production deployment ID: `dpl_BiuwM3Kt4uwVgc6FYfUj7MPYefKf`
+Production deployment ID: `dpl_7YYv1wswLdtCNE3QgzUinZX4qHCz`
 
 Live URL: `https://www.dsmdealshub.online`
 
-Current project status: Clyde’s Fine Diner is removed from the live deal pool. Its three live deals were archived through the admin API, preserving their audit history, and its fallback records were removed. No venue matching Madeline Cafe was found in the current 84-venue production pool.
+Current project status: The live deal pool includes the vetted Monday/Tuesday refresh. Direct admin API creation, approval, updating, expiration, archiving, and venue creation now create audit records.
 
 ## Changed Files
 
-- `MVP_STATUS.md`
-- `README.md`
-- `app/config.py`
 - `app/main.py`
-- `app/migrations.py`
-- `app/models.py`
-- `app/schemas.py`
-- `app/venue_directory.json`
-- `data/dsm_deals_hub_master_weekly_list.csv`
-- `data/dsm_deals_hub_master_weekly_list.json`
+- `tests/test_operations_truth.py`
 - `docs/status/latest-handoff.md`
 - `docs/status/handoff-log.md`
 - `local-data/project-status.json`
-- `scripts/migrate.py`
-- `scripts/test_api.sh`
-- `tests/test_operations_truth.py`
-- Removed tracked `scripts/__pycache__/seed_curated_content.cpython-313.pyc`
+
+The live database was updated through authenticated admin endpoints. No deals or venues were hard-deleted.
 
 ## What Works
 
-- Clyde’s Fine Diner deal IDs 46, 68, and 82 are archived in production.
-- Clyde’s no longer appears in the weekly master fallback CSV/JSON or runtime venue directory.
-- The public site continues to use archived-state filtering, preserving the original deal and change-log history without hard deletion.
-- No current production venue is named Madeline Cafe, Madeleine Cafe, or a close matching variant.
+- Added and approved 11 concrete weekly specials: Fresh Thyme, The Empire, Flamingo Lounge, Desi Bites, The False Nine Social Club, Fleming's, Waveland Cafe, Guesthouse Tavern & Oyster, Smoking Goat Pub, Jethro's, and Machine Shed.
+- Added eight venue records with supplied local addresses where the venue did not already exist.
+- Corrected Pelican Post's existing Tuesday smashburger special from $10 to $12 rather than creating a duplicate.
+- Existing exact entries from the source list were preserved without duplication.
+- Direct admin write endpoints now write `deal_change_log` entries before commit, including queued creation and subsequent approval.
+- Public routes, admin data reads, and the production Vercel build are healthy.
 
 ## What Remains Placeholder
 
-- The user’s Madeline Cafe reference does not map to an existing venue record, so no second venue was changed.
+- Source items without a concrete local location or offer detail were intentionally not added: chain-wide Taco Tuesday references, Red Robin, Hy-Vee, Johnny's Italian Steakhouse, and Fresh Thyme's unspecified Tuesday rotisserie chickens.
+- Talk Shop Lounge, Crouse Cafe, and Sale Barn Cafe were excluded because they are outside the DSM service area.
+- The prior closure-review queue for Louie's Wine Dive, The Beerhouse, and The Tavern Grill still needs human confirmation.
 
 ## What Is Broken Or Risky
 
-- No production risk from the Clyde’s removal. The Madeline Cafe removal is pending a precise venue name, address, or current deal title because it is absent from the pool.
-- Browser smoke check was not performed through a visual browser; preview HTTP, content, auth, schema, and runtime-log checks passed.
+- Some older weekly records have no stored time range. Their legacy data remains readable, but API edits require explicit weekly start and end times; the Pelican update normalized this record to `00:00` through `23:59`.
+- The core FastAPI module remains large, which increases maintenance cost.
 
 ## Verification
 
-- Production archive API returned 200 for all three Clyde’s deals.
-- Fallback JSON files parsed successfully.
-- `python scripts/qa_public_site.py` passed: 6 primary routes, 7 day routes, 22 neighborhood routes, 40 exported pages, and 154 weekly master records audited.
+- `python -m unittest discover -s tests -v` passed: 6 tests, including audit-log assertions for direct create, approve, and archive actions.
+- `python scripts/qa_public_site.py` passed: 6 primary routes, 7 day routes, 22 neighborhood routes, 40 exported pages, and 154 weekly-master records audited.
+- Production routes `/`, `/today`, `/days`, `/days/tuesday`, `/neighborhoods`, and `/for-venues` returned 200.
+- Authenticated production admin data verification confirmed live deal IDs 159 through 169 and updated Pelican Post deal ID 57.
+- Vercel deployment `dpl_7YYv1wswLdtCNE3QgzUinZX4qHCz` is `READY`; inspected runtime requests completed without server exceptions.
 - `git diff --check` passed.
-- Production deployment is READY and aliased to `https://www.dsmdealshub.online`.
-- Clyde’s is absent from the live homepage, Tuesday, Wednesday, Thursday, and East Village pages.
-- Production runtime error query returned no errors after the update.
 
 `npm run build` not applicable: this FastAPI project has no `package.json`.
 
+Browser smoke check not verified; route and API verification were performed with authenticated HTTP requests.
+
 ## Next Recommended Build
 
-Deploy the fallback cleanup and provide the exact Madeline Cafe venue identity if it appears under another name.
+Continue using the admin intake/review flow for new source lists, and schedule a follow-up verification pass for the newly added weekly offers before the standard freshness window elapses.
 
 ## Suggested Dashboard Update
 
-Closed-venue maintenance completed for Clyde’s Fine Diner. One unmatched Madeline Cafe reference remains pending identification.
+Tuesday content refresh is live with audited admin writes and 11 new verified specials; venue closure confirmations remain the only content-maintenance queue.
 
 ## Machine Readable
 
 ```json
 {
   "project_name": "DSM Deals Hub",
-  "phase": "Content maintenance",
-  "task_name": "Remove closed venues from the deal pool",
-  "date": "2026-07-15",
+  "phase": "Live content maintenance",
+  "task_name": "Add vetted Monday/Tuesday specials and preserve an audit trail for direct admin writes",
+  "date": "2026-08-04",
   "branch": "codex/dsm-deals-final-preprod",
   "live_url": "https://www.dsmdealshub.online",
-  "current_project_status": "Clyde’s Fine Diner removed; Madeline Cafe is not present under that name in production.",
-  "confidence_score": 99,
+  "production_deployment_url": "https://dsm-deals-7sar7mz0g-ccr-515s-projects.vercel.app",
+  "production_deployment_id": "dpl_7YYv1wswLdtCNE3QgzUinZX4qHCz",
+  "production_deployed": true,
+  "current_project_status": "Tuesday refresh is live and direct admin writes are audit logged.",
+  "changed_files": ["app/main.py", "tests/test_operations_truth.py", "docs/status/latest-handoff.md", "docs/status/handoff-log.md", "local-data/project-status.json"],
+  "what_works": ["11 new weekly specials are live", "eight missing local venues were created", "Pelican Post was updated in place", "direct admin writes now create audit records"],
+  "placeholders": ["ambiguous chain-wide and out-of-market source items were not added", "closure review candidates need human confirmation"],
+  "risks": ["older weekly records may need time normalization before API edits", "app/main.py remains oversized"],
+  "next_recommended_build": "Verify new weekly offers before their freshness window expires.",
+  "dashboard_update": "Tuesday content refresh live; closure confirmation queue remains.",
+  "confidence_score": 97,
   "portfolio_readiness": 5,
   "money_potential": 4,
   "maintenance_burden": 4,
   "blocked_status": false,
   "blocker_reason": null,
-  "production_deployment_url": "https://dsm-deals-am9sk0x44-ccr-515s-projects.vercel.app",
-  "production_deployment_id": "dpl_BiuwM3Kt4uwVgc6FYfUj7MPYefKf",
-  "production_deployed": true,
-  "llm_provider": "rules",
-  "browser_smoke_check": "not applicable for data-only cleanup",
-  "build_status": "Fallback JSON validation and public QA passed; npm run build is not applicable."
+  "verification": {
+    "operations_tests": "passed (6)",
+    "public_qa": "passed",
+    "production_route_checks": "passed",
+    "vercel_build": "READY",
+    "runtime_server_exceptions": "none observed",
+    "browser_smoke_check": "not verified"
+  }
 }
 ```

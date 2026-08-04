@@ -139,6 +139,16 @@ class OperationsTruthTests(unittest.TestCase):
         )
         self.assertEqual(approve.status_code, 200, approve.text)
 
+        with SessionLocal() as db:
+            audit_actions = {
+                entry.action
+                for entry in db.query(models.DealChangeLog)
+                .filter(models.DealChangeLog.deal_id == deal.json()["id"])
+                .all()
+            }
+            self.assertIn("admin_create_weekly_deal", audit_actions)
+            self.assertIn("admin_approve_deal", audit_actions)
+
         self.assertIn(title, self.client.get("/").text)
         self.assertIn(title, self.client.get("/today").text)
         self.assertEqual(self.client.get("/days").status_code, 200)
@@ -166,6 +176,15 @@ class OperationsTruthTests(unittest.TestCase):
             follow_redirects=False,
         )
         self.assertEqual(archive.status_code, 303)
+        with SessionLocal() as db:
+            self.assertTrue(
+                db.query(models.DealChangeLog)
+                .filter(
+                    models.DealChangeLog.deal_id == deal.json()["id"],
+                    models.DealChangeLog.action == "admin_archive_deal",
+                )
+                .first()
+            )
         self.assertNotIn(title, self.client.get("/").text)
         self.assertNotIn(title, self.client.get("/today").text)
         self.assertNotIn(title, self.client.get(f"/days/{day_slug}").text)
