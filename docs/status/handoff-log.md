@@ -887,3 +887,44 @@ Blocked status: false
 Blocker reason if any: None.
 
 Build/test verification: `python -m unittest discover -s tests -v` passed (6 tests); `python scripts/qa_public_site.py` passed; production public routes returned 200; production admin API verified all new records; Vercel deployment is READY; runtime logs showed no server exceptions. `npm run build` is not applicable because there is no `package.json`. Browser smoke check not verified.
+# 2026-08-04 - Closed Venue Archive Follow-up
+
+Project name: DSM Deals Hub
+
+Phase: Live content maintenance
+
+Task name: Archive deals for venues confirmed closed by Google Maps
+
+Date: 2026-08-04
+
+Branch: `codex/dsm-deals-final-preprod`
+
+Production deployment: `https://dsm-deals-7sar7mz0g-ccr-515s-projects.vercel.app` (`dpl_7YYv1wswLdtCNE3QgzUinZX4qHCz`)
+
+Changed files: `docs/status/latest-handoff.md`, `docs/status/handoff-log.md`, `local-data/project-status.json`; production deal statuses changed through authenticated admin endpoints.
+
+What works: Louie's Wine Dive (deal 141), The Beerhouse (deal 121), and The Tavern Grill (deal 120) are archived. They no longer render on public listing routes, while their venue/deal history remains stored.
+
+What remains placeholder: The prior source-list exclusions for ambiguous or out-of-market offers remain intentionally unlisted.
+
+What is broken or risky: Older weekly records without times require normalization before API edits. No active closure-review candidate remains from the prior audit.
+
+Current project status: The closed venue cleanup is complete and live.
+
+Next recommended build: Run recurring closure checks and reverify recently added weekly specials.
+
+Suggested dashboard update: Three Google Maps-closed venues archived from public listings; no known candidate remains.
+
+Confidence score: 99
+
+Portfolio readiness: 5
+
+Money potential: 4
+
+Maintenance burden: 4
+
+Blocked status: false
+
+Blocker reason if any: None.
+
+Build/test verification: `python scripts/qa_public_site.py` passed; production routes returned 200 and did not contain the three archived venue names; authenticated admin API confirmed all three statuses are `archived`; Vercel runtime logs showed successful archive and public-route requests without server exceptions. `npm run build` is not applicable because there is no `package.json`. Browser smoke check not verified.
